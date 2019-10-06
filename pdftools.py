@@ -35,6 +35,18 @@ today = datetime.datetime.now()
 needed_comp_rounds = 2
 pdftk = True  # will be set to false if not found
 
+
+def trimArrayToStr(timarr):
+    #trim_str = "{"
+    trim_str = ""
+    trim_str += f"{timarr[0]:.2}" + "\\pdfwidth{} " 
+    trim_str += f"{timarr[1]:.2}" + "\\pdfheight{} " 
+    trim_str += f"{timarr[2]:.2}" + "\\pdfwidth{} " 
+    trim_str += f"{timarr[3]:.2}" + "\\pdfheight{} " 
+    #trim_str += "}"
+    trim_str = re.sub(r"1.0\\pdf(width|height){}", "0.0", trim_str)
+    return trim_str
+
 # Return 'pdf' if it's a pdf file, 'img' if it's an image file, or 'unknown' if it is not recognized
 def getFileType(filepath):
     curr_ext = os.path.splitext(filepath)[1]
@@ -264,9 +276,6 @@ def run(args):
     args.offset[1] = args.offset[1].replace(r'_',r'-')
     args.delta[0] = args.delta[0].replace(r'_',r'-')
     args.delta[1] = args.delta[1].replace(r'_',r'-')
-    
-    # -Reverse trim is used with "split pages". args.trim contains the left page, reverse_trim contains the right page
-    reverse_trim = [ args.trim[2] , args.trim[3] , args.trim[0] , args.trim[1] ]
         
     # -Get size of the first page of the input pdf. Define \pdfwidth and \pdfheight
     pre_include_pdf += "%Get dimensions of pdf page" \
@@ -439,13 +448,17 @@ def run(args):
         
         # Add include_pdf_str to latex_script
         inc_pdf_temp = Template(include_pdf_str)
-        inc_pdf_fin1 = inc_pdf_temp.safe_substitute(trimarray=arrayToString(args.trim, "{", "}"),pages=args.pages)
+        # \includegraphics[trim=left bottom right top, clip]{file}
+    
+        args.trim = [float(x) for x in args.trim]
+        inc_pdf_fin1 = inc_pdf_temp.safe_substitute(trimarray=trimArrayToStr(args.trim), pages=args.pages)
         latex_script += inc_pdf_fin1
         
         # Split pages
         if(args.split_pages):
-            inc_pdf_fin2 = inc_pdf_temp.safe_substitute(trimarray=arrayToString(reverse_trim,"{", "}"),pages=args.pages)
-            latex_script += inc_pdf_fin2
+            # -Reverse trim is used with "split pages". args.trim contains the left page, reverse_trim contains the right page
+            reverse_trim = [ 1-args.trim[2] , 1-args.trim[3] , 1-args.trim[0] , 1-args.trim[1] ]
+            latex_script += inc_pdf_temp.safe_substitute(trimarray=trimArrayToStr(reverse_trim), pages=args.pages)
         
         latex_script += post_include_pdf
     
