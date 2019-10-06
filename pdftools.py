@@ -184,47 +184,56 @@ def run(args):
     # 1. Check PDF input files
     input_pdf_files = []
     input_img_files = []
-    for i in range(len(args.input)):
-        # -Process directory, walk through every file in it-
-        if(os.path.isdir(args.input[i])): 
-            for root, dirs, files in os.walk(args.input[i]):
-                if args.natural_sorting:
-                    print("Using natural sorting algorithm...")
-                    files.sort(key=natural_keys)
+
+    # -Process directory, walk through every file in it-
+    for indir in args.input_dirs:
+        if not os.path.isdir(indir): 
+            exit_with_code(f"ERROR: {indir} is not a directory ", 1)
+        for root, dirs, files in os.walk(indir):
+            if args.natural_sorting:
+                print("Using natural sorting algorithm...")
+                files.sort(key=natural_keys)
+            else:
+                files.sort()
+            for file in files:
+                filefp = os.path.join(root, file)
+                filefp = os.path.abspath(filefp)
+                type = getFileType(filefp)
+                # Add pdf file
+                if type=='pdf':
+                    input_pdf_files.append( filefp ) 
+                    if args.verbose == True:
+                        print("Adding PDF file from directory: \"" + filefp + "\"")							
+                # Add image file	
+                elif type=='img':
+                    input_img_files.append( filefp ) 
+                    if(args.verbose):
+                        print("Adding image file from directory: \"" + filefp + "\"")			
                 else:
-                    files.sort()
-                for currfile in files:
-                    type = getFileType(args.input[i])
-                    # Add pdf file
-                    if type=='pdf':
-                        input_pdf_files.append( os.path.abspath(os.path.join(root,currfile)) ) 
-                        if args.verbose == True:
-                            print("Adding PDF file from directory: \"" + currfile + "\"")							
-                    # Add image file	
-                    elif type=='img':
-                        input_img_files.append( os.path.abspath(os.path.join(root,currfile)) ) 
-                        if(args.verbose):
-                            print("Adding image file from directory: \"" + currfile + "\"")			
-                    else:
-                        exit_with_code("ERROR: unrecognized file type for "+args.input[i])			
+                    exit_with_code("ERROR: unrecognized file type for " + filefp, 1)			
                         
         # -Process file-
-        elif ( os.path.isfile(args.input[i]) ):
-            type = getFileType(args.input[i])
-            if(type=='pdf'):
-                if(args.repair): #repair the file
-                    args.input[i] = repairPdfFile(args.input[i])
-                input_pdf_files.append( os.path.abspath(args.input[i]) )
+        for infile in args.input_files:
+            if not os.path.isfile(infile):
+                exit_with_code(f"ERROR: Input file {infile} doesn't exist.", 1)            
+            
+            type = getFileType(infile)
+            if type=='pdf' and args.repair:
+                infile = repairPdfFile(infile)
+            
+            infileabs = os.path.abspath(infile)
+            
+            if type=='pdf':        
+                input_pdf_files.append( infileabs )
                 if args.verbose == True:
-                            print("Adding PDF file: \"" + args.input[i] + "\"")
+                            print(f"Adding PDF file: '{infile}'")
             elif type=='img':
-                input_img_files.append( os.path.abspath(args.input[i]) )
+                input_img_files.append( infileabs )
                 if args.verbose == True:
-                    print("Adding image file: \"" + args.input[i] + "\"")
+                    print(f"Adding image file: '{infile}'")
             else:
-                exit_with_code("ERROR: unrecognized extension for "+args.input[i])
-        else:
-            exit_with_code("FATAL ERROR: Input file \"" + args.input[i] + "\" doesn't exist.", 1)
+                exit_with_code("ERROR: unrecognized extension for "+args.input_files[i])
+                
     
     # 2. Check output file
     # If no output file was specified, append "args.out_suffix" to the first input file name
@@ -319,12 +328,10 @@ def run(args):
     # File loop
     for filenum in range(len(input_pdf_files)):
         
-        file_basename = os.path.basename(input_pdf_files[filenum])
-        # Define file name (to be used with \includepdfpages)
-        latex_script += "{\\catcode`\\,=11 \\gdef\\file"+str(filenum)+"{"+linuxize(input_pdf_files[filenum])+"}}\n"
+        file_basename = os.path.basename(input_pdf_files[filenum])     
                 
         # Create a fancy pagestyle for each input files
-        latex_script += "\\fancypagestyle{file_""" + str(filenum) + "}"
+        latex_script += "\\fancypagestyle{file""" + str(filenum) + "}"
         latex_script += "{\n\t\\fancyhf{} % Start with clearing everything in the header and footer"
         latex_script += "\n\t\\renewcommand{\\headrulewidth}{0pt}% No header rule"
         latex_script += "\n\t\\renewcommand{\\footrulewidth}{0pt}% No footer rule\n\t"
@@ -356,14 +363,12 @@ def run(args):
         "\n\\end{figure}"
         
     # Insert input PDF files in latex script
-    for filenum in range(len(input_pdf_files)):
-        f = input_pdf_files[filenum]
+    for filenum, f in enumerate(input_pdf_files):
+
         latex_pdf_filename_detokenize = r"\detokenize{"+linuxize(f)+"}"
         
-        pagestyle = "file_"+str(filenum)
+        pagestyle = "file"+str(filenum)
         
-        latex_pdf_filename = r"\file"+str(filenum)+""
-
         # Page numbers are needed on some pre include scripts (e.g. white pages)
         latex_script += "%Get the number of pdf pages"\
         "\n\t\\pdfximage{"""+latex_pdf_filename_detokenize+"}"\
@@ -371,7 +376,7 @@ def run(args):
 
         # Pre-include script (e.g. insert a white page after every logical page). 
         # Substitute latex_pdf_filename variable
-        latex_script += pre_include_pdf.replace(r"latex_pdf_filename",latex_pdf_filename_detokenize)
+        latex_script += pre_include_pdf.replace(r"latex_pdf_filename", latex_pdf_filename_detokenize)
         
         # Include the pdf
         include_pdf_str = "%Importing the pdf \n \t"
@@ -395,18 +400,18 @@ def run(args):
             include_pdf_str += ",width="+str(args.width[0])+r"\paperwidth"
         if (args.height != 0):
             include_pdf_str += ",height="+str(args.height[0])+r"\paperheight"
-        include_pdf_str += r",pagecommand=\thispagestyle{"+pagestyle+"}"
+        include_pdf_str += r",pagecommand=\thispagestyle{" + pagestyle + "}"
         
         # Boolean parameters for pdfpages package
         for boolpar in args.booleans:
-            include_pdf_str += r","+boolpar
+            include_pdf_str += r"," + boolpar
         
         # Custom arguments for pdfpages package
         if args.custom != None and args.custom != "":
             include_pdf_str += r"," + args.custom
         
         # Finalize with input filename
-        include_pdf_str += r"]{"+latex_pdf_filename+"} \n\t"; 
+        include_pdf_str += "]{" + latex_pdf_filename_detokenize + "} \n\t"; 
         # DO NOT PUT SPACES IN FILENAMES. THE FILENAME IS GET AS IT, VERY LITERALLY
         
         # Swap pages
@@ -521,7 +526,14 @@ def main(cmdargs):
     # Get command line options
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     
-    parser.add_argument('-i', '--input', action='append', required=False, help=u'Input pdf file. Use this flag again to merge multiple pdf files into one. You can also pass a directory, in which case all pdf files inside it are merged togheter, sorted in alphabetical filename order.')
+    parser.add_argument('-if', '--input-file', action='append', default=[], 
+    dest='input_files', required=False, help=u'Input pdf file. '\
+    'Use this flag again to merge multiple pdf files into one. ' )
+    
+    parser.add_argument('-id', '--input-dir', action='append', default=[], 
+    dest='input_dirs', required=False, help=u'Input a directory. ' 
+    'all pdf files inside it are merged togheter, sorted in alphabetical filename order. ' )
+
     
     # A mutually exclusive group to specify the output file name OR a suffix to append to the first input file name
     output_group = parser.add_mutually_exclusive_group()
