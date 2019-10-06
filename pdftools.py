@@ -197,42 +197,30 @@ def run(args):
                 files.sort()
             for file in files:
                 filefp = os.path.join(root, file)
-                filefp = os.path.abspath(filefp)
-                type = getFileType(filefp)
-                # Add pdf file
-                if type=='pdf':
-                    input_pdf_files.append( filefp ) 
-                    if args.verbose == True:
-                        print("Adding PDF file from directory: \"" + filefp + "\"")							
-                # Add image file	
-                elif type=='img':
-                    input_img_files.append( filefp ) 
-                    if(args.verbose):
-                        print("Adding image file from directory: \"" + filefp + "\"")			
-                else:
-                    exit_with_code("ERROR: unrecognized file type for " + filefp, 1)			
+                args.input_files.append(filefp)
+			
                         
-        # -Process file-
-        for infile in args.input_files:
-            if not os.path.isfile(infile):
-                exit_with_code(f"ERROR: Input file {infile} doesn't exist.", 1)            
-            
-            type = getFileType(infile)
-            if type=='pdf' and args.repair:
-                infile = repairPdfFile(infile)
-            
-            infileabs = os.path.abspath(infile)
-            
-            if type=='pdf':        
-                input_pdf_files.append( infileabs )
-                if args.verbose == True:
-                            print(f"Adding PDF file: '{infile}'")
-            elif type=='img':
-                input_img_files.append( infileabs )
-                if args.verbose == True:
-                    print(f"Adding image file: '{infile}'")
-            else:
-                exit_with_code("ERROR: unrecognized extension for "+args.input_files[i])
+    # -Process files-
+    for infile in args.input_files:
+        if not os.path.isfile(infile):
+            exit_with_code(f"ERROR: Input file {infile} doesn't exist.", 1)            
+        
+        type = getFileType(infile)
+        if type=='pdf' and args.repair:
+            infile = repairPdfFile(infile)
+        
+        infileabs = os.path.abspath(infile)
+        
+        if type=='pdf':        
+            input_pdf_files.append( infileabs )
+            if args.verbose == True:
+                print(f"Adding PDF file: '{infile}'")
+        elif type=='img':
+            input_img_files.append( infileabs )
+            if args.verbose == True:
+                print(f"Adding image file: '{infile}'")
+        else:
+            exit_with_code("ERROR: unrecognized extension for "+args.input_files[i])
                 
     
     # 2. Check output file
@@ -478,8 +466,11 @@ def run(args):
                 print("Compilation round: " + str(i+1) + "/" + str(needed_comp_rounds))
             # Python 3.3 and higher support subprocess.DEVNULL to suppress output. 
             # See (http://stackoverflow.com/questions/699325/suppress-output-in-python-calls-to-executables)
-            latex_return = subprocess.call( ["pdflatex","--interaction=batchmode",""+latex_file_name] , stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            if latex_return != 0 or os.path.getsize('latex_file.pdf')==0:
+            latex_return = subprocess.call( ["pdflatex","--interaction=batchmode",latex_file_name], 
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if latex_return != 0 or \
+               not os.path.isfile('latex_file.pdf') or \
+               os.path.getsize('latex_file.pdf')==0:
                 if args.debug:
                     # We are currently into the temporary folder
                     zip_file = zipfile.ZipFile('report.zip', 'w')
