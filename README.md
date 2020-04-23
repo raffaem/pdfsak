@@ -33,7 +33,7 @@ Here are few examples of what pdftools can do:
 
 		pdftools --input-file input.pdf --output left.pdf --split-pages --trim 0 0 0.5 0
 		
-* Put page numbers at the bottom left corner of pages
+* Insert page numbers at the bottom right corner of every input page
 
 		pdftools --input-file input.pdf --output output.pdf --text "$page/$pages" 0.93 0.95 --overwrite
 
