@@ -1,0 +1,1 @@
+pdftools --input-dir ./pdfs/ --output ./out/merge_dir.pdf

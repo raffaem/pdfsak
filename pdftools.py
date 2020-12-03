@@ -332,9 +332,9 @@ def run(args):
         latex_script += "{\n\t\\fancyhf{} % Start with clearing everything in the header and footer"
         latex_script += "\n\t\\renewcommand{\\headrulewidth}{0pt}% No header rule"
         latex_script += "\n\t\\renewcommand{\\footrulewidth}{0pt}% No footer rule\n\t"
+        
         # Process add text
-        for text in args.text:
-            
+        for text in args.text:    
             text_proc = Template(text[0]).substitute(day=today.day, month=today.month, year=today.year, page=r'\thepage', pages=r'\pageref{LastPage}', filename=file_basename)
             text_proc = text_proc.replace(r' ',r'~') #otherwise spaces will get ignored
             text_proc = text_proc.replace(r'_',r'\_') #otherwise error occurs
@@ -344,9 +344,13 @@ def run(args):
             if 'landscape' in args.booleans:
                 text[1], text[2] = text[2], text[1] #swap them
                 text_proc = "\\rotatebox{90}{"+text_proc+"}"
+            # Use textpos package: https://ctan.mirror.garr.it/mirrors/ctan/macros/latex/contrib/textpos/textpos.pdf
             # textblock wants the position of the upper left corner of the text box. 
             # Starred version requires positions expressed as length (not relative to TPHorizModule)
-            latex_script += "\\begin{textblock*}{\\paperwidth}("+str(text[1])+"\\paperwidth, "+str(text[2])+"\\paperheight)\n\t\t\\raggedright "+text_proc+"\n\t\\end{textblock*}\n\t"
+            latex_script += "\\begin{textblock*}{\\paperwidth}("+str(text[1])+"\\paperwidth, "+str(text[2])+"\\paperheight)\n"
+            latex_script += "\t\t\\raggedright "+text_proc+"\n"
+            latex_script += "\t\\end{textblock*}\n\t"
+        
         latex_script += "} %end of fancypagestyle\n"
     
     latex_script += "\\begin{document}\n\t";
@@ -574,7 +578,12 @@ def main(cmdargs):
         'E.g.: "--pages 3,{},8-11,15" will insert page 3, an empty page, pages from 8 to 11, and page 15. '\
         '"--pages=-" will insert all pages of the document, and "--pages=last-1"' \
         'will insert all pages in reverse order.')
-    parser.add_argument('-t', '--text', nargs=3, type=str, action='append', metavar=('text_string', 'hpos', 'vpos'), help=u'Add text to pdf file. text_string is the string to add, special variables can be passed. Call --text-help for help on how to build string. hpos and vpos are numbers between 0 and 1 that represents the coordinates of the top left corner of the bounding box that surronds the text relative to the top left corner of the page.')
+    
+    parser.add_argument('-t', '--text', nargs=3, type=str, action='append', metavar=('text_string', 'hpos', 'vpos'), 
+    help="Add text to pdf file. text_string is the string to add, special variables can be passed. " \
+    "Call --text-help for help on how to build string. hpos and vpos are numbers between 0 and 1 that represents " \
+    "the coordinates of the top left corner of the bounding box that surronds the text relative to the top left corner of the page.")
+    
     parser.add_argument('--text-help', action='store_true', help=u'Print help to build a text string to pass to -t/--text option')
     
     parser.add_argument('--extract-pages', type=str, metavar=('file_name'), help=u'Read pages to extract from a text file. In the text file pages can be separated by newline character or by space (or mixed)')

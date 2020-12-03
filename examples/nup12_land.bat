@@ -1,0 +1,1 @@
+pdftools -i %1 --out-suffix _nup12land --nup 1 2 --overwrite --landscape
