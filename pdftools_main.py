@@ -26,8 +26,6 @@ import subprocess
 from string import Template
 import re
 
-paginate_h = 0.93
-paginate_v = 0.96
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
 today = datetime.datetime.now()
