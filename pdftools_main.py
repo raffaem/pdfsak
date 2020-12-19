@@ -312,7 +312,7 @@ def run(args):
     
     # ********** 5. Create latex script **********
     latex_script = r"\documentclass"
-    if(args.paper != ""):
+    if(args.paper is not None):
         latex_script += '[' + args.paper + ']'
     latex_script += "{article}"\
     "\n\\usepackage[utf8x]{inputenc}" \
