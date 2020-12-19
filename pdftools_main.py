@@ -148,7 +148,8 @@ def openFile(filepath):
         subprocess.call( ["xdg-open", filepath] )
 
 def exit_with_code(msg, code):
-    os.chdir(previous_cwd) #Avoid a permission error exception caused by the fact Python wants to delete the temporary folder
+    # Avoid a permission error exception caused by the fact Python wants to delete the temporary folder
+    os.chdir(previous_cwd) 
     if msg != "":
         print(msg)
     exit(code)
@@ -546,9 +547,6 @@ def run(args):
 
 def main(cmdargs):
     
-    if len(cmdargs) == 0:
-        exit_with_code("No arguments passed. Launch the software with -h option to get help",0)
-    
     # Check for pdflatex to be in path
     try:
         pdflatex_return = subprocess.call( ['pdflatex','--version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)		
@@ -563,6 +561,8 @@ def main(cmdargs):
         pdftk=False
     
     # Get command line options
+    # This formatter class prints default values in help
+    # See: https://stackoverflow.com/questions/12151306/argparse-way-to-include-default-values-in-help
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     
     parser.add_argument('-if', '--input-file', action='append', default=[], 
@@ -572,15 +572,18 @@ def main(cmdargs):
     parser.add_argument('-id', '--input-dir', action='append', default=[], 
     dest='input_dirs', required=False, help=u'Input a directory. ' 
     'all pdf files inside it are merged togheter, sorted in alphabetical filename order. ' )
-
     
     # A mutually exclusive group to specify the output file name OR a suffix to append to the first input file name
     output_group = parser.add_mutually_exclusive_group()
     output_group.add_argument('-o', '--output', help=u'Output filename')
     output_group.add_argument('--out-suffix', help=u'Suffix to add to the first input filename to obtain the output filename', default='_pdftools')	
+    
     #Vector parameters
-    parser.add_argument('--paper', type=str, default='a4paper', metavar=('PAPER_TYPE'), help=u'Specify paper type. Can be: a4paper, letterpaper,'\
-        'a5paper, b5paper, executivepaper, legalpaper. To use the same format of input pdf file, use --fitpaper option.')
+    
+    parser.add_argument('--paper', type=str, default=None, metavar=('PAPER_TYPE'), help=u'Specify output paper size. Can be: a4paper, letterpaper,'\
+        'a5paper, b5paper, executivepaper, legalpaper. The default is to use the same size as the input PDF')
+    #parser.add_argument('--fitpaper', action='append_const', const='fitpaper', dest='booleans', help=u'Adjusts the paper size to the one of the inserted document')
+    
     parser.add_argument('--scale', nargs=1, type=float, default=0, metavar=('SCALE_FACTOR'), help=u'Scales the image by the desired scale factor. ' \
         'E.g, 0.5 to reduce by half, or 2 to double. 0 means auto-scaling (default)')
     parser.add_argument('--width', nargs=1, type=float, default=0, metavar=('WIDTH'), help=u'Width of 1 input page (take care of this in case of n-upping) '
@@ -610,7 +613,7 @@ def main(cmdargs):
         '"--pages=-" will insert all pages of the document, and "--pages=last-1"' \
         'will insert all pages in reverse order.')
     
-    parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'), default=argparse.SUPPRESS,
+    parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'),
     help="Add text to pdf file. \n" \
     "'text_string' is the string to add, special variables can be passed, as well as LaTeX font sizes like \Huge. " \
     "Call --text-help for help on how to build this string. " \
@@ -623,7 +626,7 @@ def main(cmdargs):
     "'hpos' and 'vpos' are numbers between 0 and 1 that represent " \
     "how far is 'anchor' from the top left corner of the page.")
     
-    parser.add_argument('--text-help', action='store_true', help=u'Print the help to build a text string to pass to the -t/--text option', default=argparse.SUPPRESS)
+    parser.add_argument('--text-help', action='store_true', help=u'Print the help to build a text string to pass to the -t/--text option')
     
     parser.add_argument('--extract-pages', type=str, metavar=('file_name'), help=u'Read pages to extract from a text file. In the text file pages can be separated by newline character or by space (or mixed)')
         
@@ -649,7 +652,6 @@ def main(cmdargs):
         'part from the pdfpage. If false, the cropped part is present on the physical file, but the pdf reader is instructed to ignore it')
     parser.add_argument('--landscape', action='append_const', const='landscape', dest='booleans', help=u'Output file is in landscape layer instead of portrait')
     parser.add_argument('--frame', action='append_const', const='frame', dest='booleans', help=u'Put a frame around every logical page')
-    parser.add_argument('--fitpaper', action='append_const', const='fitpaper', dest='booleans', help=u'Adjusts the paper size to the one of the inserted document')
     
     #-Debug options-
     #Create temporary folder in the current working directory instead of system's default path for temporary files
@@ -660,7 +662,12 @@ def main(cmdargs):
     #Don't compile the resulting latex file
     parser.add_argument('--debug-no-compile', action='store_true', default= False, help=argparse.SUPPRESS)
     #Specify debug folder
-    parser.add_argument('--debug-folder', type=str, default='temp', help=argparse.SUPPRESS)	
+    parser.add_argument('--debug-folder', type=str, default='temp', help=argparse.SUPPRESS)
+    
+    # If no options were passed, display help
+    if len(sys.argv)==1:
+        parser.print_help(sys.stderr)
+        exit_with_code("",1)
     
     #Parse arguments
     args = parser.parse_args(cmdargs)
@@ -679,6 +686,10 @@ def main(cmdargs):
     if(args.booleans is None):
         args.booleans=list()
     
+    # If the --paper option is not specified, we pass "fitpaper" to pdfpages by default
+    if(args.paper is None):
+        args.booleans.append("fitpaper")
+        
     if(args.split_pages):
         args.booleans.append("clip")
     
