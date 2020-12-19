@@ -129,8 +129,12 @@ def checkLatexInstallation():
     checkLatexPackageCLI("THIS_PACKAGE_DOES_NOT_EXIST")
 
 def removeFile(filename):
-    if(os.path.isfile(filename)):
+    # see: https://stackoverflow.com/questions/10840533/most-pythonic-way-to-delete-a-file-which-may-not-exist
+    try:
         os.remove(filename)
+    except OSError as e:
+        if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
+            raise # re-raise exception if a different error occurred
         
 # Open a file with the OS default application
 # Credit: http://stackoverflow.com/questions/434597/open-document-with-default-application-in-python
@@ -555,16 +559,8 @@ def main(cmdargs):
     try:
         pdftk_return = subprocess.call( ['pdftk','--version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)		
     except FileNotFoundError:
-        print("Warning: pdftk was not found (only needed if you want to repair pdf files)")
+        #print("Warning: pdftk was not found (only needed if you want to repair pdf files)")
         pdftk=False
-        
-    # Check for pdfcrop to be in path
-    pdfcrop=True
-    try:
-        pdftk_return = subprocess.call( ['pdfcrop','--version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)		
-    except FileNotFoundError:
-        print("Warning: pdfcrop was not found (only needed if you want to crop white margins without having to specify the area to crop manually)")
-        pdfcrop=False
     
     # Get command line options
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -614,19 +610,20 @@ def main(cmdargs):
         '"--pages=-" will insert all pages of the document, and "--pages=last-1"' \
         'will insert all pages in reverse order.')
     
-    parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'), 
-    help="Add text to pdf file. text_string is the string to add, special variables can be passed, as well as LaTeX font sizes like \Huge. " \
+    parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'), default=argparse.SUPPRESS,
+    help="Add text to pdf file. \n" \
+    "'text_string' is the string to add, special variables can be passed, as well as LaTeX font sizes like \Huge. " \
     "Call --text-help for help on how to build this string. " \
-    "anchor is the point of the text box to position. " \
+    "'anchor' is the point of the text box (the box surrounding the text) to position: " \
     "'tl' will position the top-left corner, " \
     "'tr' will position the top-right corner, " \
     "'bl' will position the bottom-left corner, " \
     "'br' will position the bottom-right corner, " \
-    "all other parameters are invalid. " \
-    "hpos and vpos are numbers between 0 and 1 that represents " \
-    "how far is the anchor from the top left corner of the page.")
+    "all other parameters are invalid. \n" \
+    "'hpos' and 'vpos' are numbers between 0 and 1 that represent " \
+    "how far is 'anchor' from the top left corner of the page.")
     
-    parser.add_argument('--text-help', action='store_true', help=u'Print the help to build a text string to pass to the -t/--text option')
+    parser.add_argument('--text-help', action='store_true', help=u'Print the help to build a text string to pass to the -t/--text option', default=argparse.SUPPRESS)
     
     parser.add_argument('--extract-pages', type=str, metavar=('file_name'), help=u'Read pages to extract from a text file. In the text file pages can be separated by newline character or by space (or mixed)')
         
