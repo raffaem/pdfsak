@@ -1,1 +1,0 @@
-pdftools -i ./img/i1.jpg -i ./img/i2.jpg --paper A4 -o ./pdfs/img.pdf
