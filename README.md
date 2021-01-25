@@ -35,7 +35,7 @@ Here are few examples of what pdftools can do:
 		
 * Insert page numbers at the bottom right corner of every input page
 
-		pdftools --input-file input.pdf --output output.pdf --text "$page/$pages" 0.93 0.95 --overwrite
+		pdftools --input-file input.pdf --output output.pdf --text "\huge $page/$pages" br 1 1 --overwrite
 
 ## Requirements
 

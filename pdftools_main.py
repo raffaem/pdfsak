@@ -374,18 +374,18 @@ def run(args):
             # Get the size of the text box
             #latex_script += "\\savebox{\\textbox"+str(texti)+"}{"+text_proc+"}\n\t"
             #latex_script += "\\settowidth{\\textbox"+str(texti)+"width}{\\usebox{\\textbox"+str(texti)+"} }\n\t"
-            latex_script += "\\savebox{\\textbox}{"+text_proc+"}\n\t"
-            latex_script += "\\settowidth{\\textboxwidth}{\\usebox{\\textbox} }\n\t"
+            latex_script += "\\savebox{\\textbox}{"+text_proc+"}\n"
+            latex_script += "\t\\settowidth{\\textboxwidth}{\\usebox{\\textbox} }\n"
 	
             # Use textpos package: https://ctan.mirror.garr.it/mirrors/ctan/macros/latex/contrib/textpos/textpos.pdf
             # textblock wants the position of the upper left corner of the text box. 
             # Starred version requires positions expressed as length (not relative to TPHorizModule)
             #latex_script += "\\begin{textblock*}{\\textbox"+str(texti)+"width}"
-            latex_script += "\\begin{textblock*}{\\textboxwidth}"
+            latex_script += "\t\\begin{textblock*}{\\textboxwidth}"
             latex_script += f"[{anchh},{anchv}]"
             latex_script += "("+str(text[2])+"\\paperwidth, "+str(text[3])+"\\paperheight)\n"
             latex_script += "\t\t\\raggedright "+text_proc+"\n"
-            latex_script += "\t\\end{textblock*}\n\t"
+            latex_script += "\t\\end{textblock*}\n"
         
         latex_script += "} %end of fancypagestyle\n"
     
