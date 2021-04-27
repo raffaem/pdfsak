@@ -5,7 +5,7 @@ Python script to:
 
 * Merge PDF files
 * Nup (or tile) pages, that is put more than one logical input pages into a single output page (e.g. print slides with 2 slides in one page)
-* Number pages 
+* Number pages
 * Remove owner protection from PDF files (you are able to open the PDF without a password, but you are not able to copy / print / annotate / exc.)
 * Remove metadata from PDF file
 * Split one input page in 2 output pages (e.g. scanned book with 2 pages in every pdf page)
@@ -20,12 +20,10 @@ Disover all the functionalities by running
 ## Examples
 Here are few examples of what pdftools can do:
 
-## Remove write password protection
+### Remove owner protection (write password)
 
-You can read a PDF file but printing or modifying it requires a password?
-`pdftools` will remove the write-password protection.
-So you can print or modify it freely.
-(it will _not_ remove read-password protection, though).
+You can read a PDF file but printing or annotating it requires a password?
+`pdftools` will remove the owner protection from your PDF file, so you can print or modify it freely (it will _not_ remove read password protection, though).
 
 ### Merge
 
