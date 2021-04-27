@@ -78,14 +78,13 @@ pdftools currently has no GUI but only a CLI.
 
 * [Python](https://www.python.org/) >= 3.3
 * A LaTeX distribution like [TexLive](https://www.tug.org/texlive/) or [MikTex](http://miktex.org/)
-* The following packages must be available in your LaTeX distribution. You can check their presence by running
-
-`pdftools.py --check-latex`
-
-* [pdfpages](https://www.ctan.org/pkg/pdfpages?lang=en)
-* [lastpage](https://www.ctan.org/pkg/lastpage)
-* [grffile](https://www.ctan.org/pkg/grffile)
-* [forloop](https://www.ctan.org/pkg/forloop)
-* [fancyhdr](https://www.ctan.org/pkg/fancyhdr?lang=en)
-* [textpos](https://www.ctan.org/pkg/textpos)
-* [changepage](https://www.ctan.org/pkg/changepage)
+* The following packages must be available in your LaTeX distribution:
+    * [pdfpages](https://www.ctan.org/pkg/pdfpages?lang=en)
+    * [lastpage](https://www.ctan.org/pkg/lastpage)
+    * [grffile](https://www.ctan.org/pkg/grffile)
+    * [forloop](https://www.ctan.org/pkg/forloop)
+    * [fancyhdr](https://www.ctan.org/pkg/fancyhdr?lang=en)
+    * [textpos](https://www.ctan.org/pkg/textpos)
+    * [changepage](https://www.ctan.org/pkg/changepage)
+* You can check the presence of the above required LaTeX packages by running:
+    `pdftools.py --check-latex`
