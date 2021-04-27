@@ -20,6 +20,13 @@ Disover all the functionalities by running
 ## Examples
 Here are few examples of what pdftools can do:
 
+## Remove write password protection
+
+You can read a PDF file but printing or modifying it requires a password?
+`pdftools` will remove the write-password protection.
+So you can print or modify it freely.
+(it will _not_ remove read-password protection, though).
+
 ### Merge
 
 Merge your pdf files. Create an output pdf file that contains more than one input pdf file, one after the other. Said otherwise, input pdf files are appended in the output file. pdftools also supports reading from an input directory altogether, so you don't have to pass all your files in the command line (files in the input directory are appended in natural sort). pdftools can also append image files.
