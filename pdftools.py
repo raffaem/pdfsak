@@ -26,6 +26,7 @@ import argparse
 import subprocess
 from string import Template
 import re
+import errno
 
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
