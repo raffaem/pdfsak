@@ -91,5 +91,10 @@ pdftools currently has no GUI but only a CLI.
     * [fancyhdr](https://www.ctan.org/pkg/fancyhdr?lang=en)
     * [textpos](https://www.ctan.org/pkg/textpos)
     * [changepage](https://www.ctan.org/pkg/changepage)
+
+    On fedora you can install them by running:
+
+    `sudo dnf install texlive-lastpage texlive-pdfpages texlive-grffile texlive-forloop texlive-fancyhdr texlive-textpos texlive-changepage`
+
 * You can check the presence of the above required LaTeX packages by running:
     `pdftools.py --check-latex`
