@@ -56,13 +56,6 @@ def natural_keys(text):
     '''
     return [ atoi(c) for c in re.split('(\d+)', text) ]
 
-def repairPdfFile(filepath):
-    repaired_path = os.path.splitext(filepath)[0] + "_repaired.pdf"
-    cmd = "pdftk \""+args.input[i]+"\" output \"" + repaired_path + "\""
-    print("Running: \""+cmd+"\"")
-    subprocess.call(cmd)
-    return repaired_path
-
 # Reads a list of pages to extract from a file. Used with the --extract-pages option
 def readListFromFile(filename):
     filename = os.path.join(previous_cwd,filename)
@@ -181,9 +174,6 @@ def run(args):
     if args.debug_no_compile or args.debug_folder != 'temp':
         args.debug = True
 
-    if(args.repair and pdftk==False):
-        exit_with_code("ERROR: You need pdftk to repair files")
-
     # ****Process options got from command line****
 
     # 1. Check PDF input files
@@ -210,8 +200,6 @@ def run(args):
             exit_with_code(f"ERROR: Input file {infile} doesn't exist.", 1)
 
         ftype = getFileType(infile)
-        if ftype=='pdf' and args.repair:
-            infile = repairPdfFile(infile)
 
         infileabs = os.path.abspath(infile)
 
@@ -554,13 +542,6 @@ def main(cmdargs):
     except FileNotFoundError:
         exit_with_code("pdflatex is not in path. Please install a LaTeX distribution and make sure pdflatex is in path.", 1)
 
-    # Check for pdftk to be in path
-    try:
-        pdftk_return = subprocess.call( ['pdftk','--version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except FileNotFoundError:
-        #print("Warning: pdftk was not found (only needed if you want to repair pdf files)")
-        pdftk=False
-
     # Get command line options
     # This formatter class prints default values in help
     # See: https://stackoverflow.com/questions/12151306/argparse-way-to-include-default-values-in-help
@@ -636,7 +617,6 @@ def main(cmdargs):
     parser.add_argument('--overwrite', action='store_true', default=False, help=u'Overwrite output file if it exists already')
     parser.add_argument('--open', action='store_true', default=False, help=u'Open output PDF file')
     parser.add_argument('--white-page', action='store_true', default=False, help=u'Put a white page after every pdf page')
-    parser.add_argument('--repair', action='store_true', default=False, help=u'Try to repair the input PDF files. You need pdftk for this')
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--split-pages', action='store_true', default=False, 
         help=u'Split every input page in 2 equal output pages. '\
