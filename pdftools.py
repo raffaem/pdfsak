@@ -508,7 +508,7 @@ def run(args):
                 else:
                     exit_with_code("Latex failed to compile the file. " \
                     "Please run again with --debug option, then report at "\
-                    "https://github.com/raffamaiden/pdftools/issues attaching ./temp/report.gz", 1)
+                    "https://github.com/raffaem/pdftools/issues attaching ./temp/report.gz", 1)
         # ** End of all compilation rounds (for loop) **
         # Copy resulting pdf file from temporary folder to output directory
         shutil.copyfile(latex_pdf_fp, args.output)
