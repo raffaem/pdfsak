@@ -240,7 +240,6 @@ def run(args):
             exit_with_code(f"FATAL ERROR: File {args.output} already exists. Use --overwrite if you want to overwrite it", 1)
 
     # 3. Create temporary directory
-    temp_dir = ''
     # If NOT in debug, temporary directory is created in system temporary folder
     if not args.debug:
         #avoid out of scope
@@ -248,8 +247,9 @@ def run(args):
     # If in debug mode, temporary directory is created in current working directory
     else:
         temp_dir = os.path.join(os.getcwd(), args.debug_folder)
-        if not os.path.isdir(temp_dir):
-            os.mkdir(temp_dir)
+    # Make temp directory
+    if not os.path.isdir(temp_dir):
+        os.mkdir(temp_dir)
     # Change working directory to the temp folder. In this way, latex temporary files are created there
     os.chdir(temp_dir)
 
