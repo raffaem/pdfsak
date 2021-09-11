@@ -521,9 +521,11 @@ def run(args):
                     if(os.path.isfile('latex_file.log')):
                         zip_file.write('latex_file.log')
                     zip_file.close()
-                    return exit_with_code("Latex failed to compile the file. Debug report was generated", 1)
+                    exit_with_code("Latex failed to compile the file. Debug report was generated", 1)
                 else:
-                    exit_with_code("Latex failed to compile the file. Please run again with --debug option, then report at https://github.com/raffamaiden/pdftools/issues attaching ./temp/report.gz", 1)
+                    exit_with_code("Latex failed to compile the file. " \
+                    "Please run again with --debug option, then report at "\
+                    "https://github.com/raffamaiden/pdftools/issues attaching ./temp/report.gz", 1)
         # ** End of all compilation rounds (for loop) **
         # Copy resulting pdf file from temporary folder to output directory
         shutil.copyfile(latex_pdf_fp, args.output)
