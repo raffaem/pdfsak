@@ -445,10 +445,12 @@ def run(args):
 
         # Swap pages
         if(args.swap_pages):
+            print(f"args.swap_pages={args.swap_pages}")
             # Make a list of tuples. Each tuple contains the page pair to swap
-            pairs = [(a,b) for pair in args.swap_pages.split(";") for a,b in pair.split(",")]
+            pairs = [pair.split(",") for pair in args.swap_pages.split(";")]
+            pairs = [(int(a), int(b)) for a,b in pairs]
             # Generate a continuum list of items in the pair
-            flat = [item for t in pairs for item in t]
+            flat = [int(item) for t in pairs for item in t]
             # Make sure there are no repetitions
             assert(len(set(flat)) == len(flat))
             assert(min(flat) > 0)
@@ -465,9 +467,9 @@ def run(args):
                 pagseq[aix], pagseq[bix] = pagseq[bix], pagseq[aix]
             # Build pages argument
             args.pages = ""
-            if pagseq[0] != "1":
-                arg.pages += "1-" + str(min(flat)-1) + ","
-            args.pages += ",".join(pagseq) + "-"
+            if min(flat) != 1:
+                args.pages += "1-" + str(min(flat)-1) + ","
+            args.pages += ",".join([str(x) for x in pagseq]) + f",{max(flat)+1}-"
 
         # Extract pages
         if(args.extract_pages):
