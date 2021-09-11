@@ -240,16 +240,17 @@ def run(args):
 
     # 3. Create temporary directory
     temp_dir = ''
-    def_temp_dir = tempfile.TemporaryDirectory(prefix='pdftools') #avoid out of scope
     # If NOT in debug, temporary directory is created in system temporary folder
     if not args.debug:
-        temp_dir = def_temp_dir.name
+        #avoid out of scope
+        temp_dir = tempfile.TemporaryDirectory(prefix='pdftools').name
     # If in debug mode, temporary directory is created in current working directory
     else:
         temp_dir = os.path.join(os.getcwd(), args.debug_folder)
         if not os.path.isdir(temp_dir):
             os.mkdir(temp_dir)
-    os.chdir(temp_dir) #Change working directory to the temp folder. In this way, latex temporary files are created there
+    # Change working directory to the temp folder. In this way, latex temporary files are created there
+    os.chdir(temp_dir)
 
     # 4. ******* Pre-compiling **********
 
