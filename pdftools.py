@@ -262,13 +262,10 @@ def run(args):
     "\n\t\\settoheight{\\pdfheight}{\\usebox{\\mybox}} \n\t"
 
     # -Loop to include pages one at a time. Use 'latex_pdf_filename' variable
-    if(args.white_page or args.split_pages):
+    if(args.white_page):
         #-Insert a white page after every pdf page
         if(args.white_page):
             args.pages = r"{\theit,{}}"
-        # Split pages
-        if(args.split_pages):
-            args.pages = r"{\theit}"
 
         pre_include_pdf += "%Loop adding one single page at a time"\
         "\n\t\\newcounter{it}"\
@@ -344,15 +341,12 @@ def run(args):
             text_proc = "\\rotatebox{90}{"+text_proc+"}"
 
         # Get the size of the text box
-        #latex_script += "\\savebox{\\textbox"+str(texti)+"}{"+text_proc+"}\n\t"
-        #latex_script += "\\settowidth{\\textbox"+str(texti)+"width}{\\usebox{\\textbox"+str(texti)+"} }\n\t"
         latex_script += "\\savebox{\\textbox}{"+text_proc+"}\n"
         latex_script += "\t\\settowidth{\\textboxwidth}{\\usebox{\\textbox} }\n"
 
         # Use textpos package: https://ctan.mirror.garr.it/mirrors/ctan/macros/latex/contrib/textpos/textpos.pdf
         # textblock wants the position of the upper left corner of the text box.
         # Starred version requires positions expressed as length (not relative to TPHorizModule)
-        #latex_script += "\\begin{textblock*}{\\textbox"+str(texti)+"width}"
         latex_script += "\t\\begin{textblock*}{\\textboxwidth}"
         latex_script += f"[{anchh},{anchv}]"
         latex_script += "("+str(text[2])+"\\paperwidth, "+str(text[3])+"\\paperheight)\n"
@@ -372,15 +366,35 @@ def run(args):
         latex_script += "\\begin{figure}"\
         "\n\\includegraphics[width=\\linewidth]{"+f+"}"\
         "\n\\end{figure}"
-
+        
+    # Initialize arg.pages as list
+    pagesl = [args.pages]*len(input_pdf_files)
+    rotmap = dict()
+    page_count = None
+    # Rotate pages
+    # In this case, we add one page at a time
+    if args.rotate_pages:
+        if len(input_pdf_files) > 1:
+            exit_with_code("Page rotation is only supported with one input PDF file", 1)
+        rotmap = {int(page):int(angle) for pair in args.rotate_pages.split(";") for page,angle in [pair.split("=")]}
+        print(f"rotmap={rotmap}")
+        page_count = getPageCount(input_pdf_files[0])
+        pagesl = list(range(1, page_count+1))
+        input_pdf_files = [input_pdf_files[0]]*page_count
+        print("len(input_pdf_files)")
+        print(len(input_pdf_files))
+        print("pagesl")
+        print(pagesl)
+        print("page_count")
+        print(page_count)
+        
     # Insert input PDF files in latex script
     for filenum, f in enumerate(input_pdf_files):
 
         latex_pdf_filename_detokenize = r"\detokenize{"+linuxize(f)+"}"
         
-        page_count = getPageCount(f)
-
-        pagestyle = "file"+str(filenum)
+        if not args.rotate_pages:
+            page_count = getPageCount(f)
 
         # Page numbers are needed on some pre include scripts (e.g. white pages)
         latex_script += "%Get the number of pdf pages"\
@@ -390,43 +404,9 @@ def run(args):
         # Pre-include script (e.g. insert a white page after every logical page).
         # Substitute latex_pdf_filename variable
         latex_script += pre_include_pdf.replace(r"latex_pdf_filename", latex_pdf_filename_detokenize)
-
-        # Include the pdf
-        include_pdf_str = "%Importing the pdf \n \t"
-        include_pdf_str = "\\includepdf[keepaspectratio, pages=$pages"
-
-        if(args.nup != [1,1]):
-            include_pdf_str += ",nup="+str(args.nup[1])+"x"+str(args.nup[0])
-
-        if(args.delta != ['0','0']):
-            include_pdf_str += ",delta="+arrayToString(args.delta)
-
-        if(args.offset != ['0','0']):
-            include_pdf_str += ",offset="+arrayToString(args.offset)
-
-        if(args.trim != ['0','0','0','0']):
-            include_pdf_str += ",trim={$trimarray}" #we use this syntax to allow "split pages"
-
-        if (args.scale != 0):
-            include_pdf_str += ",noautoscale, scale="+str(args.scale)
-        if (args.width != 0):
-            include_pdf_str += ",width="+str(args.width[0])+r"\paperwidth"
-        if (args.height != 0):
-            include_pdf_str += ",height="+str(args.height[0])+r"\paperheight"
-        include_pdf_str += r",pagecommand=\thispagestyle{mystyle}"
-
-        # Boolean parameters for pdfpages package
-        for boolpar in args.booleans:
-            include_pdf_str += r"," + boolpar
-
-        # Custom arguments for pdfpages package
-        if args.custom:
-            include_pdf_str += r"," + args.custom
-
-        # Finalize with input filename
-        include_pdf_str += "]{" + latex_pdf_filename_detokenize + "} \n\t";
-        # DO NOT PUT SPACES IN FILENAMES. THE FILENAME IS GET AS IT, VERY LITERALLY
-
+        
+        # Page management
+        pages = pagesl[filenum]
         # Swap pages
         if(args.swap_pages):
             print(f"args.swap_pages={args.swap_pages}")
@@ -448,31 +428,59 @@ def run(args):
                 bix = b - min(flat)
                 pagseq[aix], pagseq[bix] = pagseq[bix], pagseq[aix]
             # Build pages argument
-            args.pages = ""
+            pages = ""
             if min(flat) != 1:
-                args.pages += "1-" + str(min(flat)-1) + ","
-            args.pages += ",".join([str(x) for x in pagseq])
+                pages += "1-" + str(min(flat)-1) + ","
+            pages += ",".join([str(x) for x in pagseq])
             if max(flat) != page_count:
-                args.pages += f",{max(flat)+1}-"
+                pages += f",{max(flat)+1}-"
 
-        # -Adjust pages syntax
-        # Avoids to get page={{{{-}}}} when merging multiple pdf files together
-        if(args.pages[0] != "{"): 
-            args.pages = "{" + args.pages + "}"
+        # Include the pdf
+        include_pdf_str = "%Importing the pdf \n \t"
+        include_pdf_str = f"\\includepdf[keepaspectratio, pages={pages}"
+
+        if(args.nup != [1,1]):
+            include_pdf_str += ",nup="+str(args.nup[1])+"x"+str(args.nup[0])
+
+        if(args.delta != ['0','0']):
+            include_pdf_str += ",delta="+arrayToString(args.delta)
+
+        if(args.offset != ['0','0']):
+            include_pdf_str += ",offset="+arrayToString(args.offset)
+
+        if(args.trim != ['0','0','0','0']):
+            args.trim = [float(x) for x in args.trim]
+            # Reverse trim is used with "split pages". `args.trim` contains the left page, reverse_trim contains the right page
+            #if(args.split_pages):
+            #    trim = [ 1-args.trim[2] , 1-args.trim[3] , 1-args.trim[0] , 1-args.trim[1] ]
+            include_pdf_str += ",trim={" + trimArrayToStr(args.trim) + "}"
+
+        if (args.scale != 0):
+            include_pdf_str += ",noautoscale, scale="+str(args.scale)
+        if (args.width != 0):
+            include_pdf_str += ",width="+str(args.width[0])+r"\paperwidth"
+        if (args.height != 0):
+            include_pdf_str += ",height="+str(args.height[0])+r"\paperheight"
+        include_pdf_str += r",pagecommand=\thispagestyle{mystyle}"
+
+        # Boolean parameters for pdfpages package
+        for boolpar in args.booleans:
+            include_pdf_str += r"," + boolpar
+
+        # Custom arguments for pdfpages package
+        if args.custom:
+            include_pdf_str += r"," + args.custom
+            
+        # Angle
+        if pages in rotmap:
+            include_pdf_str += r", angle=" + str(rotmap[pages])
+
+        # Finalize with input filename
+        include_pdf_str += "]{" + latex_pdf_filename_detokenize + "} \n\t";
+        # DO NOT PUT SPACES IN FILENAMES. THE FILENAME IS GET AS IT, VERY LITERALLY
 
         # Add include_pdf_str to latex_script
-        inc_pdf_temp = Template(include_pdf_str)
-        # \includegraphics[trim=left bottom right top, clip]{file}
-
-        args.trim = [float(x) for x in args.trim]
-        inc_pdf_fin1 = inc_pdf_temp.safe_substitute(trimarray=trimArrayToStr(args.trim), pages=args.pages)
-        latex_script += inc_pdf_fin1
-
-        # Split pages
-        if(args.split_pages):
-            # -Reverse trim is used with "split pages". args.trim contains the left page, reverse_trim contains the right page
-            reverse_trim = [ 1-args.trim[2] , 1-args.trim[3] , 1-args.trim[0] , 1-args.trim[1] ]
-            latex_script += inc_pdf_temp.safe_substitute(trimarray=trimArrayToStr(reverse_trim), pages=args.pages)
+        latex_script += Template(include_pdf_str).safe_substitute(pages=args.pages)
 
         latex_script += post_include_pdf
 
@@ -588,13 +596,6 @@ def main(cmdargs):
     parser.add_argument('--natural-sorting', action='store_true', default=False, help=u'When scanning a folder, use natural sorting algorithm to sort the files inside it')
     parser.add_argument('--overwrite', action='store_true', default=False, help=u'Overwrite output file if it exists already')
     parser.add_argument('--white-page', action='store_true', default=False, help=u'Put a white page after every pdf page')
-    parser.add_argument('--split-pages', action='store_true', default=False, 
-        help=u'Split every input page in 2 equal output pages. '\
-        'Use it, for example, if you have a pdf which consists of 2 physical pages in 1 pdf page and you want to split on them. ' \
-        'Use it on conjuction with trim, with which you will specify the left page. ' \
-        'If you specify --trim L B R T, the left page will be obtained by trimming with {L B R T}, '\
-        'while the right page will be obtained by trimming with {R T L B} (note the swap in left-right and in top-bottom). ' \
-        'Use \pdfwidth and \pdfheight paramenters in trim option to specify trim relative to page size')
     parser.add_argument('--last-page-even', action='store_true', default=False, 
         help=u'Last page of every included pdf must be even. If it is odd, add a white page')
         
@@ -603,6 +604,9 @@ def main(cmdargs):
     pages_group.add_argument('--swap-pages', default="", 
         help=u'A semi-colon separated list of colon-separated page pairs to swap. ' \
         'E.g. "1,5;6,9" will swap page 1 with page 5 and page 6 with page 9.')
+    pages_group.add_argument('--rotate-pages', default="", 
+        help=u'A semi-colon separated list of page=angle pairs. ' \
+        'E.g. "1=90;2=180" will rotate 1st page by 90 degress and 2nd page by 180 degrees.')
     pages_group.add_argument('--pages', default="-", 
         help=u'Selects pages to insert. ' \
         'The argument is a comma separated list, containing page numbers (e.g. 3,5,6,8), ranges of page numbers (e.g. 4-9) or any combination of the previous. ' \
@@ -672,9 +676,6 @@ def main(cmdargs):
     # If the --paper option is not specified, we pass "fitpaper" to pdfpages by default
     if(args.paper is None):
         args.booleans.append("fitpaper")
-
-    if(args.split_pages):
-        args.booleans.append("clip")
 
     run(args)
 
