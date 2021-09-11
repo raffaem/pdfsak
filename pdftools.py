@@ -204,23 +204,22 @@ def run(args):
                 filefp = os.path.join(root, file)
                 args.input_files.append(filefp)
 
-
     # -Process files-
     for infile in args.input_files:
         if not os.path.isfile(infile):
             exit_with_code(f"ERROR: Input file {infile} doesn't exist.", 1)
 
-        type = getFileType(infile)
-        if type=='pdf' and args.repair:
+        ftype = getFileType(infile)
+        if ftype=='pdf' and args.repair:
             infile = repairPdfFile(infile)
 
         infileabs = os.path.abspath(infile)
 
-        if type=='pdf':
+        if ftype=='pdf':
             input_pdf_files.append(infileabs)
             if args.verbose == True:
                 print(f"Adding PDF file: '{infile}'")
-        elif type=='img':
+        elif ftype=='img':
             input_img_files.append(infileabs)
             if args.verbose == True:
                 print(f"Adding image file: '{infile}'")
