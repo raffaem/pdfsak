@@ -232,7 +232,8 @@ def run(args):
     if(args.output==None):
         args.output = os.path.splitext(input_pdf_files[0])[0] + args.out_suffix + ".pdf"
     args.output = os.path.abspath(args.output) #To make shutil.copy happy
-    if(os.path.isfile(args.output)==True): #Check that output pdf file doesn't exist yet
+    # Check that output pdf file doesn't exist yet
+    if(os.path.isfile(args.output)==True):
         if args.overwrite:
             os.remove(args.output)
         else:
@@ -444,24 +445,29 @@ def run(args):
 
         # Swap pages
         if(args.swap_pages):
-            pag_list = list()
-            # Generate pages to swap by splitting on ","
-            for p in args.pages.split(","):
-                pag_list.append(int(p))
-            # Find maximum value
-            maxv = max(pag_list)
-            pages = list()
-            for n in range(1, maxv+1):
-                pages.append(n)
-
-            for p in range(0,len(pag_list),2):
-                pages[pag_list[p]-1], pages[pag_list[p+1]-1] = pag_list[p+1], pag_list[p]
-            pages.append(maxv+1)
-            for p in pages:
-                if(p is not pages[0]):
-                    args.pages += ","
-                args.pages += str(p)
-            args.pages+="-"
+            # Make a list of tuples. Each tuple contains the page pair to swap
+            pairs = [(a,b) for pair in args.swap_pages.split(";") for a,b in pair.split(",")]
+            # Generate a continuum list of items in the pair
+            flat = [item for t in pairs for item in t]
+            # Make sure there are no repetitions
+            assert(len(set(flat)) == len(flat))
+            assert(min(flat) > 0)
+            assert(max(flat) > min(flat))
+            for a,b in pairs:
+                assert(a != b)
+            # Generate page sequence
+            pagseq = list(range(min(flat), max(flat)+1))
+            # Swap pages
+            for a,b in pairs:
+                # Get indices
+                aix = a - min(flat)
+                bix = b - min(flat)
+                pagseq[aix], pagseq[bix] = pagseq[bix], pagseq[aix]
+            # Build pages argument
+            args.pages = ""
+            if pagseq[0] != "1":
+                arg.pages += "1-" + str(min(flat)-1) + ","
+            args.pages += ",".join(pagseq) + "-"
 
         # Extract pages
         if(args.extract_pages):
@@ -570,7 +576,6 @@ def main(cmdargs):
     output_group.add_argument('--out-suffix', help=u'Suffix to add to the first input filename to obtain the output filename', default='_pdftools')
 
     #Vector parameters
-
     parser.add_argument('--paper', type=str, default=None, metavar=('PAPER_TYPE'), 
         help=u'Specify output paper size. ' \
         'Can be: a4paper, letterpaper, a5paper, b5paper, executivepaper, legalpaper. ' \
@@ -605,16 +610,6 @@ def main(cmdargs):
         'To put some space between them, use the delta option, which takes two arguments.')
     
     parser.add_argument('--custom', help=u'Custom pdfpages options')
-    
-    parser.add_argument('--pages', default="-", 
-        help=u'Selects pages to insert. ' \
-        'The argument is a comma separated list, containing page numbers (e.g. 3,5,6,8), ranges of page numbers (e.g. 4-9) or any combination of the previous. ' \
-        'To insert empty pages, use {}. ' \
-        'Page ranges are specified by the following syntax: m-n. This selects all pages from m to n. ' \
-        'Omitting m defaults to the first page; omitting n defaults to the last page of the document. ' \
-        'Another way to select the last page of the document, is to use the keyword last.' \
-        'E.g.: "--pages 3,{},8-11,15" will insert page 3, an empty page, pages from 8 to 11, and page 15. '\
-        '"--pages=-" will insert all pages of the document, while "--pages=last-1" will insert all pages in reverse order.')
 
     parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'),
         help="Add text to pdf file. " \
@@ -648,12 +643,25 @@ def main(cmdargs):
         'If you specify --trim L B R T, the left page will be obtained by trimming with {L B R T}, '\
         'while the right page will be obtained by trimming with {R T L B} (note the swap in left-right and in top-bottom). ' \
         'Use \pdfwidth and \pdfheight paramenters in trim option to specify trim relative to page size')
-    parser.add_argument('--swap-pages', action='store_true', default=False, help=u'--pages-list specify a text file with a space-separated list of pages to swap')
+    parser.add_argument('--last-page-even', action='store_true', default=False, 
+        help=u'Last page of every included pdf must be even. If it is odd, add a white page')
+        
+    # Group to manage how pages are inserted
+    pages_group = parser.add_mutually_exclusive_group()
+    pages_group.add_argument('--swap-pages', default="", 
+        help=u'A semi-colon separated list of colon-separated page pairs to swap. ' \
+        'E.g. "1,5;6,9" will swap page 1 with page 5 and page 6 with page 9.')
+    pages_group.add_argument('--pages', default="-", 
+        help=u'Selects pages to insert. ' \
+        'The argument is a comma separated list, containing page numbers (e.g. 3,5,6,8), ranges of page numbers (e.g. 4-9) or any combination of the previous. ' \
+        'To insert empty pages, use {}. ' \
+        'Page ranges are specified by the following syntax: m-n. This selects all pages from m to n. ' \
+        'Omitting m defaults to the first page; omitting n defaults to the last page of the document. ' \
+        'Another way to select the last page of the document, is to use the keyword last.' \
+        'E.g.: "--pages 3,{},8-11,15" will insert page 3, an empty page, pages from 8 to 11, and page 15. '\
+        '"--pages=-" will insert all pages of the document, while "--pages=last-1" will insert all pages in reverse order.')
 
-    parser.add_argument('--last-page-even', action='store_true', default=False, help=u'Last page of every included pdf must be even.'\
-        'If it is odd, add a white page')
-
-    #Boolean parameters TO PASS TO PDFPAGES (AND ONLY FOR PDFPAGES)
+    # Boolean parameters TO PASS TO PDFPAGES (AND ONLY FOR PDFPAGES)
     parser.add_argument('--clip', action='append_const', const='clip', dest='booleans', 
         help=u'Used togheter with trim, will actually remove the cropped part from the pdfpage. '\
         'If false, the cropped part is present on the physical file, but the pdf reader is instructed to ignore it.')
