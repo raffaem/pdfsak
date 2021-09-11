@@ -76,11 +76,10 @@ def checkLatexPackage(pkgname):
     \nHello\
     \n\\end{document}"
     # Write latex file
-    latex_file = open(latex_tex_fp,"w")
-    latex_file.write(latex_script)
-    latex_file.close()
+    with open(latex_tex_fp, "w", encoding="utf8") as fh:
+        fh.write(latex_script)
     # Compile latex file
-    latex_return = subprocess.call( ["pdflatex","--interaction=batchmode",""+latex_tex_fp] , stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    latex_return = subprocess.call(["pdflatex", "--interaction=batchmode", latex_tex_fp], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     removeFile("check.tex")
     removeFile("check.pdf")
     removeFile("check.aux")
@@ -108,17 +107,6 @@ def removeFile(filename):
     except OSError as e:
         if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
             raise # re-raise exception if a different error occurred
-
-# Open a file with the OS default application
-# Credit: http://stackoverflow.com/questions/434597/open-document-with-default-application-in-python
-def openFile(filepath):
-    if sys.platform.startswith('darwin'):
-        subprocess.call(('open', filepath))
-    elif os.name == 'nt':
-        os.startfile(filepath)
-    elif os.name == 'posix':
-        filepath = filepath.replace('"', '')
-        subprocess.call( ["xdg-open", filepath] )
 
 def exit_with_code(msg, code):
     # Avoid a permission error exception caused by the fact Python wants to delete the temporary folder
@@ -514,10 +502,6 @@ def run(args):
         # Copy resulting pdf file from temporary folder to output directory
         shutil.copyfile(latex_pdf_fp, args.output)
 
-    # Open output pdf
-    if args.open:
-        openFile("\""+args.output+"\"")
-
     # We must change the cwd becuase the temporary folder will be deleted at the end of this function
     os.chdir(previous_cwd)
 
@@ -598,7 +582,6 @@ def main(cmdargs):
     #Boolean parameters NOT for pdfpages
     parser.add_argument('--natural-sorting', action='store_true', default=False, help=u'When scanning a folder, use natural sorting algorithm to sort the files inside it')
     parser.add_argument('--overwrite', action='store_true', default=False, help=u'Overwrite output file if it exists already')
-    parser.add_argument('--open', action='store_true', default=False, help=u'Open output PDF file')
     parser.add_argument('--white-page', action='store_true', default=False, help=u'Put a white page after every pdf page')
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--split-pages', action='store_true', default=False, 
