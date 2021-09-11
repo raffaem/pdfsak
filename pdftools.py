@@ -20,8 +20,6 @@ previous_cwd = os.getcwd()
 today = datetime.datetime.now()
 # -Calculate needed rounds of compilation
 needed_comp_rounds = 2
-pdftk = True  # will be set to false if not found
-
 
 def trimArrayToStr(timarr):
     #trim_str = "{"
