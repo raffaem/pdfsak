@@ -88,8 +88,17 @@ def checkLatexPackage(pkgname):
         return False
     return True
 
+def checkLatexCompiler():
+    try:
+        ver = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        return False
+    print("pdflatex is present")
+    return True
+
 # Check that the current Latex installation has all the required packages
 def checkLatexInstallation():
+    checkLatexCompiler()
     checkLatexPackageCLI("pdfpages")
     checkLatexPackageCLI("lastpage")
     checkLatexPackageCLI("grffile")
@@ -99,6 +108,19 @@ def checkLatexInstallation():
     checkLatexPackageCLI("changepage")
     checkLatexPackageCLI("graphicx")
     checkLatexPackageCLI("THIS_PACKAGE_DOES_NOT_EXIST")
+    
+def checkGhostscript():
+    try:
+        ver = subprocess.run(["gs", "--version"], capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        print("Ghostscript not found")
+        return False
+    ver1 = int(ver.split(".")[0])
+    if ver1 < 9:
+        print("Ghostscript version too old. Please update")
+        return False
+    print("Ghostscript is fine")
+    return True
 
 def removeFile(filename):
     # see: https://stackoverflow.com/questions/10840533/most-pythonic-way-to-delete-a-file-which-may-not-exist
@@ -141,13 +163,6 @@ def printTextHelp():
 def run(args):
     pre_include_pdf = ""
     post_include_pdf = ""
-
-    if(args.check_latex):
-        checkLatexInstallation()
-        exit_with_code("Exiting",1)
-    if(args.debug_print):
-        print(args)
-        exit_with_code("debug mode exit", 1)
 
     # debug-no-compile implies debug
     if args.debug_no_compile or args.debug_folder != 'temp':
@@ -365,7 +380,6 @@ def run(args):
         latex_pdf_filename_detokenize = r"\detokenize{"+linuxize(f)+"}"
         
         page_count = getPageCount(f)
-        print(f"pages={page_count}")
 
         pagestyle = "file"+str(filenum)
 
@@ -507,12 +521,6 @@ def run(args):
 
 def main(cmdargs):
 
-    # Check for pdflatex to be in path
-    try:
-        pdflatex_return = subprocess.call( ['pdflatex','--version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except FileNotFoundError:
-        exit_with_code("pdflatex is not in path. Please install a LaTeX distribution and make sure pdflatex is in path.", 1)
-
     # Get command line options
     # This formatter class prints default values in help
     # See: https://stackoverflow.com/questions/12151306/argparse-way-to-include-default-values-in-help
@@ -583,7 +591,6 @@ def main(cmdargs):
     parser.add_argument('--natural-sorting', action='store_true', default=False, help=u'When scanning a folder, use natural sorting algorithm to sort the files inside it')
     parser.add_argument('--overwrite', action='store_true', default=False, help=u'Overwrite output file if it exists already')
     parser.add_argument('--white-page', action='store_true', default=False, help=u'Put a white page after every pdf page')
-    parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--split-pages', action='store_true', default=False, 
         help=u'Split every input page in 2 equal output pages. '\
         'Use it, for example, if you have a pdf which consists of 2 physical pages in 1 pdf page and you want to split on them. ' \
@@ -608,6 +615,9 @@ def main(cmdargs):
         'Another way to select the last page of the document, is to use the keyword last.' \
         'E.g.: "--pages 3,{},8-11,15" will insert page 3, an empty page, pages from 8 to 11, and page 15. '\
         '"--pages=-" will insert all pages of the document, while "--pages=last-1" will insert all pages in reverse order.')
+        
+    parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
+    parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
 
     # Boolean parameters TO PASS TO PDFPAGES (AND ONLY FOR PDFPAGES)
     parser.add_argument('--clip', action='append_const', const='clip', dest='booleans', 
@@ -634,6 +644,19 @@ def main(cmdargs):
 
     #Parse arguments
     args = parser.parse_args(cmdargs)
+    
+    # Check dependencies
+    if(args.check_latex):
+        checkLatexInstallation()
+        exit_with_code("Exiting",1)
+        
+    if(args.check_ghostscript):
+        checkGhostscript()
+        exit_with_code("Exiting",1)
+        
+    if(args.debug_print):
+        print(args)
+        exit_with_code("debug mode exit", 1)
 
     if(args.verbose):
         print(args)
