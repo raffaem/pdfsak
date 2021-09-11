@@ -235,7 +235,7 @@ def run(args):
     # Change working directory to the temp folder. In this way, latex temporary files are created there
     os.chdir(temp_dir)
 
-    # 4. ******* Pre-compiling **********
+    # 4. Pre-compiling
 
     # -Latex input and pdf output file
     # Relative path -> We are already in the temporary directory
@@ -266,6 +266,7 @@ def run(args):
         #-Insert a white page after every pdf page
         if(args.white_page):
             args.pages = r"{\theit,{}}"
+        # Split pages
         if(args.split_pages):
             args.pages = r"{\theit}"
 
@@ -284,7 +285,7 @@ def run(args):
         "\n\t\\newpage"\
         "\n\t\\fi\n\t"
 
-    # ********** 5. Create latex script **********
+    # 5. Create LaTeX script
     latex_script = r"\documentclass"
     if(args.paper is not None):
         latex_script += '[' + args.paper + ']'
@@ -307,61 +308,59 @@ def run(args):
     latex_script += "\\newsavebox{\\textbox}\n"
     latex_script += "\\newlength{\\textboxwidth}\n"
 
-    # Build page styles
-    for filenum in range(len(input_pdf_files)):
+    # Create a fancy pagestyle
+    latex_script += "\\fancypagestyle{mystyle}"
+    latex_script += "{\n\t\\fancyhf{} % Start with clearing everything in the header and footer"
+    latex_script += "\n\t\\renewcommand{\\headrulewidth}{0pt}% No header rule"
+    latex_script += "\n\t\\renewcommand{\\footrulewidth}{0pt}% No footer rule\n\t"
 
-        file_basename = os.path.basename(input_pdf_files[filenum])
+    # Process add text
+    for texti, text in enumerate(args.text):
+    
+        # `text` is in the format [STRING, ANCHOR, WIDTH, HEIGHT]
 
-        # Create a fancy pagestyle for each input files
-        latex_script += "\\fancypagestyle{file""" + str(filenum) + "}"
-        latex_script += "{\n\t\\fancyhf{} % Start with clearing everything in the header and footer"
-        latex_script += "\n\t\\renewcommand{\\headrulewidth}{0pt}% No header rule"
-        latex_script += "\n\t\\renewcommand{\\footrulewidth}{0pt}% No footer rule\n\t"
+        # Process text string
+        text_proc = Template(text[0]).substitute(day=today.day, month=today.month, year=today.year, page=r'\thepage', pages=r'\pageref{LastPage}', filename=file_basename)
+        text_proc = text_proc.replace(r' ',r'~') #otherwise spaces will get ignored
+        text_proc = text_proc.replace(r'_',r'\_') #otherwise error occurs
 
-        # Process add text
-        for texti, text in enumerate(args.text):
+        # Position template
+        if text[1] == "tl":
+            anchh, anchv = 0, 0
+        elif text[1] == "tr":
+            anchh, anchv = 1, 0
+        elif text[1] == "bl":
+            anchh, anchv = 0, 1
+        elif text[1] == "br":
+            anchh, anchv = 1, 1
+        else:
+            print(f"Argument {text[1]} not valid")
 
-            # Process text string
-            text_proc = Template(text[0]).substitute(day=today.day, month=today.month, year=today.year, page=r'\thepage', pages=r'\pageref{LastPage}', filename=file_basename)
-            text_proc = text_proc.replace(r' ',r'~') #otherwise spaces will get ignored
-            text_proc = text_proc.replace(r'_',r'\_') #otherwise error occurs
+        # The default position of textpos is the top left page corner.
+        # In landscape mode this become the top right corner (rotation of 90 degress clockwise)
+        # But we want the units always expressed related to the top left corner. So we convert them.
+        if 'landscape' in args.booleans:
+            text[2], text[3] = text[3], text[2] #swap them
+            text_proc = "\\rotatebox{90}{"+text_proc+"}"
 
-            # Position template
-            if text[1] == "tl":
-                anchh, anchv = 0, 0
-            elif text[1] == "tr":
-                anchh, anchv = 1, 0
-            elif text[1] == "bl":
-                anchh, anchv = 0, 1
-            elif text[1] == "br":
-                anchh, anchv = 1, 1
-            else:
-                print(f"Argument {text[1]} not valid")
+        # Get the size of the text box
+        #latex_script += "\\savebox{\\textbox"+str(texti)+"}{"+text_proc+"}\n\t"
+        #latex_script += "\\settowidth{\\textbox"+str(texti)+"width}{\\usebox{\\textbox"+str(texti)+"} }\n\t"
+        latex_script += "\\savebox{\\textbox}{"+text_proc+"}\n"
+        latex_script += "\t\\settowidth{\\textboxwidth}{\\usebox{\\textbox} }\n"
 
-            # The default position of textpos is the top left page corner.
-            # In landscape mode this become the top right corner (rotation of 90 degress clockwise)
-            # But we want the units always expressed related to the top left corner. So we convert them.
-            if 'landscape' in args.booleans:
-                text[2], text[3] = text[3], text[2] #swap them
-                text_proc = "\\rotatebox{90}{"+text_proc+"}"
+        # Use textpos package: https://ctan.mirror.garr.it/mirrors/ctan/macros/latex/contrib/textpos/textpos.pdf
+        # textblock wants the position of the upper left corner of the text box.
+        # Starred version requires positions expressed as length (not relative to TPHorizModule)
+        #latex_script += "\\begin{textblock*}{\\textbox"+str(texti)+"width}"
+        latex_script += "\t\\begin{textblock*}{\\textboxwidth}"
+        latex_script += f"[{anchh},{anchv}]"
+        latex_script += "("+str(text[2])+"\\paperwidth, "+str(text[3])+"\\paperheight)\n"
+        latex_script += "\t\t\\raggedright "+text_proc+"\n"
+        latex_script += "\t\\end{textblock*}\n"
 
-            # Get the size of the text box
-            #latex_script += "\\savebox{\\textbox"+str(texti)+"}{"+text_proc+"}\n\t"
-            #latex_script += "\\settowidth{\\textbox"+str(texti)+"width}{\\usebox{\\textbox"+str(texti)+"} }\n\t"
-            latex_script += "\\savebox{\\textbox}{"+text_proc+"}\n"
-            latex_script += "\t\\settowidth{\\textboxwidth}{\\usebox{\\textbox} }\n"
-
-            # Use textpos package: https://ctan.mirror.garr.it/mirrors/ctan/macros/latex/contrib/textpos/textpos.pdf
-            # textblock wants the position of the upper left corner of the text box.
-            # Starred version requires positions expressed as length (not relative to TPHorizModule)
-            #latex_script += "\\begin{textblock*}{\\textbox"+str(texti)+"width}"
-            latex_script += "\t\\begin{textblock*}{\\textboxwidth}"
-            latex_script += f"[{anchh},{anchv}]"
-            latex_script += "("+str(text[2])+"\\paperwidth, "+str(text[3])+"\\paperheight)\n"
-            latex_script += "\t\t\\raggedright "+text_proc+"\n"
-            latex_script += "\t\\end{textblock*}\n"
-
-        latex_script += "} %end of fancypagestyle\n"
+    latex_script += "} %end of fancypagestyle\n"
+    # End of fancy page style
 
     # BEGIN DOCUMENT
     latex_script += "\\begin{document}\n\t";
@@ -414,7 +413,7 @@ def run(args):
             include_pdf_str += ",width="+str(args.width[0])+r"\paperwidth"
         if (args.height != 0):
             include_pdf_str += ",height="+str(args.height[0])+r"\paperheight"
-        include_pdf_str += r",pagecommand=\thispagestyle{" + pagestyle + "}"
+        include_pdf_str += r",pagecommand=\thispagestyle{mystyle}"
 
         # Boolean parameters for pdfpages package
         for boolpar in args.booleans:
