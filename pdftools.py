@@ -21,6 +21,12 @@ today = datetime.datetime.now()
 # -Calculate needed rounds of compilation
 needed_comp_rounds = 2
 
+def getPageCount(infp):
+    cmd = ["gs", "-q", "-dNOSAFER", "-dNODISPLAY", "-c", '"('+infp+') (r) file runpdfbegin pdfpagecount = quit"']
+    p = subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
+    p = int(p)
+    return p
+
 def trimArrayToStr(timarr):
     #trim_str = "{"
     trim_str = ""
@@ -311,7 +317,7 @@ def run(args):
     latex_script += "\\newsavebox{\\textbox}\n"
     latex_script += "\\newlength{\\textboxwidth}\n"
 
-    # File loop
+    # Build page styles
     for filenum in range(len(input_pdf_files)):
 
         file_basename = os.path.basename(input_pdf_files[filenum])
@@ -367,6 +373,7 @@ def run(args):
 
         latex_script += "} %end of fancypagestyle\n"
 
+    # BEGIN DOCUMENT
     latex_script += "\\begin{document}\n\t";
 
     # Insert input image files in latex script
@@ -381,6 +388,9 @@ def run(args):
     for filenum, f in enumerate(input_pdf_files):
 
         latex_pdf_filename_detokenize = r"\detokenize{"+linuxize(f)+"}"
+        
+        page_count = getPageCount(f)
+        print(f"pages={page_count}")
 
         pagestyle = "file"+str(filenum)
 
@@ -439,8 +449,8 @@ def run(args):
             flat = [int(item) for t in pairs for item in t]
             # Make sure there are no repetitions
             assert(len(set(flat)) == len(flat))
-            assert(min(flat) > 0)
-            assert(max(flat) > min(flat))
+            assert(min(flat) >= 1)
+            assert(max(flat) <= page_count)
             for a,b in pairs:
                 assert(a != b)
             # Generate page sequence
@@ -455,7 +465,9 @@ def run(args):
             args.pages = ""
             if min(flat) != 1:
                 args.pages += "1-" + str(min(flat)-1) + ","
-            args.pages += ",".join([str(x) for x in pagseq]) + f",{max(flat)+1}-"
+            args.pages += ",".join([str(x) for x in pagseq])
+            if max(flat) != page_count:
+                args.pages += f",{max(flat)+1}-"
 
         # Extract pages
         if(args.extract_pages):
