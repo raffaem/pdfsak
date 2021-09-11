@@ -445,12 +445,13 @@ def run(args):
         # Swap pages
         if(args.swap_pages):
             pag_list = list()
+            # Generate pages to swap by splitting on ","
             for p in args.pages.split(","):
                 pag_list.append(int(p))
             # Find maximum value
             maxv = max(pag_list)
             pages = list()
-            for n in range(1,maxv+1): #right limit is excluded
+            for n in range(1, maxv+1):
                 pages.append(n)
 
             for p in range(0,len(pag_list),2):
@@ -543,7 +544,7 @@ def main(cmdargs):
     try:
         pdflatex_return = subprocess.call( ['pdflatex','--version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except FileNotFoundError:
-        exit_with_code("Pdflatex is not in path. Please install a Latex distribution and make sure pdflatex is in path", 1)
+        exit_with_code("pdflatex is not in path. Please install a LaTeX distribution and make sure pdflatex is in path.", 1)
 
     # Check for pdftk to be in path
     try:
@@ -557,13 +558,11 @@ def main(cmdargs):
     # See: https://stackoverflow.com/questions/12151306/argparse-way-to-include-default-values-in-help
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('-if', '--input-file', action='append', default=[],
-    dest='input_files', required=False, help=u'Input pdf file. '\
-    'Use this flag again to merge multiple pdf files into one. ' )
+    parser.add_argument('-if', '--input-file', action='append', default=[], dest='input_files', required=False, 
+        help=u'Input pdf file. Use this flag again to merge multiple pdf files into one.')
 
-    parser.add_argument('-id', '--input-dir', action='append', default=[],
-    dest='input_dirs', required=False, help=u'Input a directory. '
-    'all pdf files inside it are merged togheter, sorted in alphabetical filename order. ' )
+    parser.add_argument('-id', '--input-dir', action='append', default=[], dest='input_dirs', required=False, 
+        help=u'Input a directory. All pdf files inside it will be merged togheter, sorted in alphabetical filename order.')
 
     # A mutually exclusive group to specify the output file name OR a suffix to append to the first input file name
     output_group = parser.add_mutually_exclusive_group()
@@ -572,56 +571,68 @@ def main(cmdargs):
 
     #Vector parameters
 
-    parser.add_argument('--paper', type=str, default=None, metavar=('PAPER_TYPE'), help=u'Specify output paper size. Can be: a4paper, letterpaper,'\
-        'a5paper, b5paper, executivepaper, legalpaper. The default is to use the same size as the input PDF')
+    parser.add_argument('--paper', type=str, default=None, metavar=('PAPER_TYPE'), 
+        help=u'Specify output paper size. ' \
+        'Can be: a4paper, letterpaper, a5paper, b5paper, executivepaper, legalpaper. ' \
+        'The default is to use the same size as the input PDF')
+    
     #parser.add_argument('--fitpaper', action='append_const', const='fitpaper', dest='booleans', help=u'Adjusts the paper size to the one of the inserted document')
 
-    parser.add_argument('--scale', nargs=1, type=float, default=0, metavar=('SCALE_FACTOR'), help=u'Scales the image by the desired scale factor. ' \
-        'E.g, 0.5 to reduce by half, or 2 to double. 0 means auto-scaling (default)')
-    parser.add_argument('--width', nargs=1, type=float, default=0, metavar=('WIDTH'), help=u'Width of 1 input page (take care of this in case of n-upping) '
-        'relative to output page width.')
-    parser.add_argument('--height', nargs=1, type=float, default=0, metavar=('HEIGHT'), help=u'Height of 1 input page (take care of this in case of n-upping)' \
-        'relative to output page height.')
-    parser.add_argument('--nup', nargs=2, type=int,   default=[1,1], metavar=('ROWS', 'COLS'), help=u'Nup pages, follow with number of rows and columns')
+    parser.add_argument('--scale', nargs=1, type=float, default=0, metavar=('SCALE_FACTOR'), 
+        help=u'Scales the image by the desired scale factor. ' \
+        'E.g, 0.5 to reduce by half, or 2 to double. 0 means auto-scaling (default).')
+    parser.add_argument('--width', nargs=1, type=float, default=0, metavar=('WIDTH'), 
+        help=u'Width of 1 input page (take care of this in case of n-upping) relative to output page width.')
+    parser.add_argument('--height', nargs=1, type=float, default=0, metavar=('HEIGHT'), 
+        help=u'Height of 1 input page (take care of this in case of n-upping) relative to output page height.')
+    parser.add_argument('--nup', nargs=2, type=int, default=[1,1], metavar=('ROWS', 'COLS'), help=u'N-up pages, follow with number of rows and columns')
 
-    parser.add_argument('--offset', nargs=2, type=str, default=['0','0'], metavar=('RIGHT', 'TOP'), help=u'The inserted logical pages are being centered ' \
-        'on the sheet of paper by default. To displace them use the offset option, which argument should be two dimensions. E.g. offset=10mm 14mm means that the logical' \
-        'pages are displaced by 10 mm in horizontal direction and by 14 mm in vertical direction. In oneside documents, positive values shift the pages to the right and to' \
-        'the top margin, respectively, whereas in ‘twoside’ documents, positive values shift the pages to the outer and to the top margin, respectively.')
+    parser.add_argument('--offset', nargs=2, type=str, default=['0','0'], metavar=('RIGHT', 'TOP'), 
+        help=u'The inserted logical pages are being centered on the sheet of paper by default. ' \
+        'Use this option, which takes two arguments, to displace them. ' \
+        'E.g. --offset=10mm 14mm means that the logical pages are displaced by 10 mm in horizontal direction and by 14 mm in vertical direction. ' \
+        'In oneside documents, positive values shift the pages to the right and to the top margin, respectively. '\
+        'In ‘twoside’ documents, positive values shift the pages to the outer and to the top margin, respectively.')
 
-    parser.add_argument('--trim', nargs=4, type=str, default=['0','0','0','0'], metavar=('Left', 'Bottom', 'Right', 'Top'), help=u'Crop pdf page. ' \
-        'You can use the following variables: \pdfwidth is the width of a pdf page, \pdfheight is the height of a pdf page. Both are calculated on the first page of the pdf. So for example "--trim 0 .5\pdfwidth .2\pdfheight 0" will trim the pages half from the right and 20 per cent from the bottom')
-    parser.add_argument('--delta',  nargs=2, type=str, default=['0','0'], metavar=('X', 'Y'), help=u'By default logical pages are being arranged side by side.' \
-        'To put some space between them, use the delta option, whose argument should be two dimensions.')
+    parser.add_argument('--trim', nargs=4, type=str, default=['0','0','0','0'], metavar=('Left', 'Bottom', 'Right', 'Top'), 
+        help=u'Crop pdf page. ' \
+        'You can use the following variables: \pdfwidth is the width of a pdf page, \pdfheight is the height of a pdf page. '
+        'Both are calculated on the first page of the pdf. ' \
+        'So for example "--trim 0 .5\pdfwidth .2\pdfheight 0" will trim the pages half from the right and 20 per cent from the bottom')
+    
+    parser.add_argument('--delta',  nargs=2, type=str, default=['0','0'], metavar=('X', 'Y'), 
+        help=u'By default logical pages are being arranged side by side. ' \
+        'To put some space between them, use the delta option, which takes two arguments.')
+    
     parser.add_argument('--custom', help=u'Custom pdfpages options')
-    parser.add_argument('--pages', default="-", help=u'Selects pages to insert. The argument is a comma separated list, containing page numbers '\
-        '(e.g. --pages 3,5,6,8), ranges of page numbers (e.g. --pages 4-9) or any combination fo the previous.'\
-        'To insert empty pages use {}. '\
-        'Page ranges are specified by the following syntax: m-n. This selects'\
-        'all pages from m to n. Omitting m defaults to the first page; omitting'\
-        'n defaults to the last page of the document. Another way to select' \
-        'the last page of the document, is to use the keyword last.' \
+    
+    parser.add_argument('--pages', default="-", 
+        help=u'Selects pages to insert. ' \
+        'The argument is a comma separated list, containing page numbers (e.g. 3,5,6,8), ranges of page numbers (e.g. 4-9) or any combination of the previous. ' \
+        'To insert empty pages, use {}. ' \
+        'Page ranges are specified by the following syntax: m-n. This selects all pages from m to n. ' \
+        'Omitting m defaults to the first page; omitting n defaults to the last page of the document. ' \
+        'Another way to select the last page of the document, is to use the keyword last.' \
         'E.g.: "--pages 3,{},8-11,15" will insert page 3, an empty page, pages from 8 to 11, and page 15. '\
-        '"--pages=-" will insert all pages of the document, and "--pages=last-1"' \
-        'will insert all pages in reverse order.')
+        '"--pages=-" will insert all pages of the document, while "--pages=last-1" will insert all pages in reverse order.')
 
-    parser.add_argument('-t', '--text', nargs=4, type=str, action='append',
-    metavar=('text_string', 'anchor', 'hpos', 'vpos'),
-    help="Add text to pdf file. \n" \
-    "'text_string' is the string to add, special variables can be passed, as well as LaTeX font sizes like \Huge. " \
-    "Call --text-help for help on how to build this string. " \
-    "'anchor' is the point of the text box (the box surrounding the text) to position: " \
-    "'tl' will position the top-left corner, " \
-    "'tr' will position the top-right corner, " \
-    "'bl' will position the bottom-left corner, " \
-    "'br' will position the bottom-right corner, " \
-    "all other parameters are invalid. \n" \
-    "'hpos' and 'vpos' are numbers between 0 and 1 that represent " \
-    "how far is 'anchor' from the top left corner of the page.")
+    parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'),
+        help="Add text to pdf file. " \
+        "'text_string' is the string to add, special variables can be passed, as well as LaTeX font sizes like \Huge. " \
+        "Call --text-help for help on how to build this string. " \
+        "'anchor' is the point of the text box (the box surrounding the text) to position: " \
+        "'tl' will position the top-left corner, " \
+        "'tr' will position the top-right corner, " \
+        "'bl' will position the bottom-left corner, " \
+        "'br' will position the bottom-right corner, " \
+        "all other parameters are invalid. " \
+        "'hpos' and 'vpos' are numbers between 0 and 1 that represent how far is 'anchor' from the top left corner of the page.")
 
-    parser.add_argument('--text-help', action='store_true', help=u'Print the help to build a text string to pass to the -t/--text option')
+    parser.add_argument('--text-help', action='store_true', help=u'Print help on how to build a text string for the -t/--text option')
 
-    parser.add_argument('--extract-pages', type=str, metavar=('file_name'), help=u'Read pages to extract from a text file. In the text file pages can be separated by newline character or by space (or mixed)')
+    parser.add_argument('--extract-pages', type=str, metavar=('file_name'), 
+        help=u'Read pages to extract from a text file. ' \
+        'In the text file pages can be separated by a newline character or by a space (or a mix of both)')
 
     #Boolean parameters NOT for pdfpages
     parser.add_argument('--natural-sorting', action='store_true', default=False, help=u'When scanning a folder, use natural sorting algorithm to sort the files inside it')
@@ -630,21 +641,24 @@ def main(cmdargs):
     parser.add_argument('--white-page', action='store_true', default=False, help=u'Put a white page after every pdf page')
     parser.add_argument('--repair', action='store_true', default=False, help=u'Try to repair the input PDF files. You need pdftk for this')
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
-    parser.add_argument('--split-pages', action='store_true', default=False, help=u'Split every input page in 2 equal output pages. '\
-        'Use it, for example, if you have a pdf which consists of 2 physical pages in 1 pdf page and you want to split them. Use it on conjuction with trim,'\
-        'with which you will specify the left page. If you specify --trim L B R T, the left page will be obtained by trimming with {L B R T}, '\
-        'while the right page will be obtained by trimming with {R f L B} (note the swap in left-right and in top-bottom). Use \pdfwidth and \pdfheight '\
-        'paramenters in trim option to specify trim relative to page size')
+    parser.add_argument('--split-pages', action='store_true', default=False, 
+        help=u'Split every input page in 2 equal output pages. '\
+        'Use it, for example, if you have a pdf which consists of 2 physical pages in 1 pdf page and you want to split on them. ' \
+        'Use it on conjuction with trim, with which you will specify the left page. ' \
+        'If you specify --trim L B R T, the left page will be obtained by trimming with {L B R T}, '\
+        'while the right page will be obtained by trimming with {R T L B} (note the swap in left-right and in top-bottom). ' \
+        'Use \pdfwidth and \pdfheight paramenters in trim option to specify trim relative to page size')
     parser.add_argument('--swap-pages', action='store_true', default=False, help=u'--pages-list specify a text file with a space-separated list of pages to swap')
 
     parser.add_argument('--last-page-even', action='store_true', default=False, help=u'Last page of every included pdf must be even.'\
         'If it is odd, add a white page')
 
     #Boolean parameters TO PASS TO PDFPAGES (AND ONLY FOR PDFPAGES)
-    parser.add_argument('--clip', action='append_const', const='clip', dest='booleans', help=u'Used togheter with trim, will actually remove the cropped '\
-        'part from the pdfpage. If false, the cropped part is present on the physical file, but the pdf reader is instructed to ignore it')
-    parser.add_argument('--landscape', action='append_const', const='landscape', dest='booleans', help=u'Output file is in landscape layer instead of portrait')
-    parser.add_argument('--frame', action='append_const', const='frame', dest='booleans', help=u'Put a frame around every logical page')
+    parser.add_argument('--clip', action='append_const', const='clip', dest='booleans', 
+        help=u'Used togheter with trim, will actually remove the cropped part from the pdfpage. '\
+        'If false, the cropped part is present on the physical file, but the pdf reader is instructed to ignore it.')
+    parser.add_argument('--landscape', action='append_const', const='landscape', dest='booleans', help=u'Output file is in landscape layer instead of portrait.')
+    parser.add_argument('--frame', action='append_const', const='frame', dest='booleans', help=u'Put a frame around every logical page.')
 
     #-Debug options-
     #Create temporary folder in the current working directory instead of system's default path for temporary files
