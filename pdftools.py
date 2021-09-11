@@ -85,18 +85,18 @@ def checkLatexPackageCLI(pkgname):
         print("Checking "+pkgname+": found")
 
 def checkLatexPackage(pkgname):
-    latex_file_name = "check.tex"
+    latex_tex_fp = "check.tex"
     latex_script = "\\documentclass{article} \
     \n\\usepackage{"+pkgname+"} \
     \n\\begin{document}\
     \nHello\
     \n\\end{document}"
     # Write latex file
-    latex_file = open(latex_file_name,"w")
+    latex_file = open(latex_tex_fp,"w")
     latex_file.write(latex_script)
     latex_file.close()
     # Compile latex file
-    latex_return = subprocess.call( ["pdflatex","--interaction=batchmode",""+latex_file_name] , stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    latex_return = subprocess.call( ["pdflatex","--interaction=batchmode",""+latex_tex_fp] , stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     removeFile("check.tex")
     removeFile("check.pdf")
     removeFile("check.aux")
@@ -255,10 +255,12 @@ def run(args):
     # 4. ******* Pre-compiling **********
 
     # -Latex input and pdf output file
-    latex_file_name = "latex_file.tex" #Relative path
-    latex_pdf_name = os.path.join(temp_dir,"latex_file.pdf")
-    if(os.path.isfile(latex_file_name)): #Check for existence of the LaTeX file and remove it. Useful in debug mode.
-        os.remove(latex_file_name)
+    # Relative path -> We are already in the temporary directory
+    latex_tex_fp = "latex_file.tex" 
+    latex_pdf_fp = "latex_file.pdf"
+    # Check for existence of the LaTeX file and remove it. Useful in debug mode.
+    if(os.path.isfile(latex_tex_fp)): 
+        os.remove(latex_tex_fp)
 
     # -In landscape mode, rows and columns number for nup are swapped
     if 'landscape' in args.booleans:
@@ -497,9 +499,8 @@ def run(args):
     latex_script += r'\end{document}'
 
     # Write latex file
-    latex_file = open(latex_file_name,"w")
-    latex_file.write(latex_script)
-    latex_file.close()
+    with open(latex_tex_fp, "w", encoding="utf8") as fh:
+        fh.write(latex_script)
 
     # Compile
     if not args.debug_no_compile:
@@ -508,7 +509,7 @@ def run(args):
                 print("Compilation round: " + str(i+1) + "/" + str(needed_comp_rounds))
             # Python 3.3 and higher support subprocess.DEVNULL to suppress output.
             # See (http://stackoverflow.com/questions/699325/suppress-output-in-python-calls-to-executables)
-            latex_return = subprocess.call( ["pdflatex","--interaction=batchmode",latex_file_name],
+            latex_return = subprocess.call( ["pdflatex", "--interaction=batchmode", latex_tex_fp],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             if latex_return != 0 or \
                not os.path.isfile('latex_file.pdf') or \
@@ -525,7 +526,7 @@ def run(args):
                     exit_with_code("Latex failed to compile the file. Please run again with --debug option, then report at https://github.com/raffamaiden/pdftools/issues attaching ./temp/report.gz", 1)
         # ** End of all compilation rounds (for loop) **
         # Copy resulting pdf file from temporary folder to output directory
-        shutil.copyfile(latex_pdf_name, args.output)
+        shutil.copyfile(latex_pdf_fp, args.output)
 
     # Open output pdf
     if args.open:
