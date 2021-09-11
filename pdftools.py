@@ -236,7 +236,7 @@ def run(args):
         if args.overwrite:
             os.remove(args.output)
         else:
-            exit_with_code("FATAL ERROR: File \""+args.output+"\" already exists. Use --overwrite if you want to overwrite it", 1)
+            exit_with_code(f"FATAL ERROR: File {args.output} already exists. Use --overwrite if you want to overwrite it", 1)
 
     # 3. Create temporary directory
     temp_dir = ''
