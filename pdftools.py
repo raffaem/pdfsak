@@ -420,7 +420,7 @@ def run(args):
             include_pdf_str += r"," + boolpar
 
         # Custom arguments for pdfpages package
-        if args.custom != None and args.custom != "":
+        if args.custom:
             include_pdf_str += r"," + args.custom
 
         # Finalize with input filename
@@ -439,8 +439,6 @@ def run(args):
             assert(len(set(flat)) == len(flat))
             assert(min(flat) >= 1)
             assert(max(flat) <= page_count)
-            for a,b in pairs:
-                assert(a != b)
             # Generate page sequence
             pagseq = list(range(min(flat), max(flat)+1))
             # Swap pages
