@@ -60,19 +60,6 @@ def natural_keys(text):
     '''
     return [ atoi(c) for c in re.split('(\d+)', text) ]
 
-# Reads a list of pages to extract from a file. Used with the --extract-pages option
-def readListFromFile(filename):
-    filename = os.path.join(previous_cwd,filename)
-    if not os.path.isfile(filename):
-        exit_with_code("List file \"" + filename+"\" not found",1)
-    f = open(filename,'r')
-    l = list()
-    for line in f:
-        slt_list = line.split(' ')
-        for slt in slt_list:
-            l.append(int(slt))
-    return l
-
 # Check the presence of a single Latex package
 def checkLatexPackageCLI(pkgname):
     res = checkLatexPackage(pkgname)
@@ -469,19 +456,9 @@ def run(args):
             if max(flat) != page_count:
                 args.pages += f",{max(flat)+1}-"
 
-        # Extract pages
-        if(args.extract_pages):
-            print("Reading pages to extract from: {}".format(args.extract_pages))
-            pag_list = readListFromFile(args.extract_pages)
-            pag_list.sort()
-            print("Extracting the following pages: {}".format(','.join([str(a) for a in pag_list])))
-            for p in pag_list:
-                if(p is not pag_list[0]):
-                    args.pages += ","
-                args.pages += str(p)
-
         # -Adjust pages syntax
-        if(args.pages[0] != "{"): #Avoids to get page={{{{-}}}} when merging multiple pdf files together
+        # Avoids to get page={{{{-}}}} when merging multiple pdf files together
+        if(args.pages[0] != "{"): 
             args.pages = "{" + args.pages + "}"
 
         # Add include_pdf_str to latex_script
@@ -617,10 +594,6 @@ def main(cmdargs):
         "'hpos' and 'vpos' are numbers between 0 and 1 that represent how far is 'anchor' from the top left corner of the page.")
 
     parser.add_argument('--text-help', action='store_true', help=u'Print help on how to build a text string for the -t/--text option')
-
-    parser.add_argument('--extract-pages', type=str, metavar=('file_name'), 
-        help=u'Read pages to extract from a text file. ' \
-        'In the text file pages can be separated by a newline character or by a space (or a mix of both)')
 
     #Boolean parameters NOT for pdfpages
     parser.add_argument('--natural-sorting', action='store_true', default=False, help=u'When scanning a folder, use natural sorting algorithm to sort the files inside it')
