@@ -381,19 +381,15 @@ def run(args):
         page_count = getPageCount(input_pdf_files[0])
         pagesl = list(range(1, page_count+1))
         input_pdf_files = [input_pdf_files[0]]*page_count
-        print("len(input_pdf_files)")
-        print(len(input_pdf_files))
-        print("pagesl")
-        print(pagesl)
-        print("page_count")
-        print(page_count)
         
     # Insert input PDF files in latex script
     for filenum, f in enumerate(input_pdf_files):
 
         latex_pdf_filename_detokenize = r"\detokenize{"+linuxize(f)+"}"
         
-        if not args.rotate_pages:
+        # Update page_count only if we need too    
+        if (filenum==0 and page_count is None) or \
+            (f != input_pdf_files[filenum-1]:
             page_count = getPageCount(f)
 
         # Page numbers are needed on some pre include scripts (e.g. white pages)
