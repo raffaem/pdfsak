@@ -581,14 +581,14 @@ def main(cmdargs):
     parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'),
         help="Add text to pdf file. " \
         "'text_string' is the string to add, special variables can be passed, as well as LaTeX font sizes like \Huge. " \
-        "Call --text-help for help on how to build this string. " \
-        "'anchor' is the point of the text box (the box surrounding the text) to position: " \
-        "'tl' will position the top-left corner, " \
-        "'tl' will position the middle of the top edge, " \
-        "'tr' will position the top-right corner, " \
-        "'bl' will position the bottom-left corner, " \
-        "'bm' will position the middle of the bottom edge, " \
-        "'br' will position the bottom-right corner, " \
+        "Pass --text-help for help on how to build this string. " \
+        "'anchor' sets the side of the text box (the box surrounding the text) where it is anchored (where its position is measured from):" \
+        "'tl' - top-left corner, " \
+        "'tm' - middle of the top edge, " \
+        "'tr' - top-right corner, " \
+        "'bl' - bottom-left corner, " \
+        "'bm' - middle of the bottom edge, " \
+        "'br' - bottom-right corner, " \
         "all other parameters are invalid. " \
         "'hpos' and 'vpos' are numbers between 0 and 1 that represent how far is 'anchor' from the top left corner of the page.")
 
