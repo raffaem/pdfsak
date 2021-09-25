@@ -151,7 +151,7 @@ def linuxize(str):
 def printTextHelp():
     # text_proc = Template(text[0]).substitute(day=today.day, month=today.month, year=today.year, page=r'\thepage', pages=r'\pageref{LastPage}', filename=file_basename)
     print("Prepend these variables with a $ sign (e.g. $day). \
-        Notice that on bash the $ sign must be escape (\\$): \
+        Note that in bash, the $ sign must be escaped (\\$): \
         \nday = day of today \
         \nmonth = today month \
         \nyear = today year \
@@ -326,10 +326,14 @@ def run(args):
             anchh, anchv = 0, 0
         elif text[1] == "tr":
             anchh, anchv = 1, 0
+        elif text[1] == "tm":
+            anchh, anchv = 0.5, 0
         elif text[1] == "bl":
             anchh, anchv = 0, 1
         elif text[1] == "br":
             anchh, anchv = 1, 1
+        elif text[1] == "bm":
+            anchh, anchv = 0.5, 1
         else:
             print(f"Argument {text[1]} not valid")
 
@@ -577,12 +581,14 @@ def main(cmdargs):
     parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'),
         help="Add text to pdf file. " \
         "'text_string' is the string to add, special variables can be passed, as well as LaTeX font sizes like \Huge. " \
-        "Call --text-help for help on how to build this string. " \
-        "'anchor' is the point of the text box (the box surrounding the text) to position: " \
-        "'tl' will position the top-left corner, " \
-        "'tr' will position the top-right corner, " \
-        "'bl' will position the bottom-left corner, " \
-        "'br' will position the bottom-right corner, " \
+        "Pass --text-help for help on how to build this string. " \
+        "'anchor' sets the side of the text box (the box surrounding the text) where it is anchored (where its position is measured from):" \
+        "'tl' - top-left corner, " \
+        "'tm' - middle of the top edge, " \
+        "'tr' - top-right corner, " \
+        "'bl' - bottom-left corner, " \
+        "'bm' - middle of the bottom edge, " \
+        "'br' - bottom-right corner, " \
         "all other parameters are invalid. " \
         "'hpos' and 'vpos' are numbers between 0 and 1 that represent how far is 'anchor' from the top left corner of the page.")
 
