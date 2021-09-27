@@ -393,7 +393,7 @@ def run(args):
         
         # Update page_count only if we need too    
         if (filenum==0 and page_count is None) or \
-            (f != input_pdf_files[filenum-1]:
+            (f != input_pdf_files[filenum-1]):
             page_count = getPageCount(f)
 
         # Page numbers are needed on some pre include scripts (e.g. white pages)
