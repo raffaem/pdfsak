@@ -379,7 +379,6 @@ def run(args):
         if len(input_pdf_files) > 1:
             exit_with_code("Page rotation is only supported with one input PDF file", 1)
         rotmap = {int(page):int(angle) for pair in args.rotate_pages.split(";") for page,angle in [pair.split("=")]}
-        print(f"rotmap={rotmap}")
         page_count = getPageCount(input_pdf_files[0])
         pagesl = list(range(1, page_count+1))
         input_pdf_files = [input_pdf_files[0]]*page_count
@@ -407,7 +406,6 @@ def run(args):
         pages = pagesl[filenum]
         # Swap pages
         if(args.swap_pages):
-            print(f"args.swap_pages={args.swap_pages}")
             # Make a list of tuples. Each tuple contains the page pair to swap
             pairs = [pair.split(",") for pair in args.swap_pages.split(";")]
             pairs = [(int(a), int(b)) for a,b in pairs]
