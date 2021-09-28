@@ -7,7 +7,7 @@
 
 ../../pdftools.py --input-file ../input/presentation.pdf --output ../output/handout3x2_W.pdf --white-page
 
-../../pdftools.py --input-file ../output/handout3x2_W.pdf --output ../output/handout3x2.pdf --nup 3 2 --height 0.2 --landscape --frame --paper a4paper --text \$filename tl 0.4 0.01
+../../pdftools.py --input-file ../output/handout3x2_W.pdf --output ../output/handout3x2.pdf --nup 3 2 --height 0.2 --landscape --frame --paper a4paper
 
 rm ../output/handout3x2_W.pdf
 
