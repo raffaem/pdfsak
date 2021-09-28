@@ -1,7 +1,9 @@
-# Pdftools
+# pdftools
 
 ## About it
-Python script to:
+pdftools is an utility to manipulate PDF files.
+
+It allows you to:
 
 * Merge PDF files
 * N-up pages (put more than one input page into a single output page)
@@ -34,11 +36,11 @@ pdftools currently has no GUI but only a CLI.
 * [Python](https://www.python.org/) >= 3.3
 * A LaTeX distribution like [TexLive](https://www.tug.org/texlive/) or [MikTex](http://miktex.org/)
     * The following packages must be available in your LaTeX distribution:
-        * [pdfpages](https://www.ctan.org/pkg/pdfpages?lang=en)
+        * [pdfpages](https://www.ctan.org/pkg/pdfpages)
         * [lastpage](https://www.ctan.org/pkg/lastpage)
         * [grffile](https://www.ctan.org/pkg/grffile)
         * [forloop](https://www.ctan.org/pkg/forloop)
-        * [fancyhdr](https://www.ctan.org/pkg/fancyhdr?lang=en)
+        * [fancyhdr](https://www.ctan.org/pkg/fancyhdr)
         * [textpos](https://www.ctan.org/pkg/textpos)
         * [changepage](https://www.ctan.org/pkg/changepage)
 
