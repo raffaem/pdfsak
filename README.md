@@ -15,7 +15,7 @@ Python script to:
 * Remove metadata from PDF file
 * And more
 
-Disover all the functionalities by running
+Disover all the functionalities by running:
 
 	pdftools.py --help
 
@@ -53,4 +53,4 @@ pdftools currently has no GUI but only a CLI.
 * [Ghostscript](https://www.ghostscript.com/) must be available through the `gs` command
     * You can check its presence by running:
 
-    `pdftools.py --check-ghostscript`
+        `pdftools.py --check-ghostscript`
