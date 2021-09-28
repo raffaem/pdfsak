@@ -69,7 +69,7 @@ Create an output pdf file in which every page is a page of your book, by splitti
 
 ### Where can I find the examples?
 
-All the examples listed here and much more can be found in the `examples` directory.
+All the examples listed here and much more can be found in the `examples/scripts` directory.
 
 Take a look at this directory to learn how to achieve all of this and more!
 
