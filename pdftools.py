@@ -430,6 +430,8 @@ def run(args):
             pages += ",".join([str(x) for x in pagseq])
             if max(flat) != page_count:
                 pages += f",{max(flat)+1}-"
+            # Enclose `pages` in curly brackets
+            pages = "{" + pages + "}"
 
         # Include the pdf
         include_pdf_str = "%Importing the pdf \n \t"

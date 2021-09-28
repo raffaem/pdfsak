@@ -2,4 +2,4 @@
 
 # This example swap the pages of a input PDF file
 
-../../pdftools.py --input-file ../input/numbered.pdf --output ../output/swap_pages_start.pdf --swap-pages "1,2;3,4"
+../../pdftools.py --input-file ../input/numbered.pdf --output ../output/swap_pages_start.pdf --swap-pages "1,2;3,4" --debug
