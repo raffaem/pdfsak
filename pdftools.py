@@ -149,15 +149,13 @@ def linuxize(str):
     return str.replace("\\","/")
 
 def printTextHelp():
-    # text_proc = Template(text[0]).substitute(day=today.day, month=today.month, year=today.year, page=r'\thepage', pages=r'\pageref{LastPage}', filename=file_basename)
     print("Prepend these variables with a $ sign (e.g. $day). \
         Note that in bash, the $ sign must be escaped (\\$): \
         \nday = day of today \
         \nmonth = today month \
         \nyear = today year \
         \npage = current page \
-        \npages = total number of pages \
-        \nfilename = input pdf filename (without path and without extension} ")
+        \npages = total number of pages")
 
 # The core of the software
 def run(args):
@@ -317,7 +315,7 @@ def run(args):
         # `text` is in the format [STRING, ANCHOR, WIDTH, HEIGHT]
 
         # Process text string
-        text_proc = Template(text[0]).substitute(day=today.day, month=today.month, year=today.year, page=r'\thepage', pages=r'\pageref{LastPage}', filename=file_basename)
+        text_proc = Template(text[0]).substitute(day=today.day, month=today.month, year=today.year, page=r'\thepage', pages=r'\pageref{LastPage}')
         text_proc = text_proc.replace(r' ',r'~') #otherwise spaces will get ignored
         text_proc = text_proc.replace(r'_',r'\_') #otherwise error occurs
 
