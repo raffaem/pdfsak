@@ -145,9 +145,6 @@ def arrayToString(arr, ldelim = "", rdelim=""):
         ostr += ldelim + str(arr[i]) + rdelim + " "
     return ostr
 
-def linuxize(str):
-    return str.replace("\\","/")
-
 def printTextHelp():
     print("Prepend these variables with a $ sign (e.g. $day). \
         Note that in bash, the $ sign must be escaped (\\$): \
@@ -294,6 +291,7 @@ def run(args):
     "\n\\usepackage{changepage} %Implement check to get if current page is odd or even" \
     "\n\\strictpagecheck" \
     "\n\\newcounter{pdfpagenum}" \
+    "\n% Save shape of the PDF file" \
     "\n\\newsavebox{\\mybox}" \
     "\n\\newlength{\\pdfwidth}" \
     "\n\\newlength{\\pdfheight} \n"
@@ -406,8 +404,6 @@ def run(args):
         
     # Insert input PDF files in latex script
     for filenum, f in enumerate(input_pdf_files):
-
-        latex_pdf_filename_detokenize = r"\detokenize{"+linuxize(f)+"}"
         
         # Update page_count only if we need too    
         if (filenum==0 and page_count is None) or \
@@ -416,12 +412,12 @@ def run(args):
 
         # Page numbers are needed on some pre include scripts (e.g. white pages)
         latex_script += "%Get the number of pdf pages"\
-        "\n\t\\pdfximage{"""+latex_pdf_filename_detokenize+"}"\
+        "\n\t\\pdfximage{""" + f + "}"\
         "\n\t\\setcounter{pdfpagenum}{\\pdflastximagepages}\n\t"
 
         # Pre-include script (e.g. insert a white page after every logical page).
         # Substitute latex_pdf_filename variable
-        latex_script += pre_include_pdf.replace(r"latex_pdf_filename", latex_pdf_filename_detokenize)
+        latex_script += pre_include_pdf.replace(r"latex_pdf_filename", f)
         
         # Page management
         pages = pagesl[filenum]
@@ -496,7 +492,7 @@ def run(args):
             include_pdf_str += r", angle=" + str(rotmap[pages])
 
         # Finalize with input filename
-        include_pdf_str += "]{" + linuxize(f) + "} \n\t";
+        include_pdf_str += "]{" + f + "} \n\t";
         # DO NOT PUT SPACES IN FILENAMES. THE FILENAME IS GET AS IT, VERY LITERALLY
 
         # Add include_pdf_str to latex_script
