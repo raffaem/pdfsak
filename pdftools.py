@@ -286,15 +286,36 @@ def run(args):
         latex_script += '[' + args.paper + ']'
     latex_script += "{article}"\
     "\n\\usepackage[utf8x]{inputenc}" \
-    "\n\\usepackage{grffile} %To avoid problems with pdf filenames. N.B. MUST BE BEFORE PDFPAGES TO AVOID BUG!"\
-    "\n\\usepackage{pdfpages, lastpage, fancyhdr, forloop, geometry, calc, graphicx}"\
-    "\n\\usepackage[absolute]{textpos}"\
-    "\n\\usepackage{changepage} %Implement check to get if current page is odd or even"\
-    "\n\\strictpagecheck"\
-    "\n\\newcounter{pdfpagenum}"\
-    "\n\\newsavebox{\\mybox}"\
-    "\n\\newlength{\\pdfwidth}"\
-    "\n\\newlength{\\pdfheight}\n"
+    "\n%To avoid problems with pdf filenames. N.B. MUST BE BEFORE PDFPAGES TO AVOID BUG!" \
+    "\n\\usepackage[multidot, extendedchars]{grffile}" \
+    "\n\\usepackage{pdfpages, lastpage, fancyhdr, forloop, geometry, calc, graphicx}" \
+    "\n\\usepackage{xparse,letltxmacro}" \
+    "\n\\usepackage[absolute]{textpos}" \
+    "\n\\usepackage{changepage} %Implement check to get if current page is odd or even" \
+    "\n\\strictpagecheck" \
+    "\n\\newcounter{pdfpagenum}" \
+    "\n\\newsavebox{\\mybox}" \
+    "\n\\newlength{\\pdfwidth}" \
+    "\n\\newlength{\\pdfheight} \n"
+    
+    # Black magic to have PDF files with commas in their filename work
+    # See: https://tex.stackexchange.com/a/372722/74382
+    latex_script += r"""
+% save the original macro    
+\LetLtxMacro\ORIincludepdf\includepdf
+
+\ExplSyntaxOn
+\RenewDocumentCommand{\includepdf}{O{}m}
+ {
+  % store the file name as a string
+  \tl_set:Nx \l_tmpa_tl { \tl_to_str:n { #2 } }
+  % replace commas (catcode 12) with commas (catcode 11)
+  \tl_replace_all:Nnf \l_tmpa_tl { , } { \char_generate:nn { `, } { 11 } }
+  \ORIincludepdf[#1]{\l_tmpa_tl}
+ }
+\cs_generate_variant:Nn \tl_replace_all:Nnn { Nnf }
+\ExplSyntaxOff
+    """
 
     # Generate variables to hold the text boxes and the text boxes' widths
     #for i in range(len(args.text)):
@@ -475,7 +496,7 @@ def run(args):
             include_pdf_str += r", angle=" + str(rotmap[pages])
 
         # Finalize with input filename
-        include_pdf_str += "]{" + latex_pdf_filename_detokenize + "} \n\t";
+        include_pdf_str += "]{" + linuxize(f) + "} \n\t";
         # DO NOT PUT SPACES IN FILENAMES. THE FILENAME IS GET AS IT, VERY LITERALLY
 
         # Add include_pdf_str to latex_script
