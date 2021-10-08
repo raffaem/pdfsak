@@ -383,7 +383,6 @@ def run(args):
     # Insert input image files in latex script
     for filenum in range(len(input_img_files)):
         f = input_img_files[filenum]
-        f = linuxize(f)
         latex_script += "\\begin{figure}"\
         "\n\\includegraphics[width=\\linewidth]{"+f+"}"\
         "\n\\end{figure}"
