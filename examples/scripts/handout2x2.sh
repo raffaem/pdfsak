@@ -7,6 +7,6 @@
 
 ../../pdftools.py --input-file ../input/presentation.pdf --output ../output/handout2x2_W.pdf --white-page --overwrite
 
-../../pdftools.py --input-file ../output/handout2x2_W.pdf --output ../output/handout2x2.pdf --nup 2 2 --height 0.32 --landscape --frame --paper a4paper
+../../pdftools.py --input-file ../output/handout2x2_W.pdf --output ../output/handout2x2.pdf --nup 2 2 --height 0.32 --landscape --frame --paper a4paper --overwrite
 
 rm ../output/handout2x2_W.pdf

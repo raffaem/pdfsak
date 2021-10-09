@@ -256,17 +256,6 @@ def run(args):
     "\n\t\\settowidth{\\pdfwidth}{\\usebox{\\mybox}}" \
     "\n\t\\settoheight{\\pdfheight}{\\usebox{\\mybox}} \n\t"
 
-    # -Loop to include pages one at a time. Use 'latex_pdf_filename' variable
-    if(args.white_page):
-        #-Insert a white page after every pdf page
-        if(args.white_page):
-            args.pages = r"{\theit,{}}"
-
-        pre_include_pdf += "%Loop adding one single page at a time"\
-        "\n\t\\newcounter{it}"\
-        "\n\t\\forloop{it}{1}{\\value{it} < \\numexpr \\thepdfpagenum+1} {\n\t"
-        post_include_pdf += "} \n"
-
     # -Keep last page even
     if(args.last_page_even):
         post_include_pdf += "\\clearpage"\
@@ -435,7 +424,7 @@ def run(args):
             assert(max(flat) <= page_count)
             # Generate page sequence
             pagseq = list(range(min(flat), max(flat)+1))
-            # Swap pages
+            # Actual swap
             for a,b in pairs:
                 # Get indices
                 aix = a - min(flat)
@@ -469,6 +458,14 @@ def run(args):
                     pages += str(page_start) + "-" + str(pagesl[ix-1]) + ","
                     page_start = page
             pages += str(page_start) + "-"
+            
+        # White page
+        if args.white_page:
+            pagesl = list(range(1, page_count+1))
+            pages = ""
+            for page in pagesl:
+                pages += str(page)+",{},"
+            pages = pages[:-1]
         
         # Always enclose `pages` in curly brackets
         pages = "{" + pages + "}"
