@@ -130,7 +130,7 @@ def removeFile(filename):
         if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
             raise # re-raise exception if a different error occurred
 
-def exit_with_code(msg, code):
+def printMsgAndExit(msg, code):
     # Avoid a permission error exception caused by the fact Python wants to delete the temporary folder
     os.chdir(previous_cwd)
     if msg != "":
@@ -172,7 +172,7 @@ def run(args):
     # -Process directory, walk through every file in it-
     for indir in args.input_dirs:
         if not os.path.isdir(indir):
-            exit_with_code(f"ERROR: {indir} is not a directory ", 1)
+            printMsgAndExit(f"ERROR: {indir} is not a directory ", 1)
         for root, dirs, files in os.walk(indir):
             if args.natural_sorting:
                 print("Using natural sorting algorithm...")
@@ -186,7 +186,7 @@ def run(args):
     # -Process files-
     for infile in args.input_files:
         if not os.path.isfile(infile):
-            exit_with_code(f"ERROR: Input file {infile} doesn't exist.", 1)
+            printMsgAndExit(f"ERROR: Input file {infile} doesn't exist.", 1)
 
         ftype = getFileType(infile)
 
@@ -201,7 +201,7 @@ def run(args):
             if args.verbose == True:
                 print(f"Adding image file: '{infile}'")
         else:
-            exit_with_code(f"ERROR: unrecognized file type for '{infile}'", 1)
+            printMsgAndExit(f"ERROR: unrecognized file type for '{infile}'", 1)
 
 
     # 2. Check output file
@@ -214,7 +214,7 @@ def run(args):
         if args.overwrite:
             os.remove(args.output)
         else:
-            exit_with_code(f"FATAL ERROR: File {args.output} already exists. Use --overwrite if you want to overwrite it", 1)
+            printMsgAndExit(f"FATAL ERROR: File {args.output} already exists. Use --overwrite if you want to overwrite it", 1)
 
     # 3. Create temporary directory
     # If NOT in debug, temporary directory is created in system temporary folder
@@ -385,7 +385,7 @@ def run(args):
     # In this case, we add one page at a time
     if args.rotate_pages:
         if len(input_pdf_files) > 1:
-            exit_with_code("Page rotation is only supported with one input PDF file", 1)
+            printMsgAndExit("Page rotation is only supported with one input PDF file", 1)
         rotmap = {int(page):int(angle) for pair in args.rotate_pages.split(";") for page,angle in [pair.split("=")]}
         page_count = getPageCount(input_pdf_files[0])
         pagesl = list(range(1, page_count+1))
@@ -548,9 +548,9 @@ def run(args):
                     if(os.path.isfile('latex_file.log')):
                         zip_file.write('latex_file.log')
                     zip_file.close()
-                    exit_with_code("Latex failed to compile the file. Debug report was generated", 1)
+                    printMsgAndExit("Latex failed to compile the file. Debug report was generated", 1)
                 else:
-                    exit_with_code("Latex failed to compile the file. " \
+                    printMsgAndExit("Latex failed to compile the file. " \
                     "Please run again with --debug option, then report at "\
                     "https://github.com/raffaem/pdftools/issues attaching ./temp/report.gz", 1)
         # ** End of all compilation rounds (for loop) **
@@ -682,7 +682,7 @@ def main(cmdargs):
     # If no options were passed, display help
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
-        exit_with_code("",1)
+        printMsgAndExit("",1)
 
     #Parse arguments
     args = parser.parse_args(cmdargs)
@@ -690,22 +690,22 @@ def main(cmdargs):
     # Check dependencies
     if(args.check_latex):
         checkLatexInstallation()
-        exit_with_code("Exiting",1)
+        printMsgAndExit("Exiting",1)
         
     if(args.check_ghostscript):
         checkGhostscript()
-        exit_with_code("Exiting",1)
+        printMsgAndExit("Exiting",1)
         
     if(args.debug_print):
         print(args)
-        exit_with_code("debug mode exit", 1)
+        printMsgAndExit("debug mode exit", 1)
 
     if(args.verbose):
         print(args)
 
     if(args.text_help):
         printTextHelp()
-        exit_with_code("",0)
+        printMsgAndExit("",0)
 
     #Build args.text as list if not defined, otherwise crash/we need to make a test every time
     if(args.text is None):
