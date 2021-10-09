@@ -389,6 +389,7 @@ def run(args):
         rotmap = {int(page):int(angle) for pair in args.rotate_pages.split(";") for page,angle in [pair.split("=")]}
         page_count = getPageCount(input_pdf_files[0])
         pagesl = list(range(1, page_count+1))
+        pagesl = [str(x) for x in pagesl]
         input_pdf_files = [input_pdf_files[0]] * len(pagesl)
     
     # Insert input PDF files in latex script
