@@ -391,6 +391,7 @@ def run(args):
     pagesl = [args.pages]*len(input_pdf_files)
     rotmap = dict()
     page_count = None
+    
     # Rotate pages
     # In this case, we add one page at a time
     if args.rotate_pages:
@@ -399,8 +400,8 @@ def run(args):
         rotmap = {int(page):int(angle) for pair in args.rotate_pages.split(";") for page,angle in [pair.split("=")]}
         page_count = getPageCount(input_pdf_files[0])
         pagesl = list(range(1, page_count+1))
-        input_pdf_files = [input_pdf_files[0]]*page_count
-        
+        input_pdf_files = [input_pdf_files[0]] * len(pagesl)
+    
     # Insert input PDF files in latex script
     for filenum, f in enumerate(input_pdf_files):
         
@@ -418,10 +419,11 @@ def run(args):
         # Substitute latex_pdf_filename variable
         latex_script += pre_include_pdf.replace(r"latex_pdf_filename", f)
         
-        # Page management
+        # Get pages parameter for this file
         pages = pagesl[filenum]
+        
         # Swap pages
-        if(args.swap_pages):
+        if args.swap_pages:
             # Make a list of tuples. Each tuple contains the page pair to swap
             pairs = [pair.split(",") for pair in args.swap_pages.split(";")]
             pairs = [(int(a), int(b)) for a,b in pairs]
@@ -446,6 +448,27 @@ def run(args):
             pages += ",".join([str(x) for x in pagseq])
             if max(flat) != page_count:
                 pages += f",{max(flat)+1}-"
+                
+        # Delete pages
+        if args.delete_pages:
+            # Build list of pages to include
+            pagesl = list(range(1, page_count+1))
+            for page_to_delete in args.delete_pages.split(","):
+                page_to_delete = int(page_to_delete)
+                pagesl.remove(page_to_delete)
+            # Build pages string
+            pages = ""
+            pagesl.sort()
+            page_start = pagesl[0]
+            for ix, page in enumerate(pagesl):
+                if ix==0:
+                    continue
+                elif pagesl[ix-1] == page-1:
+                    continue
+                else:
+                    pages += str(page_start) + "-" + str(pagesl[ix-1]) + ","
+                    page_start = page
+            pages += str(page_start) + "-"
         
         # Always enclose `pages` in curly brackets
         pages = "{" + pages + "}"
@@ -624,6 +647,8 @@ def main(cmdargs):
     pages_group.add_argument('--rotate-pages', default="", 
         help=u'A semi-colon separated list of page=angle pairs. ' \
         'E.g. "1=90;2=180" will rotate 1st page by 90 degress and 2nd page by 180 degrees.')
+    pages_group.add_argument('--delete-pages', default="", 
+        help=u'A semi-colon separated list of pages to delete. ')
     pages_group.add_argument('--pages', default="-", 
         help=u'Selects pages to insert. ' \
         'The argument is a comma separated list, containing page numbers (e.g. 3,5,6,8), ranges of page numbers (e.g. 4-9) or any combination of the previous. ' \
