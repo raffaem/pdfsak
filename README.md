@@ -11,6 +11,7 @@ It allows you to:
 * Extract pages
 * Rotate pages
 * Swap pages
+* Delete pages
 * Create handouts
 * Add text (like page numbers)
 * Remove owner protection from PDF files (the protection that allows you to open the PDF without a password, but not to print/annotate it)
