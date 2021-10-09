@@ -388,7 +388,7 @@ def run(args):
         "\n\\end{figure}"
         
     # Initialize arg.pages as list
-    pagesl = [args.pages]*len(input_pdf_files)
+    pagesl = [args.extract_pages]*len(input_pdf_files)
     rotmap = dict()
     page_count = None
     
@@ -649,15 +649,16 @@ def main(cmdargs):
         'E.g. "1=90;2=180" will rotate 1st page by 90 degress and 2nd page by 180 degrees.')
     pages_group.add_argument('--delete-pages', default="", 
         help=u'A semi-colon separated list of pages to delete. ')
-    pages_group.add_argument('--pages', default="-", 
+    pages_group.add_argument('--extract-pages', default="-", 
         help=u'Selects pages to insert. ' \
         'The argument is a comma separated list, containing page numbers (e.g. 3,5,6,8), ranges of page numbers (e.g. 4-9) or any combination of the previous. ' \
         'To insert empty pages, use {}. ' \
         'Page ranges are specified by the following syntax: m-n. This selects all pages from m to n. ' \
         'Omitting m defaults to the first page; omitting n defaults to the last page of the document. ' \
         'Another way to select the last page of the document, is to use the keyword last.' \
-        'E.g.: "--pages 3,{},8-11,15" will insert page 3, an empty page, pages from 8 to 11, and page 15. '\
-        '"--pages=-" will insert all pages of the document, while "--pages=last-1" will insert all pages in reverse order.')
+        'E.g.: "--extract-pages 3,{},8-11,15" will insert page 3, an empty page, pages from 8 to 11, and page 15. '\
+        '"--extract-pages=-" will insert all pages of the document, ' \
+        '"--extract-pages=last-1" will insert all pages in reverse order.')
         
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
