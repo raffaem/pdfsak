@@ -460,7 +460,7 @@ def run(args):
             pages += str(page_start) + "-"
             
         # White page
-        if args.white_page:
+        if args.add_white_pages:
             pagesl = list(range(1, page_count+1))
             pages = ""
             for page in pagesl:
@@ -632,7 +632,6 @@ def main(cmdargs):
     #Boolean parameters NOT for pdfpages
     parser.add_argument('--natural-sorting', action='store_true', default=False, help=u'When scanning a folder, use natural sorting algorithm to sort the files inside it')
     parser.add_argument('--overwrite', action='store_true', default=False, help=u'Overwrite output file if it exists already')
-    parser.add_argument('--white-page', action='store_true', default=False, help=u'Put a white page after every pdf page')
     parser.add_argument('--last-page-even', action='store_true', default=False, 
         help=u'Last page of every included pdf must be even. If it is odd, add a white page')
         
@@ -646,6 +645,7 @@ def main(cmdargs):
         'E.g. "1=90;2=180" will rotate 1st page by 90 degress and 2nd page by 180 degrees.')
     pages_group.add_argument('--delete-pages', default="", 
         help=u'A semi-colon separated list of pages to delete. ')
+    pages_group.add_argument('--add-white-pages', action='store_true', default=False, help=u'Put a white page after every page.')
     pages_group.add_argument('--extract-pages', default="-", 
         help=u'Selects pages to insert. ' \
         'The argument is a comma separated list, containing page numbers (e.g. 3,5,6,8), ranges of page numbers (e.g. 4-9) or any combination of the previous. ' \
