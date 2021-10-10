@@ -46,7 +46,9 @@ python3 setup.py install --user
 
 A new command `pdfsak` is now available in your PATH.
 
-## Examples
+## Documentation
+
+Checkout the [online documentation](https://pdfsak.readthedocs.io).
 
 All the examples can be found in the `examples/scripts` directory ([GitHub link](https://github.com/raffaem/pdftools/tree/master/examples/scripts)).
 

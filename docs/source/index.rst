@@ -1,7 +1,7 @@
 Welcome to PDFsak's documentation!
 ===================================
 
-**PDFsak** (/lu'make/) is an utility to manipulate PDF files.
+**PDFsak** is an utility to manipulate PDF files.
 
 Contents
 --------
