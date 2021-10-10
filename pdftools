@@ -386,7 +386,7 @@ def run(args):
     if args.rotate_pages:
         if len(input_pdf_files) > 1:
             printMsgAndExit("Page rotation is only supported with one input PDF file", 1)
-        rotmap = {int(page):int(angle) for pair in args.rotate_pages.split(";") for page,angle in [pair.split("=")]}
+        rotmap = {str(page):int(angle) for pair in args.rotate_pages.split(";") for page,angle in [pair.split("=")]}
         page_count = getPageCount(input_pdf_files[0])
         pagesl = list(range(1, page_count+1))
         pagesl = [str(x) for x in pagesl]
@@ -467,13 +467,10 @@ def run(args):
             for page in pagesl:
                 pages += str(page)+",{},"
             pages = pages[:-1]
-        
-        # Always enclose `pages` in curly brackets
-        pages = "{" + pages + "}"
 
         # Include the pdf
         include_pdf_str = "%Importing the pdf \n \t"
-        include_pdf_str = f"\\includepdf[keepaspectratio, pages={pages}"
+        include_pdf_str = "\\includepdf[keepaspectratio, pages={" + str(pages) + "}"
 
         if(args.nup != [1,1]):
             include_pdf_str += ",nup="+str(args.nup[1])+"x"+str(args.nup[0])
@@ -492,11 +489,14 @@ def run(args):
             include_pdf_str += ",trim={" + trimArrayToStr(args.trim) + "}"
 
         if (args.scale != 0):
+        
             include_pdf_str += ",noautoscale, scale="+str(args.scale)
         if (args.width != 0):
             include_pdf_str += ",width="+str(args.width[0])+r"\paperwidth"
+            
         if (args.height != 0):
             include_pdf_str += ",height="+str(args.height[0])+r"\paperheight"
+            
         include_pdf_str += r",pagecommand=\thispagestyle{mystyle}"
 
         # Boolean parameters for pdfpages package
@@ -507,7 +507,7 @@ def run(args):
         if args.custom:
             include_pdf_str += r"," + args.custom
             
-        # Angle
+        # Rotation Angle
         if pages in rotmap:
             include_pdf_str += r", angle=" + str(rotmap[pages])
 
@@ -651,7 +651,8 @@ def main(cmdargs):
         'E.g. "1,5;6,9" will swap page 1 with page 5 and page 6 with page 9.')
     pages_group.add_argument('--rotate-pages', default="", 
         help=u'A semi-colon separated list of page=angle pairs. ' \
-        'E.g. "1=90;2=180" will rotate 1st page by 90 degress and 2nd page by 180 degrees.')
+        'Rotation angle is counterclockwise. ' \
+        'E.g. "1=90;2=180" will rotate 1st page by 90 degress counterclockwise and 2nd page by 180 degrees.')
     pages_group.add_argument('--delete-pages', default="", 
         help=u'A semi-colon separated list of pages to delete. ')
     pages_group.add_argument('--add-white-pages', action='store_true', default=False, help=u'Put a white page after every page.')
