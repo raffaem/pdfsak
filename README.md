@@ -1,7 +1,9 @@
-# pdftools
+# PDFsak
 
 ## About it
-pdftools is an utility to manipulate PDF files.
+PDFsak (PDF Swiss Army knife) is an utility to manipulate PDF files.
+
+The previous name of the project (as of 2021-10-10) was "pdftools".
 
 It allows you to:
 
@@ -20,9 +22,19 @@ It allows you to:
 
 Disover all the functionalities by running:
 
-	pdftools
+	pdfsak --help
 
 ## Installation
+
+### From pip
+
+Run:
+
+```
+pip3 install pdfsak
+```
+
+### From source
 
 Clone the repository and run the install script:
 
@@ -32,17 +44,21 @@ cd pdftools
 python3 setup.py install --user
 ```
 
-A new command `pdftools` is now available in your PATH.
+A new command `pdfsak` is now available in your PATH.
 
-## Where can I find the examples?
+## Examples
 
-All the examples can be found in the `examples/scripts` directory.
+All the examples can be found in the `examples/scripts` directory ([GitHub link](https://github.com/raffaem/pdftools/tree/master/examples/scripts)).
 
 Take a look at this directory to learn how to achieve the above and more.
 
+Also, check the help by running:
+
+    pdfsak --help
+
 ## GUI
 
-pdftools currently has no GUI but only a CLI.
+pdfsak currently has no GUI but only a CLI.
 
 ## Requirements
 
@@ -63,9 +79,9 @@ pdftools currently has no GUI but only a CLI.
 
     * You can check the presence of the above required LaTeX packages by running:
 
-        `pdftools.py --check-latex`
+        `pdfsak --check-latex`
 
 * [Ghostscript](https://www.ghostscript.com/) must be available through the `gs` command
     * You can check its presence by running:
 
-        `pdftools.py --check-ghostscript`
+        `pdfsak --check-ghostscript`

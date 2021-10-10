@@ -2,4 +2,4 @@
 
 # This example swap the pages of an input PDF file
 
-../../pdftools --input-file ../input/numbered.pdf --output ../output/swap_pages_start.pdf --swap-pages "1,2;3,4"
+../../pdfsak --input-file ../input/numbered.pdf --output ../output/swap_pages_start.pdf --swap-pages "1,2;3,4"

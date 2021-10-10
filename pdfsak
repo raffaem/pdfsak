@@ -218,7 +218,7 @@ def run(args):
     # If NOT in debug, temporary directory is created in system temporary folder
     if not args.debug:
         #avoid out of scope
-        temp_dir = tempfile.TemporaryDirectory(prefix='pdftools').name
+        temp_dir = tempfile.TemporaryDirectory(prefix='pdfsak').name
     # If in debug mode, temporary directory is created in current working directory
     else:
         temp_dir = os.path.join(os.getcwd(), args.debug_folder)
@@ -560,7 +560,7 @@ def main(cmdargs):
     # A mutually exclusive group to specify the output file name OR a suffix to append to the first input file name
     output_group = parser.add_mutually_exclusive_group()
     output_group.add_argument('-o', '--output', help=u'Output filename')
-    output_group.add_argument('--out-suffix', help=u'Suffix to add to the first input filename to obtain the output filename', default='_pdftools')
+    output_group.add_argument('--out-suffix', help=u'Suffix to add to the first input filename to obtain the output filename', default='_pdfsak')
     output_group.add_argument('--replace-input', action='store_true', default=False, 
         help=u'Replace first input PDF file with output PDF file.')
 
