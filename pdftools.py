@@ -567,10 +567,11 @@ def main(cmdargs):
     # See: https://stackoverflow.com/questions/12151306/argparse-way-to-include-default-values-in-help
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('-if', '--input-file', action='append', default=[], dest='input_files', required=False, 
+    # Input options
+    input_group = parser.add_mutually_exclusive_group()
+    input_group.add_argument('-if', '--input-file', action='append', default=[], dest='input_files', required=False, 
         help=u'Input pdf file. Use this flag again to merge multiple pdf files into one.')
-
-    parser.add_argument('-id', '--input-dir', action='append', default=[], dest='input_dirs', required=False, 
+    input_group.add_argument('-id', '--input-dir', action='append', default=[], dest='input_dirs', required=False, 
         help=u'Input a directory. All pdf files inside it will be merged togheter, sorted in alphabetical filename order.')
 
     # A mutually exclusive group to specify the output file name OR a suffix to append to the first input file name
