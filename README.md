@@ -22,7 +22,17 @@ Disover all the functionalities by running:
 
 	pdftools.py --help
 
-### Where can I find the examples?
+## Installation
+
+Clone the repository and run the install script:
+
+```
+git clone https://github.com/raffaem/pdftools
+cd pdftools
+python3 setup.py install --user
+```
+
+## Where can I find the examples?
 
 All the examples can be found in the `examples/scripts` directory.
 
