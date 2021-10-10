@@ -400,11 +400,6 @@ def run(args):
             (f != input_pdf_files[filenum-1]):
             page_count = getPageCount(f)
 
-        # Page numbers are needed on some pre include scripts (e.g. white pages)
-        latex_script += "%Get the number of pdf pages"\
-        "\n\t\\pdfximage{""" + f + "}"\
-        "\n\t\\setcounter{pdfpagenum}{\\pdflastximagepages}\n\t"
-
         # Pre-include script (e.g. insert a white page after every logical page).
         # Substitute latex_pdf_filename variable
         latex_script += pre_include_pdf.replace(r"latex_pdf_filename", f)
