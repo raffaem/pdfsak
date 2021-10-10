@@ -250,12 +250,6 @@ def run(args):
     args.delta[0] = args.delta[0].replace(r'_',r'-')
     args.delta[1] = args.delta[1].replace(r'_',r'-')
 
-    # -Get size of the first page of the input pdf. Define \pdfwidth and \pdfheight
-    pre_include_pdf += "%Get dimensions of pdf page" \
-    "\n\t\\savebox{\\mybox}{\\includegraphics{latex_pdf_filename}}" \
-    "\n\t\\settowidth{\\pdfwidth}{\\usebox{\\mybox}}" \
-    "\n\t\\settoheight{\\pdfheight}{\\usebox{\\mybox}} \n\t"
-
     # -Keep last page even
     if(args.last_page_even):
         post_include_pdf += "\\clearpage"\
@@ -392,6 +386,13 @@ def run(args):
         pagesl = [str(x) for x in pagesl]
         input_pdf_files = [input_pdf_files[0]] * len(pagesl)
     
+    # -Get size of the first page of the input pdf. Define \pdfwidth and \pdfheight
+    if len(input_pdf_files) > 0:
+        latex_script += "%Get dimensions of pdf page" \
+        "\n\t\\savebox{\\mybox}{\\includegraphics{" + input_pdf_files[0] + "}}" \
+        "\n\t\\settowidth{\\pdfwidth}{\\usebox{\\mybox}}" \
+        "\n\t\\settoheight{\\pdfheight}{\\usebox{\\mybox}} \n\t"
+    
     # Insert input PDF files in latex script
     for filenum, f in enumerate(input_pdf_files):
         
@@ -400,10 +401,6 @@ def run(args):
             (f != input_pdf_files[filenum-1]):
             page_count = getPageCount(f)
 
-        # Pre-include script (e.g. insert a white page after every logical page).
-        # Substitute latex_pdf_filename variable
-        latex_script += pre_include_pdf.replace(r"latex_pdf_filename", f)
-        
         # Get pages parameter for this file
         pages = pagesl[filenum]
         
