@@ -537,7 +537,8 @@ def run(args):
             # Python 3.3 and higher support subprocess.DEVNULL to suppress output.
             # See (http://stackoverflow.com/questions/699325/suppress-output-in-python-calls-to-executables)
             latex_return = subprocess.call( ["pdflatex", "--interaction=batchmode", latex_tex_fp],
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # Check if compilation was unsuccessful
             if latex_return != 0 or \
                not os.path.isfile('latex_file.pdf') or \
                os.path.getsize('latex_file.pdf')==0:
@@ -554,8 +555,12 @@ def run(args):
                     "Please run again with --debug option, then report at "\
                     "https://github.com/raffaem/pdftools/issues attaching ./temp/report.gz", 1)
         # ** End of all compilation rounds (for loop) **
-        # Copy resulting pdf file from temporary folder to output directory
-        shutil.copyfile(latex_pdf_fp, args.output)
+        
+        if args.replace_input:
+            shutil.copyfile(latex_pdf_fp, input_pdf_files[0])
+        else:
+            # Copy resulting pdf file from temporary folder to output directory
+            shutil.copyfile(latex_pdf_fp, args.output)
 
     # We must change the cwd becuase the temporary folder will be deleted at the end of this function
     os.chdir(previous_cwd)
@@ -569,15 +574,17 @@ def main(cmdargs):
 
     # Input options
     input_group = parser.add_mutually_exclusive_group()
-    input_group.add_argument('-if', '--input-file', action='append', default=[], dest='input_files', required=False, 
+    input_group.add_argument('-if', '--input-file', action='append', default=[], dest='input_files',
         help=u'Input pdf file. Use this flag again to merge multiple pdf files into one.')
-    input_group.add_argument('-id', '--input-dir', action='append', default=[], dest='input_dirs', required=False, 
+    input_group.add_argument('-id', '--input-dir', action='append', default=[], dest='input_dirs',
         help=u'Input a directory. All pdf files inside it will be merged togheter, sorted in alphabetical filename order.')
 
     # A mutually exclusive group to specify the output file name OR a suffix to append to the first input file name
     output_group = parser.add_mutually_exclusive_group()
     output_group.add_argument('-o', '--output', help=u'Output filename')
     output_group.add_argument('--out-suffix', help=u'Suffix to add to the first input filename to obtain the output filename', default='_pdftools')
+    output_group.add_argument('--replace-input', action='store_true', default=False, 
+        help=u'Replace first input PDF file with output PDF file.')
 
     #Vector parameters
     parser.add_argument('--paper', type=str, default=None, metavar=('PAPER_TYPE'), 
