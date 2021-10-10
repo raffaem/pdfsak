@@ -20,7 +20,7 @@ It allows you to:
 
 Disover all the functionalities by running:
 
-	pdftools.py --help
+	pdftools
 
 ## Installation
 
@@ -31,6 +31,8 @@ git clone https://github.com/raffaem/pdftools
 cd pdftools
 python3 setup.py install --user
 ```
+
+A new command `pdftools` is now available in your PATH.
 
 ## Where can I find the examples?
 
