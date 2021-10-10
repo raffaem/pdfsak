@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This example extract the pages of a input PDF file
+# This example replaces the input PDF file instead of writing to a separate output file.
 
 cp ../input/numbered.pdf ../output/replace_input.pdf
 
