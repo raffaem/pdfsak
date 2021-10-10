@@ -2,4 +2,4 @@
 
 # This example append 2 input PDF files together in a single output PDF file
 
-../../pdftools.py --input-file ../input/article1.pdf --input-file ../input/article2.pdf --output ../output/merge.pdf
+../../pdftools --input-file ../input/article1.pdf --input-file ../input/article2.pdf --output ../output/merge.pdf

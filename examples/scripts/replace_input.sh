@@ -4,4 +4,4 @@
 
 cp ../input/numbered.pdf ../output/replace_input.pdf
 
-../../pdftools.py --input-file ../output/replace_input.pdf --replace-input --extract-pages "1"
+../../pdftools --input-file ../output/replace_input.pdf --replace-input --extract-pages "1"

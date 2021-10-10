@@ -2,4 +2,4 @@
 
 # This example rotate the pages of a input PDF file
 
-../../pdftools.py --input-file ../input/numbered.pdf --output ../output/rotate_pages.pdf --overwrite --rotate-pages "1=90;2=180;4=270" 
+../../pdftools --input-file ../input/numbered.pdf --output ../output/rotate_pages.pdf --overwrite --rotate-pages "1=90;2=180;4=270" 
