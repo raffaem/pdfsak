@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pdfsak",
-    version="1.0.1",
+    version="1.0.2",
     author="Raffaele Mancuso",
     author_email="raffaelemancuso532@gmail.com",
     description="Utility to manipulate PDF files",
@@ -16,6 +16,7 @@ setuptools.setup(
     url="https://github.com/raffaem/pdftools",
     project_urls={
         "Bug Tracker": "https://github.com/raffaem/pdftools/issues",
+        "Documentation": "https://pdfsak.readthedocs.io"
     },
     classifiers=[
         "Programming Language :: Python :: 3",
