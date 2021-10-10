@@ -114,6 +114,8 @@ The 3rd page is rotated 180 degrees counterclockwise (it will be upside down).
 
 The 4th page is rotated 270 degrees counterclockwise.
 
+The 5th page is rotated 45 degrees counterclockwise.
+
 ::
 
    pdfsak --input-file input.pdf --output output.pdf --rotate-pages "2=90;3=180;4=270;5=45"
@@ -126,5 +128,3 @@ This example swaps the 2nd with the 3rd page, and the 4th with the 5th page.
 ::
 
     pdfsak --input-file input.pdf --output output.pdf --swap-pages "2,3;4,5"
-
-The 5th page is rotated 45 degrees counterclockwise.
