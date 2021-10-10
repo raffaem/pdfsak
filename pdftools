@@ -156,8 +156,6 @@ def printTextHelp():
 
 # The core of the software
 def run(args):
-    pre_include_pdf = ""
-    post_include_pdf = ""
 
     # debug-no-compile implies debug
     if args.debug_no_compile or args.debug_folder != 'temp':
@@ -249,16 +247,6 @@ def run(args):
     args.offset[1] = args.offset[1].replace(r'_',r'-')
     args.delta[0] = args.delta[0].replace(r'_',r'-')
     args.delta[1] = args.delta[1].replace(r'_',r'-')
-
-    # -Keep last page even
-    if(args.last_page_even):
-        post_include_pdf += "\\clearpage"\
-        "\n\t\\checkoddpage"\
-        "\n\t\\ifoddpage"\
-        "\n\t\\else"\
-        "\n\t\\hbox{}"\
-        "\n\t\\newpage"\
-        "\n\t\\fi\n\t"
 
     # 5. Create LaTeX script
     latex_script = r"\documentclass"
@@ -510,8 +498,6 @@ def run(args):
         # Add include_pdf_str to latex_script
         latex_script += include_pdf_str
 
-        latex_script += post_include_pdf
-
     # END OF FOR LOOP FOR MULTIPLE INPUT FILES
 
     # Post-include pdf
@@ -633,8 +619,6 @@ def main(cmdargs):
     #Boolean parameters NOT for pdfpages
     parser.add_argument('--natural-sorting', action='store_true', default=False, help=u'When scanning a folder, use natural sorting algorithm to sort the files inside it')
     parser.add_argument('--overwrite', action='store_true', default=False, help=u'Overwrite output file if it exists already')
-    parser.add_argument('--last-page-even', action='store_true', default=False, 
-        help=u'Last page of every included pdf must be even. If it is odd, add a white page')
         
     # Group to manage how pages are inserted
     pages_group = parser.add_mutually_exclusive_group()
