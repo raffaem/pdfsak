@@ -1,6 +1,9 @@
 Installation
 ============
 
+Innstructions
+^^^^^^^^^^^^^
+
 From pip
 --------
 
@@ -20,7 +23,7 @@ Clone the repository and run the install script::
 A new command ``pdfsak`` is now available in your PATH.
 
 Requirements
-============
+^^^^^^^^^^^^
 
 * `Python <https://www.python.org/>`_ >= 3.5
 * A LaTeX distribution like `TexLive <https://www.tug.org/texlive/>`_ or `MikTex <http://miktex.org/>`_
