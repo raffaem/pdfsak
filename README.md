@@ -20,10 +20,6 @@ It allows you to:
 * Remove metadata from PDF file
 * And more
 
-Disover all the functionalities by running:
-
-	pdfsak --help
-
 ## Installation
 
 ### From pip
@@ -49,18 +45,6 @@ A new command `pdfsak` is now available in your PATH.
 ## Documentation
 
 Checkout the [online documentation](https://pdfsak.readthedocs.io).
-
-All the examples can be found in the `examples/scripts` directory ([GitHub link](https://github.com/raffaem/pdftools/tree/master/examples/scripts)).
-
-Take a look at this directory to learn how to achieve the above and more.
-
-Also, check the help by running:
-
-    pdfsak --help
-
-## GUI
-
-pdfsak currently has no GUI but only a CLI.
 
 ## Requirements
 
