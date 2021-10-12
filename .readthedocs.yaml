@@ -1,0 +1,12 @@
+version: 2
+
+python:
+  version: "3.8"
+
+sphinx:
+  fail_on_warning: true
+
+formats:
+  - pdf
+  - epub
+

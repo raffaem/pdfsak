@@ -20,6 +20,8 @@ It allows you to:
 * Remove metadata from PDF file
 * And more
 
+It work on Linux, macOS and Windows.
+
 ## Installation
 
 ### From pip
