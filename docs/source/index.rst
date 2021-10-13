@@ -30,3 +30,4 @@ Contents
    installation
    commands
    examples
+   other
