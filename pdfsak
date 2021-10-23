@@ -41,6 +41,7 @@ def trimArrayToStr(timarr):
 # Return 'pdf' if it's a pdf file, 'img' if it's an image file, or 'unknown' if it is not recognized
 def getFileType(filepath):
     curr_ext = os.path.splitext(filepath)[1]
+    curr_ext = curr_ext.lower()
     if curr_ext=='.pdf':
         return 'pdf'
     elif curr_ext=='.jpg' or curr_ext=='.jpeg' or curr_ext=='.gif' or curr_ext=='.png' or curr_ext=='.bmp':
@@ -199,7 +200,7 @@ def run(args):
             if args.verbose == True:
                 print(f"Adding image file: '{infile}'")
         else:
-            printMsgAndExit(f"ERROR: unrecognized file type for '{infile}'", 1)
+            printMsgAndExit(f"ERROR: unrecognized file type '{ftype}' for '{infile}'", 1)
 
 
     # 2. Check output file
