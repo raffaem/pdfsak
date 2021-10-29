@@ -701,7 +701,7 @@ def main(cmdargs):
         args.booleans=list()
 
     # If the --paper option is not specified, we pass "fitpaper" to pdfpages by default
-    if(args.paper is None):
+    if(args.paper is None and args.landscape is None):
         args.booleans.append("fitpaper")
 
     run(args)
