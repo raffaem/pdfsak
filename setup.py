@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pdfsak",
-    version="1.0.3",
+    version="1.1",
     author="Raffaele Mancuso",
     author_email="raffaelemancuso532@gmail.com",
     description="Utility to manipulate PDF files",
