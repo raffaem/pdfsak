@@ -18,6 +18,7 @@ It allows you to:
 * Add text (like page numbers)
 * Remove owner protection from PDF files (the protection that allows you to open the PDF without a password, but not to print/annotate it)
 * Remove metadata from PDF file
+* Simulate Adobe Acrobat Clearscan
 * And more
 
 It work on Linux, macOS and Windows.

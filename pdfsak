@@ -14,6 +14,7 @@ import subprocess
 from string import Template
 import re
 import errno
+from collections import namedtuple
 
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
@@ -94,7 +95,27 @@ def checkLatexCompiler():
         ver = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True).stdout.strip()
     except FileNotFoundError:
         return False
-    print("pdflatex is present")
+    return True
+    
+def checkImageMagick():
+    try:
+        ver = subprocess.run(["magick", "--version"], capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        return False
+    return True
+    
+def checkPotrace():
+    try:
+        ver = subprocess.run(["potrace", "--version"], capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        return False
+    return True
+    
+def checkMKBitmap():
+    try:
+        ver = subprocess.run(["mkbitmap", "--version"], capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        return False
     return True
 
 # Check that the current Latex installation has all the required packages
@@ -155,6 +176,19 @@ def printTextHelp():
         \npage = current page \
         \npages = total number of pages")
 
+def createTempDir(args):
+    # If NOT in debug, temporary directory is created in system temporary folder
+    if not args.debug:
+        #avoid out of scope
+        temp_dir = tempfile.mkdtemp(prefix='pdfsak')
+    # If in debug mode, temporary directory is created in current working directory
+    else:
+        temp_dir = os.path.join(os.getcwd(), args.debug_folder)
+        os.mkdir(temp_dir)       
+    # Change working directory to the temp folder. In this way, latex temporary files are created there
+    os.chdir(temp_dir)
+    return temp_dir
+
 # The core of the software
 def run(args):
 
@@ -174,7 +208,6 @@ def run(args):
             printMsgAndExit(f"ERROR: {indir} is not a directory ", 1)
         for root, dirs, files in os.walk(indir):
             if args.natural_sorting:
-                print("Using natural sorting algorithm...")
                 files.sort(key=natural_keys)
             else:
                 files.sort()
@@ -216,18 +249,7 @@ def run(args):
             printMsgAndExit(f"FATAL ERROR: File {args.output} already exists. Use --overwrite if you want to overwrite it", 1)
 
     # 3. Create temporary directory
-    # If NOT in debug, temporary directory is created in system temporary folder
-    if not args.debug:
-        #avoid out of scope
-        temp_dir = tempfile.TemporaryDirectory(prefix='pdfsak').name
-    # If in debug mode, temporary directory is created in current working directory
-    else:
-        temp_dir = os.path.join(os.getcwd(), args.debug_folder)
-    # Make temp directory
-    if not os.path.isdir(temp_dir):
-        os.mkdir(temp_dir)
-    # Change working directory to the temp folder. In this way, latex temporary files are created there
-    os.chdir(temp_dir)
+    temp_dir = createTempDir(args)
 
     # 4. Pre-compiling
 
@@ -536,13 +558,18 @@ def run(args):
         # ** End of all compilation rounds (for loop) **
         
         if args.replace_input:
+            # Overwrite input file
             shutil.copyfile(latex_pdf_fp, input_pdf_files[0])
         else:
             # Copy resulting pdf file from temporary folder to output directory
             shutil.copyfile(latex_pdf_fp, args.output)
 
-    # We must change the cwd becuase the temporary folder will be deleted at the end of this function
+    # We must change the cwd because the temporary folder will be deleted at the end of this function
     os.chdir(previous_cwd)
+    
+    # Cleanup temporary directory
+    if not args.debug:
+        shutil.rmtree(temp_dir)
 
 def main(cmdargs):
 
@@ -644,6 +671,8 @@ def main(cmdargs):
         '"--extract-pages=-" will insert all pages of the document, ' \
         '"--extract-pages=last-1" will insert all pages in reverse order.')
         
+    parser.add_argument('--clearscan', action='store_true', default=False, help=u'Simulate Adobe Acrobat CleanScan')
+    
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
 
@@ -676,11 +705,11 @@ def main(cmdargs):
     # Check dependencies
     if(args.check_latex):
         checkLatexInstallation()
-        printMsgAndExit("Exiting",1)
+        printMsgAndExit("Exiting", 1)
         
     if(args.check_ghostscript):
         checkGhostscript()
-        printMsgAndExit("Exiting",1)
+        printMsgAndExit("Exiting", 1)
         
     if(args.debug_print):
         print(args)
@@ -703,6 +732,82 @@ def main(cmdargs):
     # If the --paper option is not specified, we pass "fitpaper" to pdfpages by default
     if(args.paper is None and 'landscape' not in args.booleans):
         args.booleans.append("fitpaper")
+        
+    # Implement CleanScan and exit
+    if args.clearscan:
+        if not checkImageMagick():
+            printMsgAndExit("Error: CleanScan requires ImageMagick, which is not in path. " \
+            "Please install it: https://imagemagick.org", 1)
+        if not checkMKBitmap():
+            printMsgAndExit("Error: CleanScan requires mkbitmap, which is not in path. " \
+            "mkbitmap is distributed as part of the potrace package: http://potrace.sourceforge.net", 1)
+        if not checkPotrace():
+            printMsgAndExit("Error: CleanScan requires potrace, which is not in path. " \
+            "Please install it: http://potrace.sourceforge.net", 1)
+        if len(args.input_files) != 1:
+            printMsgAndExit("Error: CleanScan requires exactly 1 input file", 1)
+        if not args.input_files[0].endswith(".pdf"):
+            printMsgAndExit("Error: CleanScan requires file ends with .pdf extension", 1)
+        if not args.output:
+            printMsgAndExit("Error: Please specify an output file", 1)
+        # Copy input PDF file in temp folder
+        fp1 = os.path.realpath(args.input_files[0])
+        of = os.path.realpath(args.output)
+        # Create and change to temp dir after we got the full path for the input file and output file 
+        # (which might been relative paths)
+        temp_dir = createTempDir(args)
+        fp2 = os.path.join(temp_dir, os.path.basename(fp1))
+        shutil.copy(src=fp1, dst=fp2)
+        # Convert PDF to BMP
+        print("Converting PDF to BMP...")
+        res = subprocess.run(["magick", "convert", "-density", "300", fp2, fp2.replace(".pdf", ".bmp")])
+        if res.returncode != 0:
+            printMsgAndExit("Error: ImageMagick failed", 1)
+        # Remove PDF
+        os.unlink(fp2)
+        # Run mkbitmap
+        print("Running mkbitmap...")
+        for root, dirs, files in os.walk("./"):
+            for file in files:
+                if not file.endswith(".bmp"):
+                    continue
+                fp = os.path.join(root, file)
+                res = subprocess.run(["mkbitmap", "-f", "20", "-s", "2", "-t", "0.45", fp])
+                if res.returncode != 0:
+                    printMsgAndExit("Error: mkbitmap failed", 1)
+        # Remove PDF image files
+        print("Removing PDF image files...")
+        for root, dirs, files in os.walk("./"):
+            for file in files:
+                if file.endswith(".bmp"):
+                    fp = os.path.join(root, file)
+                    os.unlink(fp)
+        # Run potrace
+        print("Running potrace...")
+        for root, dirs, files in os.walk("./"):
+            for file in files:
+                if not file.endswith(".pbm"):
+                    continue
+                fp = os.path.join(root, file)
+                res = subprocess.run(["potrace", "--backend", "pdf", "-t", "0.5", fp])
+                if res.returncode != 0:
+                    printMsgAndExit("Error: potrace failed", 1)
+        # Remove mkbitmap output file
+        print("Removing mkbitmap output files...")
+        for root, dirs, files in os.walk("./"):
+            for file in files:
+                if file.endswith(".pbm"):
+                    fp = os.path.join(root, file)
+                    os.unlink(fp)
+        # Merge PDF files
+        print("Merging back...")
+        res = subprocess.run(["pdfsak", "--natural-sorting", "-id", "./", "-o", of])
+        if res.returncode != 0:
+            printMsgAndExit("Error: Failed to merge back", 1)
+        # Cleanup temporary directory
+        shutil.rmtree(temp_dir)
+        # Exit
+        sys.exit(0)
 
     run(args)
 

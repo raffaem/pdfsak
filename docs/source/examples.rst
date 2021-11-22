@@ -15,6 +15,15 @@ Here is the command line:
 
     pdfsak --input-file article1.pdf --output addtext.pdf --text "\huge \$page/\$pages" br 1 1 --text "\huge \$day/\$month/\$year" tl 0 0
 
+clearscan
+---------
+
+This example simulates Adobe Acrobat Clearscan.
+
+::
+
+pdfsak --input-file head.pdf --output clearscan.pdf --clearscan
+
 delete_pages
 ------------
 
