@@ -671,7 +671,7 @@ def main(cmdargs):
         '"--extract-pages=-" will insert all pages of the document, ' \
         '"--extract-pages=last-1" will insert all pages in reverse order.')
         
-    parser.add_argument('--clearscan', action='store_true', default=False, help=u'Simulate Adobe Acrobat CleanScan')
+    parser.add_argument('--clearscan', action='store_true', default=False, help=u'Simulate Adobe Acrobat ClearScan')
     
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
@@ -733,21 +733,21 @@ def main(cmdargs):
     if(args.paper is None and 'landscape' not in args.booleans):
         args.booleans.append("fitpaper")
         
-    # Implement CleanScan and exit
+    # Implement ClearScan and exit
     if args.clearscan:
         if not checkImageMagick():
-            printMsgAndExit("Error: CleanScan requires ImageMagick, which is not in path. " \
+            printMsgAndExit("Error: ClearScan requires ImageMagick, which is not in path. " \
             "Please install it: https://imagemagick.org", 1)
         if not checkMKBitmap():
-            printMsgAndExit("Error: CleanScan requires mkbitmap, which is not in path. " \
+            printMsgAndExit("Error: ClearScan requires mkbitmap, which is not in path. " \
             "mkbitmap is distributed as part of the potrace package: http://potrace.sourceforge.net", 1)
         if not checkPotrace():
-            printMsgAndExit("Error: CleanScan requires potrace, which is not in path. " \
+            printMsgAndExit("Error: ClearScan requires potrace, which is not in path. " \
             "Please install it: http://potrace.sourceforge.net", 1)
         if len(args.input_files) != 1:
-            printMsgAndExit("Error: CleanScan requires exactly 1 input file", 1)
+            printMsgAndExit("Error: ClearScan requires exactly 1 input file", 1)
         if not args.input_files[0].endswith(".pdf"):
-            printMsgAndExit("Error: CleanScan requires file ends with .pdf extension", 1)
+            printMsgAndExit("Error: ClearScan requires file ends with .pdf extension", 1)
         if not args.output:
             printMsgAndExit("Error: Please specify an output file", 1)
         # Copy input PDF file in temp folder
