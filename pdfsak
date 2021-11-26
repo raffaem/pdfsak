@@ -672,6 +672,9 @@ def main(cmdargs):
         '"--extract-pages=last-1" will insert all pages in reverse order.')
         
     parser.add_argument('--clearscan', action='store_true', default=False, help=u'Simulate Adobe Acrobat ClearScan')
+    parser.add_argument('--clearscan-filter-size', action='store', type=int, default=20, help=u'Pixel size of high-pass filter to pass to mkbitmap for clearscan')
+    parser.add_argument('--clearscan-upscaling-factor', action='store', type=int, default=2, help=u'Upscale the image by this factor using mkbitmap before passing it to potrace')
+    parser.add_argument('--clearscan-threshold', action='store', type=float, default=0.5, help=u'Threshold level')
     
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
@@ -772,7 +775,10 @@ def main(cmdargs):
                 if not file.endswith(".bmp"):
                     continue
                 fp = os.path.join(root, file)
-                res = subprocess.run(["mkbitmap", "-f", "20", "-s", "2", "-t", "0.45", fp])
+                res = subprocess.run(["mkbitmap", "-f", args.clearscan_filter_size, 
+                                      "-s", args.clearscan_upscaling_factor, 
+                                      "-t", args.clearscan_threshold, 
+                                      fp])
                 if res.returncode != 0:
                     printMsgAndExit("Error: mkbitmap failed", 1)
         # Remove PDF image files
