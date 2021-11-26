@@ -672,7 +672,7 @@ def main(cmdargs):
         '"--extract-pages=last-1" will insert all pages in reverse order.')
         
     parser.add_argument('--clearscan', action='store_true', default=False, help=u'Simulate Adobe Acrobat ClearScan')
-    parser.add_argument('--clearscan-filter-size', action='store', type=int, default=20, help=u'Pixel size of high-pass filter to pass to mkbitmap for clearscan')
+    parser.add_argument('--clearscan-filter-size', action='store', type=int, default=2, help=u'Pixel size of high-pass filter to pass to mkbitmap for clearscan')
     parser.add_argument('--clearscan-upscaling-factor', action='store', type=int, default=2, help=u'Upscale the image by this factor using mkbitmap before passing it to potrace')
     parser.add_argument('--clearscan-threshold', action='store', type=float, default=0.5, help=u'Threshold level')
     parser.add_argument('--clearscan-opttolerance', action='store', type=float, default=0.2, help=u'Set the curve optimization tolerance. The default value is 0.2. Larger values allow more consecutive Bezier curve segments to be joined together in a single segment, at the expense of accuracy.')
