@@ -755,7 +755,7 @@ def main(cmdargs):
             printMsgAndExit("Error: Please specify an output file", 1)
         if os.path.isfile(args.output):
             printMsgAndExit("Error: Output file already exist", 1)
-        if os.path.isfile(args.input_files[0]):
+        if not os.path.isfile(args.input_files[0]):
             printMsgAndExit("Error: Input file does not exist", 1)
         # Copy input PDF file in temp folder
         fp1 = os.path.realpath(args.input_files[0])
