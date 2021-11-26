@@ -750,9 +750,13 @@ def main(cmdargs):
         if len(args.input_files) != 1:
             printMsgAndExit("Error: ClearScan requires exactly 1 input file", 1)
         if not args.input_files[0].endswith(".pdf"):
-            printMsgAndExit("Error: ClearScan requires file ends with .pdf extension", 1)
+            printMsgAndExit("Error: ClearScan requires that input file ends with .pdf extension", 1)
         if not args.output:
             printMsgAndExit("Error: Please specify an output file", 1)
+        if os.path.isfile(args.output):
+            printMsgAndExit("Error: Output file already exist", 1)
+        if os.path.isfile(args.input_files[0]):
+            printMsgAndExit("Error: Input file does not exist", 1)
         # Copy input PDF file in temp folder
         fp1 = os.path.realpath(args.input_files[0])
         of = os.path.realpath(args.output)
