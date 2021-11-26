@@ -779,9 +779,9 @@ def main(cmdargs):
                 if not file.endswith(".bmp"):
                     continue
                 fp = os.path.join(root, file)
-                res = subprocess.run(["mkbitmap", "-f", args.clearscan_filter_size, 
-                                      "-s", args.clearscan_upscaling_factor, 
-                                      "-t", args.clearscan_threshold, 
+                res = subprocess.run(["mkbitmap", "-f", str(args.clearscan_filter_size), 
+                                      "-s", str(args.clearscan_upscaling_factor), 
+                                      "-t", str(args.clearscan_threshold), 
                                       fp])
                 if res.returncode != 0:
                     printMsgAndExit("Error: mkbitmap failed", 1)
