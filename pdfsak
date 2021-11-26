@@ -675,9 +675,9 @@ def main(cmdargs):
     parser.add_argument('--clearscan-filter-size', action='store', type=int, default=20, help=u'Pixel size of high-pass filter to pass to mkbitmap for clearscan')
     parser.add_argument('--clearscan-upscaling-factor', action='store', type=int, default=2, help=u'Upscale the image by this factor using mkbitmap before passing it to potrace')
     parser.add_argument('--clearscan-threshold', action='store', type=float, default=0.5, help=u'Threshold level')
-    parser.add_argument('--clearscan-opttolerance', action='store', type=float, default=0.2, help=u'Set the curve optimization tolerance. ' \
-    'The default value is 0.2. Larger values allow more consecutive Bezier curve segments to be joined together in a single segment, at the expense of accuracy.')
-        
+    parser.add_argument('--clearscan-opttolerance', action='store', type=float, default=0.2, help=u'Set the curve optimization tolerance. The default value is 0.2. Larger values allow more consecutive Bezier curve segments to be joined together in a single segment, at the expense of accuracy.')
+    parser.add_argument('--clearscan-turnpolicy', action='store', type=str, default="minority", help=u'Specify how to resolve ambiguities in path decomposition. Must be one of black, white, right, left, minority, majority, or random. Default is minority. Turn policies can be abbreviated by an unambiguous prefix, e.g., one can specify min instead of minority.')
+      
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
 
@@ -806,6 +806,8 @@ def main(cmdargs):
                                       "-t", str(args.clearscan_threshold),
                                       "--opttolerance",
                                       str(args.clearscan_opttolerance),
+                                      "--turnpolicy",
+                                      args.clearscan_turnpolicy,
                                       fp])
                 if res.returncode != 0:
                     printMsgAndExit("Error: potrace failed", 1)
