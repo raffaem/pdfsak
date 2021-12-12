@@ -10,17 +10,22 @@ to see available command line arguments:
 ::
 
     usage: pdfsak [-h] [-if INPUT_FILES | -id INPUT_DIRS]
-                  [-o OUTPUT | --out-suffix OUT_SUFFIX | --replace-input]
-                  [--paper PAPER_TYPE] [--scale SCALE_FACTOR] [--width WIDTH]
-                  [--height HEIGHT] [--nup ROWS COLS] [--offset RIGHT TOP]
-                  [--trim Left Bottom Right Top] [--delta X Y] [--custom CUSTOM]
-                  [-t text_string anchor hpos vpos] [--text-help]
-                  [--natural-sorting] [--overwrite]
-                  [--swap-pages SWAP_PAGES | --rotate-pages ROTATE_PAGES | --delete-pages DELETE_PAGES | --add-white-pages | --extract-pages EXTRACT_PAGES]
-                  [--check-latex] [--check-ghostscript] [--clip] [--landscape]
-                  [--frame]
-    
-    optional arguments:
+              [-o OUTPUT | --out-suffix OUT_SUFFIX | --replace-input]
+              [--paper PAPER_TYPE] [--scale SCALE_FACTOR] [--width WIDTH]
+              [--height HEIGHT] [--nup ROWS COLS] [--offset RIGHT TOP]
+              [--trim Left Bottom Right Top] [--delta X Y] [--custom CUSTOM]
+              [-t text_string anchor hpos vpos] [--text-help]
+              [--natural-sorting] [--overwrite]
+              [--swap-pages SWAP_PAGES | --rotate-pages ROTATE_PAGES | --delete-pages DELETE_PAGES | --add-white-pages | --extract-pages EXTRACT_PAGES]
+              [--clearscan] [--clearscan-filter-size CLEARSCAN_FILTER_SIZE]
+              [--clearscan-upscaling-factor CLEARSCAN_UPSCALING_FACTOR]
+              [--clearscan-threshold CLEARSCAN_THRESHOLD]
+              [--clearscan-opttolerance CLEARSCAN_OPTTOLERANCE]
+              [--clearscan-turnpolicy CLEARSCAN_TURNPOLICY]
+              [--clearscan-alphamax CLEARSCAN_ALPHAMAX] [--check-latex]
+              [--check-ghostscript] [--clip] [--landscape] [--frame]
+
+    options:
       -h, --help            show this help message and exit
       -if INPUT_FILES, --input-file INPUT_FILES
                             Input pdf file. Use this flag again to merge multiple
@@ -120,6 +125,36 @@ to see available command line arguments:
                             page 15. "--extract-pages=-" will insert all pages of
                             the document, "--extract-pages=last-1" will insert all
                             pages in reverse order. (default: -)
+      --clearscan           Simulate Adobe Acrobat ClearScan (default: False)
+      --clearscan-filter-size CLEARSCAN_FILTER_SIZE
+                            Pixel size of high-pass filter to pass to mkbitmap for
+                            clearscan (default: 2)
+      --clearscan-upscaling-factor CLEARSCAN_UPSCALING_FACTOR
+                            Upscale the image by this factor using mkbitmap before
+                            passing it to potrace (default: 1)
+      --clearscan-threshold CLEARSCAN_THRESHOLD
+                            Threshold level (default: 0.5)
+      --clearscan-opttolerance CLEARSCAN_OPTTOLERANCE
+                            Set the curve optimization tolerance. The default
+                            value is 0.2. Larger values allow more consecutive
+                            Bezier curve segments to be joined together in a
+                            single segment, at the expense of accuracy. (default:
+                            0.2)
+      --clearscan-turnpolicy CLEARSCAN_TURNPOLICY
+                            Specify how to resolve ambiguities in path
+                            decomposition. Must be one of black, white, right,
+                            left, minority, majority, or random. Default is
+                            minority. Turn policies can be abbreviated by an
+                            unambiguous prefix, e.g., one can specify min instead
+                            of minority. (default: minority)
+      --clearscan-alphamax CLEARSCAN_ALPHAMAX
+                            set the corner threshold parameter. The default value
+                            is 1. The smaller this value, the more sharp corners
+                            will be produced. If this parameter is 0, then no
+                            smoothing will be performed and the output is a
+                            polygon. If this parameter is greater than 4/3, then
+                            all corners are suppressed and the output is
+                            completely smooth. (default: 1)
       --check-latex         Check LaTeX installation (default: False)
       --check-ghostscript   Check Ghostscript installation (default: False)
       --clip                Used togheter with trim, will actually remove the
@@ -129,3 +164,4 @@ to see available command line arguments:
       --landscape           Output file is in landscape layer instead of portrait.
                             (default: None)
       --frame               Put a frame around every logical page. (default: None)
+    
