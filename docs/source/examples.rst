@@ -20,6 +20,8 @@ clearscan
 
 This example simulates Adobe Acrobat Clearscan.
 
+That is, it will vectorize the text of your PDF file, improving quality and readability.
+
 ::
 
 pdfsak --input-file head.pdf --output clearscan.pdf --clearscan
