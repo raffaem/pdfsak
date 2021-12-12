@@ -74,3 +74,11 @@ Checkout the [online documentation](https://pdfsak.readthedocs.io).
     * You can check its presence by running:
 
         `pdfsak --check-ghostscript`
+
+* For the simulation of Adobe Acrobat Clearscan, you will also need:
+    * [potrace](potrace.sf.net)
+    * [ImageMagick](https://imagemagick.org)
+    
+    On Fedora you can install these dependencies by running:
+
+    `sudo dnf install potrace ImageMagick`
