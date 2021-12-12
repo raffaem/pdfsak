@@ -24,7 +24,7 @@ That is, it will vectorize the text of your PDF file, improving quality and read
 
 ::
 
-pdfsak --input-file head.pdf --output clearscan.pdf --clearscan
+    pdfsak --input-file head.pdf --output clearscan.pdf --clearscan
 
 delete_pages
 ------------
