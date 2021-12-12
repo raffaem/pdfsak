@@ -1,8 +1,8 @@
 Installation
 ============
 
-Innstructions
-^^^^^^^^^^^^^
+Instructions
+^^^^^^^^^^^^
 
 From pip
 --------
