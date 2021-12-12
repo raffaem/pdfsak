@@ -7,7 +7,7 @@ copyright = '2021, Raffaele Mancuso'
 author = 'Raffaele Mancuso'
 
 release = '1.1'
-version = '1.1.0'
+version = '1.1.1'
 
 # -- General configuration
 
