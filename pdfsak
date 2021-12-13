@@ -23,6 +23,37 @@ today = datetime.datetime.now()
 # -Calculate needed rounds of compilation
 needed_comp_rounds = 2
 
+def compressPDF(infp, outfp, imgres=300):
+    # see: https://gist.github.com/firstdoit/6390547
+    cmd =  ["gs",
+            "-sDEVICE=pdfwrite",
+            "-dCompatibilityLevel=1.4",
+            "-dPDFSETTINGS=/printer",
+            "-dNOPAUSE",
+            "-dQUIET",
+            "-dBATCH",
+            #"-dDownsampleColorImages=true",
+            #"-dDownsampleGrayImages=true",
+            #"-dDownsampleMonoImages=true",
+            #f"-dColorImageResolution={imgres}",
+            #f"-dGrayImageResolution={imgres}",
+            #f"-dMonoImageResolution={imgres}",
+            #"-dEmbedAllFonts=false",
+            #"-dSubsetFonts=true",
+            #"-dConvertCMYKImagesToRGB=true",
+            #"-dCompressFonts=true",
+            #"-dCompressStreams=true",
+            #"-dCompressPages=true",
+            #"-sDEVICE=pdfwrite",
+            #"-dCompatibilityLevel=2.0",
+            #"-dNOPAUSE",
+            #"-dQUIET",
+            #"-dBATCH",
+            f"-sOutputFile={outfp}",
+            f"{infp}"]
+    res = subprocess.run(cmd)
+    return res.returncode
+  
 def getPageCount(infp):
     cmd = ["gs", "-q", "-dNOSAFER", "-dNODISPLAY", "-c", '"('+infp+') (r) file runpdfbegin pdfpagecount = quit"']
     p = subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
@@ -819,14 +850,19 @@ def main(cmdargs):
             shutil.move(src=f"{page}.pdf", dst=f"./pages/{page}.pdf")
         # Merge PDF files
         print("Merging back...")
-        res = subprocess.run(["pdfsak", "--natural-sorting", "-id", "./pages", "-o", of])
+        res = subprocess.run(["pdfsak", "--natural-sorting", "-id", "./pages", "-o", "merged.pdf"])
         if res.returncode != 0:
             printMsgAndExit("Error: Failed to merge back", 1)
+        # Compress PDF
+        print("Compressing PDF file...")
+        ret = compressPDF("./merged.pdf", of)
+        if ret != 0:
+            printMsgAndExit("Error: Failed to compress PDF file", 1)
         # Cleanup temporary directory
         if not args.clearscan_debug_dir:
             shutil.rmtree(temp_dir)
         # Exit
-        sys.exit(0)
+        return
 
     run(args)
 
