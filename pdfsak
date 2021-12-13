@@ -15,6 +15,7 @@ from string import Template
 import re
 import errno
 from collections import namedtuple
+from tqdm import tqdm
 
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
@@ -756,82 +757,69 @@ def main(cmdargs):
             printMsgAndExit("Error: ClearScan requires exactly 1 input file", 1)
         if not args.input_files[0].endswith(".pdf"):
             printMsgAndExit("Error: ClearScan requires that input file ends with .pdf extension", 1)
+        if not os.path.isfile(args.input_files[0]):
+            printMsgAndExit("Error: Input file does not exist", 1)
         if not args.output:
             printMsgAndExit("Error: Please specify an output file", 1)
         if os.path.isfile(args.output):
             printMsgAndExit("Error: Output file already exist", 1)
-        if not os.path.isfile(args.input_files[0]):
-            printMsgAndExit("Error: Input file does not exist", 1)
         # Copy input PDF file in temp folder
         fp1 = os.path.realpath(args.input_files[0])
         of = os.path.realpath(args.output)
-        # Create and change to temp dir after we got the full path for the input file and output file 
-        # (which might been relative paths)
+        # Create temporary directory and chage to it
+        # after we got the full path for the input file and output file 
+        # (which might be relative paths)
         if not args.clearscan_debug_dir:
             temp_dir = createTempDir(args)
         else:
             temp_dir = "./temp"
+            temp_dir = os.path.abspath(temp_dir)
             os.mkdir(temp_dir)
+            os.chdir(temp_dir)
+        # Copy input file to temporary directory
         fp2 = os.path.join(temp_dir, os.path.basename(fp1))
         shutil.copy(src=fp1, dst=fp2)
-        # Convert PDF to BMP
-        print("Converting PDF to BMP...")
-        res = subprocess.run(["magick", "convert", "-density", "300", fp2, fp2.replace(".pdf", ".bmp")])
-        if res.returncode != 0:
-            printMsgAndExit("Error: ImageMagick failed", 1)
-        # Remove PDF
-        os.unlink(fp2)
-        # Run mkbitmap
-        print("Running mkbitmap...")
-        for root, dirs, files in os.walk("./"):
-            for file in files:
-                if not file.endswith(".bmp"):
-                    continue
-                fp = os.path.join(root, file)
-                res = subprocess.run(["mkbitmap", "-f", str(args.clearscan_filter_size), 
-                                      "-s", str(args.clearscan_upscaling_factor), 
-                                      "-t", str(args.clearscan_threshold), 
-                                      fp])
-                if res.returncode != 0:
-                    printMsgAndExit("Error: mkbitmap failed", 1)
-        # Remove PDF image files
-        print("Removing PDF image files...")
-        for root, dirs, files in os.walk("./"):
-            for file in files:
-                if file.endswith(".bmp"):
-                    fp = os.path.join(root, file)
-                    os.unlink(fp)
-        # Run potrace
-        print("Running potrace...")
-        for root, dirs, files in os.walk("./"):
-            for file in files:
-                if not file.endswith(".pbm"):
-                    continue
-                fp = os.path.join(root, file)
-                cmd = ["potrace", 
-                      "--backend", "pdf", 
-                      "-t", str(args.clearscan_threshold),
-                      "--opttolerance", str(args.clearscan_opttolerance),
-                      "--turnpolicy", args.clearscan_turnpolicy,
-                      "--alphamax", str(args.clearscan_alphamax) 
-                      ]
-                if args.clearscan_potrace_debug != 0:
-                    cmd.append("--debug")
-                    cmd.append(str(args.clearscan_potrace_debug))
-                cmd.append(fp)
-                res = subprocess.run(cmd)
-                if res.returncode != 0:
-                    printMsgAndExit("Error: potrace failed", 1)
-        # Remove mkbitmap output file
-        print("Removing mkbitmap output files...")
-        for root, dirs, files in os.walk("./"):
-            for file in files:
-                if file.endswith(".pbm"):
-                    fp = os.path.join(root, file)
-                    os.unlink(fp)
+        # Get page count of input file
+        page_count = getPageCount(fp2)
+        print(f"Input pages: {page_count}")
+        os.makedirs("./pages", exist_ok=False)
+        for page in tqdm(range(0, page_count)):
+            # Extract PDF page to BMP
+            res = subprocess.run(["magick", "convert", "-density", "300", fp2+f"[{page}]", f"{page}.bmp"])
+            if res.returncode != 0:
+                printMsgAndExit("Error: ImageMagick failed", 1)
+            # Run mkbitmap
+            res = subprocess.run(["mkbitmap", 
+                "-f", str(args.clearscan_filter_size), 
+                "-s", str(args.clearscan_upscaling_factor), 
+                "-t", str(args.clearscan_threshold), 
+                f"{page}.bmp"])
+            if res.returncode != 0:
+                printMsgAndExit("Error: mkbitmap failed", 1)
+            # Remove PDF bitmap files
+            os.unlink(f"{page}.bmp")
+            # Run potrace
+            cmd = ["potrace", 
+                  "--backend", "pdf", 
+                  "-t", str(args.clearscan_threshold),
+                  "--opttolerance", str(args.clearscan_opttolerance),
+                  "--turnpolicy", args.clearscan_turnpolicy,
+                  "--alphamax", str(args.clearscan_alphamax) 
+                  ]
+            if args.clearscan_potrace_debug != 0:
+                cmd.append("--debug")
+                cmd.append(str(args.clearscan_potrace_debug))
+            cmd.append(f"{page}.pbm")
+            res = subprocess.run(cmd)
+            if res.returncode != 0:
+                printMsgAndExit("Error: potrace failed", 1)
+            # Remove mkbitmap output file
+            os.unlink(f"{page}.pbm")
+            # Move page to pages dir
+            shutil.move(src=f"{page}.pdf", dst=f"./pages/{page}.pdf")
         # Merge PDF files
         print("Merging back...")
-        res = subprocess.run(["pdfsak", "--natural-sorting", "-id", "./", "-o", of])
+        res = subprocess.run(["pdfsak", "--natural-sorting", "-id", "./pages", "-o", of])
         if res.returncode != 0:
             printMsgAndExit("Error: Failed to merge back", 1)
         # Cleanup temporary directory
