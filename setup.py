@@ -23,7 +23,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    scripts=['./pdfsak'],
+    scripts=['./pdfsak', './pdfsak.bat'],
     python_requires=">=3.6",
 )
 
