@@ -53,7 +53,7 @@ def compressPDF(infp, outfp, imgres=300):
             f"{infp}"]
     res = subprocess.run(cmd)
     return res.returncode
-  
+
 def getPageCount(infp):
     cmd = ["gs", "-q", "-dNOSAFER", "-dNODISPLAY", "-c", '"('+infp+') (r) file runpdfbegin pdfpagecount = quit"']
     p = subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
@@ -128,21 +128,21 @@ def checkLatexCompiler():
     except FileNotFoundError:
         return False
     return True
-    
+
 def checkImageMagick():
     try:
         ver = subprocess.run(["magick", "--version"], capture_output=True, text=True).stdout.strip()
     except FileNotFoundError:
         return False
     return True
-    
+
 def checkPotrace():
     try:
         ver = subprocess.run(["potrace", "--version"], capture_output=True, text=True).stdout.strip()
     except FileNotFoundError:
         return False
     return True
-    
+
 def checkMKBitmap():
     try:
         ver = subprocess.run(["mkbitmap", "--version"], capture_output=True, text=True).stdout.strip()
@@ -162,7 +162,7 @@ def checkLatexInstallation():
     checkLatexPackageCLI("changepage")
     checkLatexPackageCLI("graphicx")
     checkLatexPackageCLI("THIS_PACKAGE_DOES_NOT_EXIST")
-    
+
 def checkGhostscript():
     try:
         ver = subprocess.run(["gs", "--version"], capture_output=True, text=True).stdout.strip()
@@ -216,7 +216,7 @@ def createTempDir(args):
     # If in debug mode, temporary directory is created in current working directory
     else:
         temp_dir = os.path.join(os.getcwd(), args.debug_folder)
-        os.mkdir(temp_dir)       
+        os.mkdir(temp_dir)
     # Change working directory to the temp folder. In this way, latex temporary files are created there
     os.chdir(temp_dir)
     return temp_dir
@@ -287,10 +287,10 @@ def run(args):
 
     # -Latex input and pdf output file
     # Relative path -> We are already in the temporary directory
-    latex_tex_fp = "latex_file.tex" 
+    latex_tex_fp = "latex_file.tex"
     latex_pdf_fp = "latex_file.pdf"
     # Check for existence of the LaTeX file and remove it. Useful in debug mode.
-    if(os.path.isfile(latex_tex_fp)): 
+    if(os.path.isfile(latex_tex_fp)):
         os.remove(latex_tex_fp)
 
     # -In landscape mode, rows and columns number for nup are swapped
@@ -321,11 +321,11 @@ def run(args):
     "\n\\newsavebox{\\mybox}" \
     "\n\\newlength{\\pdfwidth}" \
     "\n\\newlength{\\pdfheight} \n"
-    
+
     # Black magic to have PDF files with commas in their filename work
     # See: https://tex.stackexchange.com/a/372722/74382
     latex_script += r"""
-% save the original macro    
+% save the original macro
 \LetLtxMacro\ORIincludepdf\includepdf
 
 \ExplSyntaxOn
@@ -356,7 +356,7 @@ def run(args):
 
     # Process add text
     for texti, text in enumerate(args.text):
-    
+
         # `text` is in the format [STRING, ANCHOR, WIDTH, HEIGHT]
 
         # Process text string
@@ -412,12 +412,12 @@ def run(args):
         latex_script += "\\begin{figure}"\
         "\n\\includegraphics[width=\\linewidth]{"+f+"}"\
         "\n\\end{figure}"
-        
+
     # Initialize arg.pages as list
     pagesl = [args.extract_pages]*len(input_pdf_files)
     rotmap = dict()
     page_count = None
-    
+
     # Rotate pages
     # In this case, we add one page at a time
     if args.rotate_pages:
@@ -428,25 +428,25 @@ def run(args):
         pagesl = list(range(1, page_count+1))
         pagesl = [str(x) for x in pagesl]
         input_pdf_files = [input_pdf_files[0]] * len(pagesl)
-    
+
     # -Get size of the first page of the input pdf. Define \pdfwidth and \pdfheight
     if len(input_pdf_files) > 0:
         latex_script += "%Get dimensions of pdf page" \
         "\n\t\\savebox{\\mybox}{\\includegraphics{" + input_pdf_files[0] + "}}" \
         "\n\t\\settowidth{\\pdfwidth}{\\usebox{\\mybox}}" \
         "\n\t\\settoheight{\\pdfheight}{\\usebox{\\mybox}} \n\t"
-    
+
     # Insert input PDF files in latex script
     for filenum, f in enumerate(input_pdf_files):
-        
-        # Update page_count only if we need too    
+
+        # Update page_count only if we need too
         if (filenum==0 and page_count is None) or \
             (f != input_pdf_files[filenum-1]):
             page_count = getPageCount(f)
 
         # Get pages parameter for this file
         pages = pagesl[filenum]
-        
+
         # Swap pages
         if args.swap_pages:
             # Make a list of tuples. Each tuple contains the page pair to swap
@@ -473,7 +473,7 @@ def run(args):
             pages += ",".join([str(x) for x in pagseq])
             if max(flat) != page_count:
                 pages += f",{max(flat)+1}-"
-                
+
         # Delete pages
         if args.delete_pages:
             # Build list of pages to include
@@ -494,7 +494,7 @@ def run(args):
                     pages += str(page_start) + "-" + str(pagesl[ix-1]) + ","
                     page_start = page
             pages += str(page_start) + "-"
-            
+
         # White page
         if args.add_white_pages:
             pagesl = list(range(1, page_count+1))
@@ -524,14 +524,14 @@ def run(args):
             include_pdf_str += ",trim={" + trimArrayToStr(args.trim) + "}"
 
         if (args.scale != 0):
-        
+
             include_pdf_str += ",noautoscale, scale="+str(args.scale)
         if (args.width != 0):
             include_pdf_str += ",width="+str(args.width[0])+r"\paperwidth"
-            
+
         if (args.height != 0):
             include_pdf_str += ",height="+str(args.height[0])+r"\paperheight"
-            
+
         include_pdf_str += r",pagecommand=\thispagestyle{mystyle}"
 
         # Boolean parameters for pdfpages package
@@ -541,7 +541,7 @@ def run(args):
         # Custom arguments for pdfpages package
         if args.custom:
             include_pdf_str += r"," + args.custom
-            
+
         # Rotation Angle
         if pages in rotmap:
             include_pdf_str += r", angle=" + str(rotmap[pages])
@@ -588,7 +588,7 @@ def run(args):
                     "Please run again with --debug option, then report at "\
                     "https://github.com/raffaem/pdftools/issues attaching ./temp/report.gz", 1)
         # ** End of all compilation rounds (for loop) **
-        
+
         if args.replace_input:
             # Overwrite input file
             shutil.copyfile(latex_pdf_fp, input_pdf_files[0])
@@ -598,7 +598,7 @@ def run(args):
 
     # We must change the cwd because the temporary folder will be deleted at the end of this function
     os.chdir(previous_cwd)
-    
+
     # Cleanup temporary directory
     if not args.debug:
         shutil.rmtree(temp_dir)
@@ -621,43 +621,43 @@ def main(cmdargs):
     output_group = parser.add_mutually_exclusive_group()
     output_group.add_argument('-o', '--output', help=u'Output filename')
     output_group.add_argument('--out-suffix', help=u'Suffix to add to the first input filename to obtain the output filename', default='_pdfsak')
-    output_group.add_argument('--replace-input', action='store_true', default=False, 
+    output_group.add_argument('--replace-input', action='store_true', default=False,
         help=u'Replace first input PDF file with output PDF file.')
 
     #Vector parameters
-    parser.add_argument('--paper', type=str, default=None, metavar=('PAPER_TYPE'), 
+    parser.add_argument('--paper', type=str, default=None, metavar=('PAPER_TYPE'),
         help=u'Specify output paper size. ' \
         'Can be: a4paper, letterpaper, a5paper, b5paper, executivepaper, legalpaper. ' \
         'The default is to use the same size as the input PDF')
-    
+
     #parser.add_argument('--fitpaper', action='append_const', const='fitpaper', dest='booleans', help=u'Adjusts the paper size to the one of the inserted document')
 
-    parser.add_argument('--scale', nargs=1, type=float, default=0, metavar=('SCALE_FACTOR'), 
+    parser.add_argument('--scale', nargs=1, type=float, default=0, metavar=('SCALE_FACTOR'),
         help=u'Scales the image by the desired scale factor. ' \
         'E.g, 0.5 to reduce by half, or 2 to double. 0 means auto-scaling (default).')
-    parser.add_argument('--width', nargs=1, type=float, default=0, metavar=('WIDTH'), 
+    parser.add_argument('--width', nargs=1, type=float, default=0, metavar=('WIDTH'),
         help=u'Width of 1 input page (take care of this in case of n-upping) relative to output page width.')
-    parser.add_argument('--height', nargs=1, type=float, default=0, metavar=('HEIGHT'), 
+    parser.add_argument('--height', nargs=1, type=float, default=0, metavar=('HEIGHT'),
         help=u'Height of 1 input page (take care of this in case of n-upping) relative to output page height.')
     parser.add_argument('--nup', nargs=2, type=int, default=[1,1], metavar=('ROWS', 'COLS'), help=u'N-up pages, follow with number of rows and columns')
 
-    parser.add_argument('--offset', nargs=2, type=str, default=['0','0'], metavar=('RIGHT', 'TOP'), 
+    parser.add_argument('--offset', nargs=2, type=str, default=['0','0'], metavar=('RIGHT', 'TOP'),
         help=u'The inserted logical pages are being centered on the sheet of paper by default. ' \
         'Use this option, which takes two arguments, to displace them. ' \
         'E.g. --offset=10mm 14mm means that the logical pages are displaced by 10 mm in horizontal direction and by 14 mm in vertical direction. ' \
         'In oneside documents, positive values shift the pages to the right and to the top margin, respectively. '\
         'In ‘twoside’ documents, positive values shift the pages to the outer and to the top margin, respectively.')
 
-    parser.add_argument('--trim', nargs=4, type=str, default=['0','0','0','0'], metavar=('Left', 'Bottom', 'Right', 'Top'), 
+    parser.add_argument('--trim', nargs=4, type=str, default=['0','0','0','0'], metavar=('Left', 'Bottom', 'Right', 'Top'),
         help=u'Crop pdf page. ' \
         'You can use the following variables: \pdfwidth is the width of a pdf page, \pdfheight is the height of a pdf page. '
         'Both are calculated on the first page of the pdf. ' \
         'So for example "--trim 0 .5\pdfwidth .2\pdfheight 0" will trim the pages half from the right and 20 per cent from the bottom')
-    
-    parser.add_argument('--delta',  nargs=2, type=str, default=['0','0'], metavar=('X', 'Y'), 
+
+    parser.add_argument('--delta',  nargs=2, type=str, default=['0','0'], metavar=('X', 'Y'),
         help=u'By default logical pages are being arranged side by side. ' \
         'To put some space between them, use the delta option, which takes two arguments.')
-    
+
     parser.add_argument('--custom', help=u'Custom pdfpages options')
 
     parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'),
@@ -679,20 +679,20 @@ def main(cmdargs):
     #Boolean parameters NOT for pdfpages
     parser.add_argument('--natural-sorting', action='store_true', default=False, help=u'When scanning a folder, use natural sorting algorithm to sort the files inside it')
     parser.add_argument('--overwrite', action='store_true', default=False, help=u'Overwrite output file if it exists already')
-        
+
     # Group to manage how pages are inserted
     pages_group = parser.add_mutually_exclusive_group()
-    pages_group.add_argument('--swap-pages', default="", 
+    pages_group.add_argument('--swap-pages', default="",
         help=u'A semi-colon separated list of colon-separated page pairs to swap. ' \
         'E.g. "1,5;6,9" will swap page 1 with page 5 and page 6 with page 9.')
-    pages_group.add_argument('--rotate-pages', default="", 
+    pages_group.add_argument('--rotate-pages', default="",
         help=u'A semi-colon separated list of page=angle pairs. ' \
         'Rotation angle is counterclockwise. ' \
         'E.g. "1=90;2=180" will rotate 1st page by 90 degress counterclockwise and 2nd page by 180 degrees.')
-    pages_group.add_argument('--delete-pages', default="", 
+    pages_group.add_argument('--delete-pages', default="",
         help=u'A semi-colon separated list of pages to delete. ')
     pages_group.add_argument('--add-white-pages', action='store_true', default=False, help=u'Put a white page after every page.')
-    pages_group.add_argument('--extract-pages', default="-", 
+    pages_group.add_argument('--extract-pages', default="-",
         help=u'Selects pages to insert. ' \
         'The argument is a comma separated list, containing page numbers (e.g. 3,5,6,8), ranges of page numbers (e.g. 4-9) or any combination of the previous. ' \
         'To insert empty pages, use {}. ' \
@@ -702,7 +702,8 @@ def main(cmdargs):
         'E.g.: "--extract-pages 3,{},8-11,15" will insert page 3, an empty page, pages from 8 to 11, and page 15. '\
         '"--extract-pages=-" will insert all pages of the document, ' \
         '"--extract-pages=last-1" will insert all pages in reverse order.')
-        
+
+    # Options to simulate Adobe ClearSCan
     parser.add_argument('--clearscan', action='store_true', default=False, help=u'Simulate Adobe Acrobat ClearScan')
     parser.add_argument('--clearscan-filter-size', action='store', type=int, default=2, help=u'Pixel size of high-pass filter to pass to mkbitmap for clearscan')
     parser.add_argument('--clearscan-upscaling-factor', action='store', type=int, default=1, help=u'Upscale the image by this factor using mkbitmap before passing it to potrace')
@@ -712,20 +713,20 @@ def main(cmdargs):
     parser.add_argument('--clearscan-alphamax', action='store', type=float, default=1, help=u'set the corner threshold parameter. The default value is 1. The smaller this value, the more sharp corners will be produced. If this parameter is 0, then no smoothing will be performed and the output is a polygon. If this parameter is greater than 4/3, then all corners are suppressed and the output is completely smooth. ')
     parser.add_argument('--clearscan-debug-dir', action='store_true', default=False, help=argparse.SUPPRESS)
     parser.add_argument('--clearscan-potrace-debug', action='store', type=int, default=0, help=argparse.SUPPRESS)
-    
+
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
 
     # Boolean parameters TO PASS TO PDFPAGES (AND ONLY FOR PDFPAGES)
-    parser.add_argument('--clip', action='append_const', const='clip', dest='booleans', 
+    parser.add_argument('--clip', action='append_const', const='clip', dest='booleans',
         help=u'Used togheter with trim, will actually remove the cropped part from the pdfpage. '\
         'If false, the cropped part is present on the physical file, but the pdf reader is instructed to ignore it.')
     parser.add_argument('--landscape', action='append_const', const='landscape', dest='booleans', help=u'Output file is in landscape layer instead of portrait.')
     parser.add_argument('--frame', action='append_const', const='frame', dest='booleans', help=u'Put a frame around every logical page.')
 
     #-Debug options-
-    #Create temporary folder in the current working directory instead of system's default path for temporary files
     parser.add_argument('--verbose', action='store_true', default=False, help=argparse.SUPPRESS)
+    #Create temporary folder in the current working directory instead of system's default path for temporary files
     parser.add_argument('--debug', action='store_true', default=False, help=argparse.SUPPRESS)
     #Print the result of parse_args' and exit
     parser.add_argument('--debug-print', action='store_true', default=False, help=argparse.SUPPRESS)
@@ -741,16 +742,16 @@ def main(cmdargs):
 
     #Parse arguments
     args = parser.parse_args(cmdargs)
-    
+
     # Check dependencies
     if(args.check_latex):
         checkLatexInstallation()
         printMsgAndExit("Exiting", 1)
-        
+
     if(args.check_ghostscript):
         checkGhostscript()
         printMsgAndExit("Exiting", 1)
-        
+
     if(args.debug_print):
         print(args)
         printMsgAndExit("debug mode exit", 1)
@@ -772,7 +773,7 @@ def main(cmdargs):
     # If the --paper option is not specified, we pass "fitpaper" to pdfpages by default
     if(args.paper is None and 'landscape' not in args.booleans):
         args.booleans.append("fitpaper")
-        
+
     # Implement ClearScan and exit
     if args.clearscan:
         if not checkImageMagick():
@@ -798,7 +799,7 @@ def main(cmdargs):
         fp1 = os.path.realpath(args.input_files[0])
         of = os.path.realpath(args.output)
         # Create temporary directory and chage to it
-        # after we got the full path for the input file and output file 
+        # after we got the full path for the input file and output file
         # (which might be relative paths)
         if not args.clearscan_debug_dir:
             temp_dir = createTempDir(args)
@@ -820,22 +821,22 @@ def main(cmdargs):
             if res.returncode != 0:
                 printMsgAndExit("Error: ImageMagick failed", 1)
             # Run mkbitmap
-            res = subprocess.run(["mkbitmap", 
-                "-f", str(args.clearscan_filter_size), 
-                "-s", str(args.clearscan_upscaling_factor), 
-                "-t", str(args.clearscan_threshold), 
+            res = subprocess.run(["mkbitmap",
+                "-f", str(args.clearscan_filter_size),
+                "-s", str(args.clearscan_upscaling_factor),
+                "-t", str(args.clearscan_threshold),
                 f"{page}.bmp"])
             if res.returncode != 0:
                 printMsgAndExit("Error: mkbitmap failed", 1)
             # Remove PDF bitmap files
             os.unlink(f"{page}.bmp")
             # Run potrace
-            cmd = ["potrace", 
-                  "--backend", "pdf", 
+            cmd = ["potrace",
+                  "--backend", "pdf",
                   "-t", str(args.clearscan_threshold),
                   "--opttolerance", str(args.clearscan_opttolerance),
                   "--turnpolicy", args.clearscan_turnpolicy,
-                  "--alphamax", str(args.clearscan_alphamax) 
+                  "--alphamax", str(args.clearscan_alphamax)
                   ]
             if args.clearscan_potrace_debug != 0:
                 cmd.append("--debug")
