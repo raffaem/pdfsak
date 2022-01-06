@@ -6,8 +6,12 @@ project = 'PDFsak'
 copyright = '2021, Raffaele Mancuso'
 author = 'Raffaele Mancuso'
 
-release = '1.1'
-version = '1.1.1'
+import sys
+sys.path.append("../../")
+from pdfsak_version import __version__
+parts = __version__.split(".")
+release = parts[0] + "." + parts[1]
+version = __version__
 
 # -- General configuration
 
