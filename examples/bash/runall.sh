@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-rm -rf ./output
-mkdir ./output
+rm -rf ../output
+mkdir ../output
 cd ./scripts
 
 for f in ./*.sh
