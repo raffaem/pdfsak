@@ -16,6 +16,7 @@ import re
 import errno
 from collections import namedtuple
 from tqdm import tqdm
+from pdfsak_version import __version__
 
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
@@ -609,6 +610,10 @@ def main(cmdargs):
     # This formatter class prints default values in help
     # See: https://stackoverflow.com/questions/12151306/argparse-way-to-include-default-values-in-help
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    # Display version information
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s {version}'.format(version=__version__))
 
     # Input options
     input_group = parser.add_mutually_exclusive_group()
