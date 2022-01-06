@@ -772,7 +772,7 @@ def main(cmdargs):
 
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
-    parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check all dependencies (including optional ones)')
+    parser.add_argument('--check-all', action='store_true', default=False, help=u'Check all dependencies (including optional ones)')
 
     # Boolean parameters TO PASS TO PDFPAGES (AND ONLY FOR PDFPAGES)
     parser.add_argument('--clip', action='append_const', const='clip', dest='booleans',
