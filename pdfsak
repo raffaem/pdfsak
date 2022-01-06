@@ -639,7 +639,7 @@ def run(args):
                                             stdout=subprocess.DEVNULL,
                                             stderr=subprocess.DEVNULL)
             # Check if compilation was unsuccessful
-            if latex_return != 0 or \
+            if latex_return.returncode != 0 or \
                not os.path.isfile('latex_file.pdf') or \
                os.path.getsize('latex_file.pdf')==0:
                 if args.debug:
