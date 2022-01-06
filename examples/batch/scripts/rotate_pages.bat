@@ -1,3 +1,4 @@
+@echo off
 REM This example rotate the pages of a input PDF file.
 REM The 2nd page is rotated 90 degrees counterclockwise.
 REM The 3rd page is rotated 180 degrees counterclockwise (it will be upside down).

@@ -1,3 +1,4 @@
+@echo off
 REM This example creates a 3x2 lecture handout
 REM Every page of the output file is a 3x2 grid (3 rows and 2 columns)
 REM The left columns will contain pages from the input PDF file

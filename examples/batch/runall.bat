@@ -1,3 +1,4 @@
+@echo off
 REM Run all the scripts
 
 RD /S /Q "..\output"

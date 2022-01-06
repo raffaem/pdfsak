@@ -1,6 +1,8 @@
 
+* Infer correct Ghostscript binary name on Windows
+* Porting examples to Windows
 * Remove temp directory in case of exit with errors
-* Fix file paths on Windows
+* Fix file paths on Windows (always use forward slash)
 
 v 1.1.3 (2022-01-06)
 * Fix launcher for Windows

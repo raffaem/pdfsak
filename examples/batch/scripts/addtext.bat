@@ -1,3 +1,4 @@
+@echo off
 REM This example adds:
 REM - Page numbers in the bottom right corner (in the format `current_page/total_pages`)
 REM - Current date in the top left corner (in the format `day/month/year`)

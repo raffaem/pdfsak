@@ -25,9 +25,18 @@ today = datetime.datetime.now()
 # -Calculate needed rounds of compilation
 needed_comp_rounds = 2
 
+def getGSBin():
+    if os.name == 'nt':
+        # `gswin64` is a GUI interface. The CLI is called `gswin64c`
+        return "gswin64c"
+    elif os.name == "posix":
+        return "gs"
+    else:
+        printMsgAndExit(f"ERROR: OS {os.name} not recognized: cannot infer Ghostscript path", 1)
+
 def compressPDF(infp, outfp, imgres=300):
     # see: https://gist.github.com/firstdoit/6390547
-    cmd =  ["gs",
+    cmd =  [getGSBin(),
             "-sDEVICE=pdfwrite",
             "-dCompatibilityLevel=1.4",
             "-dPDFSETTINGS=/printer",
@@ -60,7 +69,7 @@ def linuxize(path):
     return str(path).replace("\\", "/")
 
 def getPageCount(infp):
-    cmd = ["gs", "-q", "-dNOSAFER", "-dNODISPLAY", "-c", '"(' + linuxize(infp) + ') (r) file runpdfbegin pdfpagecount = quit"']
+    cmd = [getGSBin(), "-q", "-dNOSAFER", "-dNODISPLAY", "-c", '"(' + linuxize(infp) + ') (r) file runpdfbegin pdfpagecount = quit"']
     res = subprocess.run(cmd, capture_output=True, text=True)
     if res.returncode != 0:
         printMsgAndExit(f"ERROR: Cannot get page count.\ncmd: {cmd}\nstdout: {res.stdout}\nstderr: {res.stderr}", 1)
@@ -206,7 +215,7 @@ def checkMKBitmapCLI():
 
 def checkGhostscriptCLI():
     try:
-        ver = subprocess.run(["gs", "--version"], capture_output=True, text=True).stdout.strip()
+        ver = subprocess.run([getGSBin(), "--version"], capture_output=True, text=True).stdout.strip()
     except FileNotFoundError:
         print("Ghostscript not found")
         return False
@@ -214,7 +223,7 @@ def checkGhostscriptCLI():
     if ver1 < 9:
         print("Ghostscript version too old. Please update")
         return False
-    print("Ghostscript is fine")
+    print("Ghostscript ok")
     return True
 
 def checkAllCLI():
