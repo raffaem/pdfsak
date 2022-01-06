@@ -20,6 +20,7 @@ from pdfsak_version import __version__
 
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
+temp_dir = None
 today = datetime.datetime.now()
 # -Calculate needed rounds of compilation
 needed_comp_rounds = 2
@@ -194,8 +195,11 @@ def removeFile(filename):
             raise # re-raise exception if a different error occurred
 
 def printMsgAndExit(msg, code):
-    # Avoid a permission error exception caused by the fact Python wants to delete the temporary folder
-    os.chdir(previous_cwd)
+    global temp_dir
+    if temp_dir:
+        # Remove temporary directory
+        os.chdir(previous_cwd)
+        shutil.rmtree(temp_dir)
     if msg != "":
         print(msg)
     exit(code)
@@ -218,6 +222,7 @@ def printTextHelp():
         \npages = total number of pages")
 
 def createTempDir(args):
+    global temp_dir
     # If NOT in debug, temporary directory is created in system temporary folder
     if not args.debug:
         #avoid out of scope
