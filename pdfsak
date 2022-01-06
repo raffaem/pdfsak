@@ -474,7 +474,7 @@ def run(args):
     for filenum in range(len(input_img_files)):
         f = input_img_files[filenum]
         latex_script += "\\begin{figure}"\
-        "\n\\includegraphics[width=\\linewidth]{"+f+"}"\
+        "\n\\includegraphics[width=\\linewidth]{" + linuxize(f) + "}"\
         "\n\\end{figure}"
 
     # Initialize arg.pages as list
@@ -496,7 +496,7 @@ def run(args):
     # -Get size of the first page of the input pdf. Define \pdfwidth and \pdfheight
     if len(input_pdf_files) > 0:
         latex_script += "%Get dimensions of pdf page" \
-        "\n\t\\savebox{\\mybox}{\\includegraphics{" + input_pdf_files[0] + "}}" \
+        "\n\t\\savebox{\\mybox}{\\includegraphics{" + linuxize(input_pdf_files[0]) + "}}" \
         "\n\t\\settowidth{\\pdfwidth}{\\usebox{\\mybox}}" \
         "\n\t\\settoheight{\\pdfheight}{\\usebox{\\mybox}} \n\t"
 
@@ -588,8 +588,8 @@ def run(args):
             include_pdf_str += ",trim={" + trimArrayToStr(args.trim) + "}"
 
         if (args.scale != 0):
-
             include_pdf_str += ",noautoscale, scale="+str(args.scale)
+
         if (args.width != 0):
             include_pdf_str += ",width="+str(args.width[0])+r"\paperwidth"
 
@@ -611,7 +611,7 @@ def run(args):
             include_pdf_str += r", angle=" + str(rotmap[pages])
 
         # Finalize with input filename
-        include_pdf_str += "]{" + f + "} \n\t";
+        include_pdf_str += "]{" + linuxize(f) + "} \n\t";
         # DO NOT PUT SPACES IN FILENAMES. THE FILENAME IS GET AS IT, VERY LITERALLY
 
         # Add include_pdf_str to latex_script
