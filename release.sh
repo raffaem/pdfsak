@@ -16,6 +16,7 @@ elif [ "$ans" = "n" ]; then
     exit
 else
     echo "Unrecognized answer"
+    exit
 fi
 
 # Create commit for version bump
@@ -35,6 +36,7 @@ elif [ "$ans" = "n" ]; then
     exit
 else
     echo "Unrecognized answer"
+    exit
 fi
 
 # Create annotated tag for this version
@@ -52,6 +54,7 @@ elif [ "$ans" = "n" ]; then
     exit
 else
     echo "Unrecognized answer"
+    exit
 fi
 
 # Push commit
