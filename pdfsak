@@ -880,9 +880,12 @@ def main(cmdargs):
         # Create temporary directory and chage to it
         # after we got the full path for the input file and output file
         # (which might be relative paths)
+        global temp_dir
+        global debug
         if not args.clearscan_debug_dir:
             temp_dir = createTempDir(args)
         else:
+            debug = True # avoids directory is deleted at the end
             temp_dir = "./temp"
             temp_dir = os.path.abspath(temp_dir)
             os.mkdir(temp_dir)
@@ -930,8 +933,8 @@ def main(cmdargs):
             shutil.move(src=f"{page}.pdf", dst=f"./pages/{page}.pdf")
         # Merge PDF files
         print("Merging back...")
-        res = subprocess.run(["pdfsak", "--natural-sorting", "-id", "./pages", "-o", "merged.pdf"])
-        if res.returncode != 0:
+        res = main(["--natural-sorting", "-id", "./pages", "-o", "merged.pdf"])
+        if not res:
             printMsgAndExit("Error: Failed to merge back", 1)
         # Compress PDF
         print("Compressing PDF file...")
@@ -945,6 +948,8 @@ def main(cmdargs):
         return
 
     run(args)
+
+    return True
 
 if __name__ == "__main__":
     main(sys.argv[1:])
