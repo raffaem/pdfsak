@@ -244,10 +244,10 @@ def removeFile(filename):
 
 def printMsgAndExit(msg, code):
     global debug
+    global temp_dir
     os.chdir(previous_cwd)
     # Remove temporary directory, except if we are in debug mode
     if temp_dir and (not debug):
-        global temp_dir
         shutil.rmtree(temp_dir)
     if msg != "":
         print(msg)
