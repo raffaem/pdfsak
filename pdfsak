@@ -55,8 +55,11 @@ def compressPDF(infp, outfp, imgres=300):
     res = subprocess.run(cmd)
     return res.returncode
 
+def linuxize(path):
+    return str(path).replace(r"\", "/")
+
 def getPageCount(infp):
-    cmd = ["gs", "-q", "-dNOSAFER", "-dNODISPLAY", "-c", '"('+infp+') (r) file runpdfbegin pdfpagecount = quit"']
+    cmd = ["gs", "-q", "-dNOSAFER", "-dNODISPLAY", "-c", '"(' + linuxize(infp) + ') (r) file runpdfbegin pdfpagecount = quit"']
     res = subprocess.run(cmd, capture_output=True, text=True)
     if res.returncode != 0:
         printMsgAndExit(f"ERROR: Cannot get page count.\ncmd: {cmd}\nstdout: {res.stdout}\nstderr: {res.stderr}", 1)
