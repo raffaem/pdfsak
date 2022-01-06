@@ -1,9 +1,9 @@
-
+v 1.1.2 (2022-01-06)
 * Single source of truth for version
 * Launcher for Windows
-* Can specify options for Adobe Acrobat Clearscan simulation
+* Additional options for Adobe Acrobat Clearscan simulation
 
-v 1.1 (2021-11-25)
+v 1.1.0 (2021-11-25)
 
 * Can simulate Adobe Acrobat Clearscan (improve quality of scanned document)
 
