@@ -36,6 +36,8 @@ def getGSBin():
         printMsgAndExit(f"ERROR: OS {os.name} not recognized: cannot infer Ghostscript path", 1)
 
 def compressPDF(infp, outfp, imgres=300):
+    infp = linuxize(os.path.abspath(infp))
+    outfp = linuxize(os.path.abspath(outfp))
     # see: https://gist.github.com/firstdoit/6390547
     cmd =  [getGSBin(),
             "-sDEVICE=pdfwrite",
@@ -63,6 +65,7 @@ def compressPDF(infp, outfp, imgres=300):
             #"-dBATCH",
             f"-sOutputFile={linuxize(outfp)}",
             f"{linuxize(infp)}"]
+    print(' '.join(cmd))
     res = subprocess.run(cmd)
     return res.returncode
 
@@ -672,6 +675,10 @@ def run(args):
 
 def main(cmdargs):
 
+    global temp_dir
+    global debug
+    global previous_cwd
+
     # Get command line options
     # This formatter class prints default values in help
     # See: https://stackoverflow.com/questions/12151306/argparse-way-to-include-default-values-in-help
@@ -810,12 +817,10 @@ def main(cmdargs):
     # If no options were passed, display help
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
-        printMsgAndExit("",1)
+        printMsgAndExit("", 1)
 
     #Parse arguments
     args = parser.parse_args(cmdargs)
-
-    global debug
     debug = args.debug
 
     # Check dependencies
@@ -880,8 +885,6 @@ def main(cmdargs):
         # Create temporary directory and chage to it
         # after we got the full path for the input file and output file
         # (which might be relative paths)
-        global temp_dir
-        global debug
         if not args.clearscan_debug_dir:
             temp_dir = createTempDir(args)
         else:
@@ -890,6 +893,8 @@ def main(cmdargs):
             temp_dir = os.path.abspath(temp_dir)
             os.mkdir(temp_dir)
             os.chdir(temp_dir)
+            print(f"Clear scan debug dir: {temp_dir}")
+            print(f"CWD: {os.getcwd()}")
         # Copy input file to temporary directory
         fp2 = os.path.join(temp_dir, os.path.basename(fp1))
         shutil.copy(src=fp1, dst=fp2)
@@ -931,19 +936,34 @@ def main(cmdargs):
             os.unlink(f"{page}.pbm")
             # Move page to pages dir
             shutil.move(src=f"{page}.pdf", dst=f"./pages/{page}.pdf")
+
         # Merge PDF files
         print("Merging back...")
+        # Backup temp directory
+        temp_dir_backup = temp_dir
+        previous_cwd_backup = previous_cwd
+        # Merge files using PDFsak
         res = main(["--natural-sorting", "-id", "./pages", "-o", "merged.pdf"])
         if not res:
             printMsgAndExit("Error: Failed to merge back", 1)
+        # Restore temp dir
+        print(f"CWD: {os.getcwd()}")
+        temp_dir = temp_dir_backup
+        previous_cwd = previous_cwd_backup
+        os.chdir(temp_dir)
+        print(f"CWD: {os.getcwd()}")
+
         # Compress PDF
         print("Compressing PDF file...")
         ret = compressPDF("./merged.pdf", of)
         if ret != 0:
             printMsgAndExit("Error: Failed to compress PDF file", 1)
+
         # Cleanup temporary directory
         if not args.clearscan_debug_dir:
+            os.chdir(previous_cwd)
             shutil.rmtree(temp_dir)
+
         # Exit
         return
 
