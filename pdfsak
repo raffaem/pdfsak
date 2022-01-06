@@ -139,30 +139,16 @@ def checkLatexCompiler():
         return False
     return True
 
-def checkImageMagick():
-    try:
-        ver = subprocess.run(["magick", "--version"], capture_output=True, text=True).stdout.strip()
-    except FileNotFoundError:
-        return False
-    return True
+def checkLatexCompilerCLI():
+    res = checkLatexCompiler()
+    if not res:
+        print("pdflatex not found")
+    else:
+        print("pdflatex ok")
+    return res
 
-def checkPotrace():
-    try:
-        ver = subprocess.run(["potrace", "--version"], capture_output=True, text=True).stdout.strip()
-    except FileNotFoundError:
-        return False
-    return True
-
-def checkMKBitmap():
-    try:
-        ver = subprocess.run(["mkbitmap", "--version"], capture_output=True, text=True).stdout.strip()
-    except FileNotFoundError:
-        return False
-    return True
-
-# Check that the current Latex installation has all the required packages
-def checkLatexInstallation():
-    checkLatexCompiler()
+def checkLatexInstallationCLI():
+    checkLatexCompilerCLI()
     checkLatexPackageCLI("pdfpages")
     checkLatexPackageCLI("lastpage")
     checkLatexPackageCLI("grffile")
@@ -173,7 +159,52 @@ def checkLatexInstallation():
     checkLatexPackageCLI("graphicx")
     checkLatexPackageCLI("THIS_PACKAGE_DOES_NOT_EXIST")
 
-def checkGhostscript():
+def checkImageMagick():
+    try:
+        ver = subprocess.run(["magick", "--version"], capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        return False
+    return True
+
+def checkImageMagickCLI():
+    res = checkImageMagick()
+    if not res:
+        print("imagemagick not found")
+    else:
+        print("imagemagick ok")
+    return res
+
+def checkPotrace():
+    try:
+        ver = subprocess.run(["potrace", "--version"], capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        return False
+    return True
+
+def checkPotraceCLI():
+    res = checkPotrace()
+    if not res:
+        print("potrace not found")
+    else:
+        print("potrace ok")
+    return res
+
+def checkMKBitmap():
+    try:
+        ver = subprocess.run(["mkbitmap", "--version"], capture_output=True, text=True).stdout.strip()
+    except FileNotFoundError:
+        return False
+    return True
+
+def checkMKBitmapCLI():
+    res = checkMKBitmap()
+    if not res:
+        print("mkbitmap not found")
+    else:
+        print("mkbitmap ok")
+    return res
+
+def checkGhostscriptCLI():
     try:
         ver = subprocess.run(["gs", "--version"], capture_output=True, text=True).stdout.strip()
     except FileNotFoundError:
@@ -185,6 +216,13 @@ def checkGhostscript():
         return False
     print("Ghostscript is fine")
     return True
+
+def checkAllCLI():
+    checkLatexInstallationCLI()
+    checkImageMagickCLI()
+    checkPotraceCLI()
+    checkMKBitmapCLI()
+    checkGhostscriptCLI()
 
 def removeFile(filename):
     # see: https://stackoverflow.com/questions/10840533/most-pythonic-way-to-delete-a-file-which-may-not-exist
@@ -734,6 +772,7 @@ def main(cmdargs):
 
     parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
     parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
+    parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check all dependencies (including optional ones)')
 
     # Boolean parameters TO PASS TO PDFPAGES (AND ONLY FOR PDFPAGES)
     parser.add_argument('--clip', action='append_const', const='clip', dest='booleans',
@@ -763,11 +802,15 @@ def main(cmdargs):
 
     # Check dependencies
     if(args.check_latex):
-        checkLatexInstallation()
+        checkLatexInstallationCLI()
         printMsgAndExit("Exiting", 1)
 
     if(args.check_ghostscript):
-        checkGhostscript()
+        checkGhostscriptCLI()
+        printMsgAndExit("Exiting", 1)
+
+    if(args.check_all):
+        checkAllCLI()
         printMsgAndExit("Exiting", 1)
 
     if(args.debug_print):
