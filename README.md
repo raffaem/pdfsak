@@ -26,3 +26,11 @@ It work on Linux, macOS and Windows.
 ## Documentation
 
 Checkout the [online documentation](https://pdfsak.readthedocs.io) for requirements, installation, usage and examples.
+
+## Looking for a logo
+
+PDFsak is looking for a logo!
+
+If you can provide one, please [open an issue](https://github.com/raffaem/pdftools/issues) with your proposal.
+
+You must be willing to release your logo under a free license, possibly Creative Commons-something.
