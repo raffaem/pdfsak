@@ -16,6 +16,7 @@ import re
 import errno
 from collections import namedtuple
 from tqdm import tqdm
+import platform
 from pdfsak_version import __version__
 
 # To restore cwd at the end, otherwise we get a exception
@@ -149,12 +150,27 @@ def checkLatexPackage(pkgname):
     # Compile latex file
     cmd = ["pdflatex", "--shell-escape", "--interaction=nonstopmode", latex_tex_fp]
     res = subprocess.run(cmd, capture_output=True, text=True)
+    # Read log file and look for package version
+    ver = None
+    try:
+        with open("check.log") as fh:
+            data = fh.read()
+    except FileNotFoundError:
+        data = ""
+    ver_re = re.search(f"^Package: ({pkgname} .*)$", data, re.MULTILINE)
+    if ver_re:
+        try:
+            ver = ver_re.group(1)
+        except IndexError:
+            pass
+    # Remove temp files
     removeFile("check.tex")
     removeFile("check.pdf")
     removeFile("check.aux")
     removeFile("check.log")
-    res_class = namedtuple("LatexPackageCheck", ["ok", "stdout", "stderr"])
-    return res_class(ok=(res.returncode==0), stdout=res.stdout.strip(), stderr=res.stderr.strip())
+    # Return
+    res_class = namedtuple("LatexPackageCheck", ["ok", "stdout", "stderr", "ver"])
+    return res_class(ok=(res.returncode==0), stdout=res.stdout.strip(), stderr=res.stderr.strip(), ver=ver)
 
 def checkLatexPackageCLI(pkgname):
     res = checkLatexPackage(pkgname)
@@ -163,7 +179,7 @@ def checkLatexPackageCLI(pkgname):
         print(f"stdout='{res.stdout}'")
         print(f"stderr='{res.stderr}'")
     else:
-        print(f"Checking LaTeX package '{pkgname}': OK")
+        print(f"Checking LaTeX package '{pkgname}' OK: {res.ver}")
 
 def checkLatexInstallationCLI():
     checkLatexCompilerCLI()
@@ -251,12 +267,18 @@ def checkGhostscriptCLI():
     return res
 
 def checkAllCLI():
+    global temp_dir
+    temp_dir = createTempDir()
+    print("os.name:", os.name)
+    print("platform.system():", platform.system())
+    print("platform.release():", platform.release())
     print(f"PDFsak version: {__version__}")
     checkLatexInstallationCLI()
     checkImageMagickCLI()
     checkPotraceCLI()
     checkMKBitmapCLI()
     checkGhostscriptCLI()
+    printMsgAndExit("", 0)
 
 def removeFile(filename):
     # see: https://stackoverflow.com/questions/10840533/most-pythonic-way-to-delete-a-file-which-may-not-exist
@@ -810,7 +832,6 @@ def main(cmdargs):
     parser.add_argument('--clearscan-opttolerance', action='store', type=float, default=0.2, help=u'Set the curve optimization tolerance. The default value is 0.2. Larger values allow more consecutive Bezier curve segments to be joined together in a single segment, at the expense of accuracy.')
     parser.add_argument('--clearscan-turnpolicy', action='store', type=str, default="minority", help=u'Specify how to resolve ambiguities in path decomposition. Must be one of black, white, right, left, minority, majority, or random. Default is minority. Turn policies can be abbreviated by an unambiguous prefix, e.g., one can specify min instead of minority.')
     parser.add_argument('--clearscan-alphamax', action='store', type=float, default=1, help=u'set the corner threshold parameter. The default value is 1. The smaller this value, the more sharp corners will be produced. If this parameter is 0, then no smoothing will be performed and the output is a polygon. If this parameter is greater than 4/3, then all corners are suppressed and the output is completely smooth. ')
-    parser.add_argument('--clearscan-debug-dir', action='store_true', default=False, help=argparse.SUPPRESS)
     parser.add_argument('--clearscan-potrace-debug', action='store', type=int, default=0, help=argparse.SUPPRESS)
 
     parser.add_argument('--check-all', action='store_true', default=False, help=u'Check all dependencies (including optional ones)')
@@ -833,7 +854,7 @@ def main(cmdargs):
     #Specify debug folder
     parser.add_argument('--debug-folder', type=str, default='temp', help=argparse.SUPPRESS)
 
-    # If no options were passed, display help
+    # If no options are passed, display help
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
         printMsgAndExit("", 1)
@@ -844,14 +865,6 @@ def main(cmdargs):
 
     if(args.check_all):
         checkAllCLI()
-        printMsgAndExit("Exiting", 1)
-
-    if(args.debug_print):
-        print(args)
-        printMsgAndExit("debug mode exit", 1)
-
-    if(args.verbose):
-        print(args)
 
     if(args.text_help):
         printTextHelp()
@@ -895,16 +908,7 @@ def main(cmdargs):
         # Create temporary directory and chage to it
         # after we got the full path for the input file and output file
         # (which might be relative paths)
-        if not args.clearscan_debug_dir:
-            temp_dir = createTempDir(args)
-        else:
-            debug = True # avoids directory is deleted at the end
-            temp_dir = "./temp"
-            temp_dir = os.path.abspath(temp_dir)
-            os.mkdir(temp_dir)
-            os.chdir(temp_dir)
-            print(f"Clear scan debug dir: {temp_dir}")
-            print(f"CWD: {os.getcwd()}")
+        temp_dir = createTempDir(args)
         # Copy input file to temporary directory
         fp2 = os.path.join(temp_dir, os.path.basename(fp1))
         shutil.copy(src=fp1, dst=fp2)
