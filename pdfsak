@@ -117,14 +117,6 @@ def natural_keys(text):
     '''
     return [ atoi(c) for c in re.split('(\d+)', text) ]
 
-# Check the presence of a single Latex package
-def checkLatexPackageCLI(pkgname):
-    res = checkLatexPackage(pkgname)
-    if (res == False):
-        print("Checking "+pkgname+": MISSING")
-    else:
-        print("Checking "+pkgname+": found")
-
 def checkLatexPackage(pkgname):
     latex_tex_fp = "check.tex"
     latex_script = "\\documentclass{article} \
@@ -136,18 +128,27 @@ def checkLatexPackage(pkgname):
     with open(latex_tex_fp, "w", encoding="utf8") as fh:
         fh.write(latex_script)
     # Compile latex file
-    latex_return = subprocess.call(["pdflatex", "--interaction=batchmode", latex_tex_fp], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    cmd = ["pdflatex", "--shell-escape", "--interaction=nonstopmode", latex_tex_fp]
+    res = subprocess.run(cmd, capture_output=True, text=True)
     removeFile("check.tex")
     removeFile("check.pdf")
     removeFile("check.aux")
     removeFile("check.log")
-    if latex_return != 0:
-        return False
-    return True
+    return_class = namedtuple("LatexPackageCheck", ["ok", "stdout", "stderr"])
+    return return_class(ok=(res.returncode==0), stdout=res.stdout, stderr=res.stderr)
+
+def checkLatexPackageCLI(pkgname):
+    res = checkLatexPackage(pkgname)
+    if not res.ok:
+        print(f"Checking LaTeX package '{pkgname}': MISSING")
+        print(f"stdout='{res.stdout}'")
+        print(f"stderr='{res.stderr}'")
+    else:
+        print(f"Checking LaTeX package '{pkgname}': OK")
 
 def checkLatexCompiler():
     try:
-        ver = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True).stdout.strip()
+        ver = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True)
     except FileNotFoundError:
         return False
     return True
