@@ -117,6 +117,7 @@ def natural_keys(text):
     '''
     return [ atoi(c) for c in re.split('(\d+)', text) ]
 
+# Check functions
 def checkLatexPackage(pkgname):
     latex_tex_fp = "check.tex"
     latex_script = "\\documentclass{article} \
@@ -134,8 +135,8 @@ def checkLatexPackage(pkgname):
     removeFile("check.pdf")
     removeFile("check.aux")
     removeFile("check.log")
-    return_class = namedtuple("LatexPackageCheck", ["ok", "stdout", "stderr"])
-    return return_class(ok=(res.returncode==0), stdout=res.stdout, stderr=res.stderr)
+    res_class = namedtuple("LatexPackageCheck", ["ok", "stdout", "stderr"])
+    return res_class(ok=(res.returncode==0), stdout=res.stdout.strip(), stderr=res.stderr.strip())
 
 def checkLatexPackageCLI(pkgname):
     res = checkLatexPackage(pkgname)
@@ -147,18 +148,20 @@ def checkLatexPackageCLI(pkgname):
         print(f"Checking LaTeX package '{pkgname}': OK")
 
 def checkLatexCompiler():
+    res_class = namedtuple("LatexCompilerCheck", ["ok", "stdout", "stderr"])
     try:
         ver = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True)
     except FileNotFoundError:
-        return False
-    return True
+        return res_class(False, None, None)
+    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
 
 def checkLatexCompilerCLI():
     res = checkLatexCompiler()
-    if not res:
+    if not res.ok:
         print("pdflatex not found")
     else:
-        print("pdflatex ok")
+        r = res.stdout.split('\n')[0]
+        print(f"pdflatex ok: {r}")
     return res
 
 def checkLatexInstallationCLI():
@@ -171,65 +174,81 @@ def checkLatexInstallationCLI():
     checkLatexPackageCLI("textpos")
     checkLatexPackageCLI("changepage")
     checkLatexPackageCLI("graphicx")
-    checkLatexPackageCLI("THIS_PACKAGE_DOES_NOT_EXIST")
+    #checkLatexPackageCLI("THIS_PACKAGE_DOES_NOT_EXIST")
 
 def checkImageMagick():
+    res_class = namedtuple("ImageMagickCheck", ["ok", "stdout", "stderr"])
     try:
-        ver = subprocess.run(["magick", "--version"], capture_output=True, text=True).stdout.strip()
+        ver = subprocess.run(["magick", "--version"], capture_output=True, text=True)
     except FileNotFoundError:
-        return False
-    return True
+        return res_class(False, None, None)
+    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
 
 def checkImageMagickCLI():
     res = checkImageMagick()
-    if not res:
+    if not res.ok:
         print("imagemagick not found")
     else:
-        print("imagemagick ok")
+        r = res.stdout.split('\n')[0]
+        print(f"imagemagick ok: {r}")
     return res
 
 def checkPotrace():
+    res_class = namedtuple("PotraceCheck", ["ok", "stdout", "stderr"])
     try:
-        ver = subprocess.run(["potrace", "--version"], capture_output=True, text=True).stdout.strip()
+        ver = subprocess.run(["potrace", "--version"], capture_output=True, text=True)
     except FileNotFoundError:
-        return False
-    return True
+        return res_class(False, None, None)
+    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
 
 def checkPotraceCLI():
     res = checkPotrace()
-    if not res:
+    if not res.ok:
         print("potrace not found")
     else:
-        print("potrace ok")
+        r = res.stdout.split('\n')[0]
+        print(f"potrace ok: {r}")
     return res
 
 def checkMKBitmap():
+    res_class = namedtuple("MKBitmapCheck", ["ok", "stdout", "stderr"])
     try:
-        ver = subprocess.run(["mkbitmap", "--version"], capture_output=True, text=True).stdout.strip()
+        ver = subprocess.run(["mkbitmap", "--version"], capture_output=True, text=True)
     except FileNotFoundError:
-        return False
-    return True
+        return res_class(False, None, None)
+    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
 
 def checkMKBitmapCLI():
     res = checkMKBitmap()
-    if not res:
+    if not res.ok:
         print("mkbitmap not found")
     else:
-        print("mkbitmap ok")
+        r = res.stdout.split('\n')[0]
+        print(f"mkbitmap ok: {r}")
     return res
 
-def checkGhostscriptCLI():
+def checkGhostscript():
+    res_class = namedtuple("GhostscriptCheck", ["ok", "stdout", "stderr"])
     try:
-        ver = subprocess.run([getGSBin(), "--version"], capture_output=True, text=True).stdout.strip()
+        ver = subprocess.run([getGSBin(), "--version"], capture_output=True, text=True)
     except FileNotFoundError:
+        return res_class(False, None, None)
+    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
+
+def checkGhostscriptCLI():
+    res = checkGhostscript()
+    if not res.ok:
         print("Ghostscript not found")
-        return False
-    ver1 = int(ver.split(".")[0])
+    else:
+        r = res.stdout.split('\n')[0]
+        print(f"Ghostscript found: {r}")
+    # Check Ghostscript version
+    ver1 = int(res.stdout.split(".")[0])
     if ver1 < 9:
         print("Ghostscript version too old. Please update")
-        return False
-    print("Ghostscript ok")
-    return True
+    else:
+        print("Ghostscript version is recent enough")
+    return res
 
 def checkAllCLI():
     checkLatexInstallationCLI()
