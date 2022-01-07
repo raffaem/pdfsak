@@ -972,13 +972,8 @@ def main(cmdargs):
         if ret != 0:
             printMsgAndExit("Error: Failed to compress PDF file", 1)
 
-        # Cleanup temporary directory
-        if not args.clearscan_debug_dir:
-            os.chdir(previous_cwd)
-            shutil.rmtree(temp_dir)
-
         # Exit
-        return
+        printMsgAndExit("Success", 0)
 
     run(args)
 
