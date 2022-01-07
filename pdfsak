@@ -130,10 +130,10 @@ def checkLatexCompiler():
 def checkLatexCompilerCLI():
     res = checkLatexCompiler()
     if not res.ok:
-        print("pdflatex not found")
+        print("pdflatex NOT FOUND")
     else:
         r = res.stdout.split('\n')[0]
-        print(f"pdflatex ok: {r}")
+        print(f"pdflatex OK: {r}")
     return res
 
 def checkLatexPackage(pkgname):
@@ -251,6 +251,7 @@ def checkGhostscriptCLI():
     return res
 
 def checkAllCLI():
+    print(f"PDFsak version: {__version__}")
     checkLatexInstallationCLI()
     checkImageMagickCLI()
     checkPotraceCLI()
