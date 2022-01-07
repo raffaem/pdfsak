@@ -266,9 +266,9 @@ def checkGhostscriptCLI():
         print(f"Ghostscript OK: {r}")
     return res
 
-def checkAllCLI():
+def checkAllCLI(args):
     global temp_dir
-    temp_dir = createTempDir()
+    temp_dir = createTempDir(args.debug, args.debug_folder)
     print("os.name:", os.name)
     print("platform.system():", platform.system())
     print("platform.release():", platform.release())
@@ -316,15 +316,15 @@ def printTextHelp():
         \npage = current page \
         \npages = total number of pages")
 
-def createTempDir(args):
+def createTempDir(debug=False, debug_folder=None):
     global temp_dir
     # If NOT in debug, temporary directory is created in system temporary folder
-    if not args.debug:
+    if not debug:
         #avoid out of scope
         temp_dir = tempfile.mkdtemp(prefix='pdfsak')
     # If in debug mode, temporary directory is created in current working directory
     else:
-        temp_dir = os.path.join(os.getcwd(), args.debug_folder)
+        temp_dir = os.path.join(os.getcwd(), debug_folder)
         os.mkdir(temp_dir)
         print(f"Creating debug temporary directory {temp_dir}")
     # Change working directory to the temp folder. In this way, latex temporary files are created there
@@ -391,7 +391,7 @@ def run(args):
             printMsgAndExit(f"FATAL ERROR: File {args.output} already exists. Use --overwrite if you want to overwrite it", 1)
 
     # 3. Create temporary directory
-    temp_dir = createTempDir(args)
+    temp_dir = createTempDir(args.debug, args.debug_folder)
 
     # 4. Pre-compiling
 
@@ -864,7 +864,7 @@ def main(cmdargs):
     debug = args.debug
 
     if(args.check_all):
-        checkAllCLI()
+        checkAllCLI(args)
 
     if(args.text_help):
         printTextHelp()
@@ -908,7 +908,7 @@ def main(cmdargs):
         # Create temporary directory and chage to it
         # after we got the full path for the input file and output file
         # (which might be relative paths)
-        temp_dir = createTempDir(args)
+        temp_dir = createTempDir(args.debug, args.debug_folder)
         # Copy input file to temporary directory
         fp2 = os.path.join(temp_dir, os.path.basename(fp1))
         shutil.copy(src=fp1, dst=fp2)
