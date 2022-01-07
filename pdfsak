@@ -813,8 +813,6 @@ def main(cmdargs):
     parser.add_argument('--clearscan-debug-dir', action='store_true', default=False, help=argparse.SUPPRESS)
     parser.add_argument('--clearscan-potrace-debug', action='store', type=int, default=0, help=argparse.SUPPRESS)
 
-    parser.add_argument('--check-latex', action='store_true', default=False, help=u'Check LaTeX installation')
-    parser.add_argument('--check-ghostscript', action='store_true', default=False, help=u'Check Ghostscript installation')
     parser.add_argument('--check-all', action='store_true', default=False, help=u'Check all dependencies (including optional ones)')
 
     # Boolean parameters TO PASS TO PDFPAGES (AND ONLY FOR PDFPAGES)
