@@ -118,6 +118,24 @@ def natural_keys(text):
     return [ atoi(c) for c in re.split('(\d+)', text) ]
 
 # Check functions
+
+def checkLatexCompiler():
+    res_class = namedtuple("LatexCompilerCheck", ["ok", "stdout", "stderr"])
+    try:
+        ver = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True)
+    except FileNotFoundError:
+        return res_class(False, None, None)
+    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
+
+def checkLatexCompilerCLI():
+    res = checkLatexCompiler()
+    if not res.ok:
+        print("pdflatex not found")
+    else:
+        r = res.stdout.split('\n')[0]
+        print(f"pdflatex ok: {r}")
+    return res
+
 def checkLatexPackage(pkgname):
     latex_tex_fp = "check.tex"
     latex_script = "\\documentclass{article} \
@@ -146,23 +164,6 @@ def checkLatexPackageCLI(pkgname):
         print(f"stderr='{res.stderr}'")
     else:
         print(f"Checking LaTeX package '{pkgname}': OK")
-
-def checkLatexCompiler():
-    res_class = namedtuple("LatexCompilerCheck", ["ok", "stdout", "stderr"])
-    try:
-        ver = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True)
-    except FileNotFoundError:
-        return res_class(False, None, None)
-    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
-
-def checkLatexCompilerCLI():
-    res = checkLatexCompiler()
-    if not res.ok:
-        print("pdflatex not found")
-    else:
-        r = res.stdout.split('\n')[0]
-        print(f"pdflatex ok: {r}")
-    return res
 
 def checkLatexInstallationCLI():
     checkLatexCompilerCLI()
