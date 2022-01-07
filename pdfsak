@@ -944,7 +944,10 @@ def main(cmdargs):
         temp_dir_backup = temp_dir
         previous_cwd_backup = previous_cwd
         # Merge files using PDFsak
-        res = main(["--natural-sorting", "-id", "./pages", "-o", "merged.pdf"])
+        cmd = ["--natural-sorting", "-id", "./pages", "-o", "merged.pdf"]
+        if args.debug:
+            cmd.append("--debug")
+        res = main(cmd)
         if not res:
             printMsgAndExit("Error: Failed to merge back", 1)
         # Restore temp dir
