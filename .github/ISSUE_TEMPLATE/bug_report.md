@@ -21,15 +21,10 @@ A clear and concise description of what you expected to happen.
 
 **PDF file**
 If the issue happens only with a specific input file, please attach it here if you can.
-
 If you can't (for privacy or copyright issue), please fill the bug without it.
 
 **System information**
-Please paste the output of 
-```
-pdfsak --check-all
-```
-here:
+Please paste the output of `pdfsak --check-all` here:
 
 ```
 <OUTPUT HERE>
