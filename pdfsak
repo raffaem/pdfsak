@@ -188,10 +188,10 @@ def checkImageMagick():
 def checkImageMagickCLI():
     res = checkImageMagick()
     if not res.ok:
-        print("imagemagick not found")
+        print("ImageMagick NOT FOUND")
     else:
         r = res.stdout.split('\n')[0]
-        print(f"imagemagick ok: {r}")
+        print(f"ImageMagick OK: {r}")
     return res
 
 def checkPotrace():
@@ -205,10 +205,10 @@ def checkPotrace():
 def checkPotraceCLI():
     res = checkPotrace()
     if not res.ok:
-        print("potrace not found")
+        print("Potrace NOT FOUND")
     else:
         r = res.stdout.split('\n')[0]
-        print(f"potrace ok: {r}")
+        print(f"Potrace OK: {r}")
     return res
 
 def checkMKBitmap():
@@ -222,10 +222,10 @@ def checkMKBitmap():
 def checkMKBitmapCLI():
     res = checkMKBitmap()
     if not res.ok:
-        print("mkbitmap not found")
+        print("mkbitmap NOT FOUND")
     else:
         r = res.stdout.split('\n')[0]
-        print(f"mkbitmap ok: {r}")
+        print(f"mkbitmap OK: {r}")
     return res
 
 def checkGhostscript():
@@ -239,16 +239,15 @@ def checkGhostscript():
 def checkGhostscriptCLI():
     res = checkGhostscript()
     if not res.ok:
-        print("Ghostscript not found")
+        print("Ghostscript NOT FOUND")
     else:
         r = res.stdout.split('\n')[0]
-        print(f"Ghostscript found: {r}")
     # Check Ghostscript version
     ver1 = int(res.stdout.split(".")[0])
     if ver1 < 9:
-        print("Ghostscript version too old. Please update")
+        print(f"Error: Ghostscript version {r} is too old. Please update it.")
     else:
-        print("Ghostscript version is recent enough")
+        print(f"Ghostscript OK: {r}")
     return res
 
 def checkAllCLI():
