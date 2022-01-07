@@ -842,15 +842,6 @@ def main(cmdargs):
     args = parser.parse_args(cmdargs)
     debug = args.debug
 
-    # Check dependencies
-    if(args.check_latex):
-        checkLatexInstallationCLI()
-        printMsgAndExit("Exiting", 1)
-
-    if(args.check_ghostscript):
-        checkGhostscriptCLI()
-        printMsgAndExit("Exiting", 1)
-
     if(args.check_all):
         checkAllCLI()
         printMsgAndExit("Exiting", 1)
