@@ -1,8 +1,10 @@
 
+* Much more detailed --check-all output
 * Infer correct Ghostscript binary name on Windows
 * Porting examples to Windows
-* Remove temp directory in case of exit with errors
+* Remove temporary directory in case of exit with errors (if we are not in debug mode)
 * Fix file paths on Windows (always use forward slash)
+* Various bug fixes
 
 v 1.1.3 (2022-01-06)
 * Fix launcher for Windows

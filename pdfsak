@@ -66,7 +66,6 @@ def compressPDF(infp, outfp, imgres=300):
             #"-dBATCH",
             f"-sOutputFile={linuxize(outfp)}",
             f"{linuxize(infp)}"]
-    print(' '.join(cmd))
     res = subprocess.run(cmd)
     return res.returncode
 
@@ -967,11 +966,11 @@ def main(cmdargs):
         if not res:
             printMsgAndExit("Error: Failed to merge back", 1)
         # Restore temp dir
-        print(f"CWD: {os.getcwd()}")
+        #print(f"CWD: {os.getcwd()}")
         temp_dir = temp_dir_backup
         previous_cwd = previous_cwd_backup
         os.chdir(temp_dir)
-        print(f"CWD: {os.getcwd()}")
+        #print(f"CWD: {os.getcwd()}")
 
         # Compress PDF
         print("Compressing PDF file...")
