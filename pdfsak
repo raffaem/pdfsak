@@ -515,9 +515,9 @@ def run(args):
             width, height = height, width #swap them
             text_proc = "\\rotatebox{90}{"+text_proc+"}"
 
-        # Get the size of the text box
+        # Get width of the text box
         latex_script += "\\savebox{\\textbox}{"+text_proc+"}\n"
-        latex_script += "\t\\settowidth{\\textboxwidth}{\\usebox{\\textbox} }\n"
+        latex_script += "\t\\settowidth{\\textboxwidth}{\\usebox{\\textbox}}\n"
 
         # Use textpos package: https://ctan.mirror.garr.it/mirrors/ctan/macros/latex/contrib/textpos/textpos.pdf
         # textblock wants the position of the upper left corner of the text box.
@@ -540,6 +540,10 @@ def run(args):
         if not os.path.isfile(file):
             printMsgAndExit(f"ERROR: File {file} does not exist", 1)
         anchh, anchv = anchor2coords(anchor)
+        # Get width of the text box
+        latex_script += "\t\\savebox{\\textbox}{\\includegraphics[width="+scale+"\\paperwidth]{"+file+"}}\n"
+        latex_script += "\t\\settowidth{\\textboxwidth}{\\usebox{\\textbox}}\n"
+        # Insert image
         latex_script += "\t\\begin{textblock*}{\\textboxwidth}"
         latex_script += f"[{anchh},{anchv}]"
         latex_script += "("+str(hpos)+"\\paperwidth, "+str(vpos)+"\\paperheight)\n"
