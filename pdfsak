@@ -458,9 +458,9 @@ def run(args):
     "\n\\newlength{\\pdfheight}\n"
 
     if args.textpos_showboxes:
-        "\\usepackage[absolute, showboxes]{textpos}\n"
+        latex_script += "\\usepackage[absolute, showboxes]{textpos}\n"
     else:
-        "\\usepackage[absolute]{textpos}\n"
+        latex_script += "\\usepackage[absolute]{textpos}\n"
 
     # Black magic to have PDF files with commas in their filename work
     # See: https://tex.stackexchange.com/a/372722/74382
