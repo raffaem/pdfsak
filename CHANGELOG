@@ -1,4 +1,5 @@
 
+* Option to show boxes around textblocks
 * Option to add watermarks to PDF files
 * Much more detailed --check-all output
 * Infer correct Ghostscript binary name on Windows
