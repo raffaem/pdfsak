@@ -436,22 +436,19 @@ def run(args):
 
     # Black magic to have PDF files with commas in their filename work
     # See: https://tex.stackexchange.com/a/372722/74382
-    latex_script += r"""
-% save the original macro
-\LetLtxMacro\ORIincludepdf\includepdf
-
-\ExplSyntaxOn
-\RenewDocumentCommand{\includepdf}{O{}m}
- {
-  % store the file name as a string
-  \tl_set:Nx \l_tmpa_tl { \tl_to_str:n { #2 } }
-  % replace commas (catcode 12) with commas (catcode 11)
-  \tl_replace_all:Nnf \l_tmpa_tl { , } { \char_generate:nn { `, } { 11 } }
-  \ORIincludepdf[#1]{\l_tmpa_tl}
- }
-\cs_generate_variant:Nn \tl_replace_all:Nnn { Nnf }
-\ExplSyntaxOff
-    """
+    latex_script += r"% save the original macro"+"\n" \
+    r"\LetLtxMacro\ORIincludepdf\includepdf"+"\n" \
+    r"\ExplSyntaxOn"+"\n" \
+    r"\RenewDocumentCommand{\includepdf}{O{}m}"+"\n" \
+    r"{"+"\n" \
+    r"% store the file name as a string"+"\n" \
+    r"\tl_set:Nx \l_tmpa_tl { \tl_to_str:n { #2 } }"+"\n" \
+    r"% replace commas (catcode 12) with commas (catcode 11)"+"\n" \
+    r"\tl_replace_all:Nnf \l_tmpa_tl { , } { \char_generate:nn { `, } { 11 } }"+"\n" \
+    r"\ORIincludepdf[#1]{\l_tmpa_tl}"+"\n" \
+    r"}"+"\n" \
+    r"\cs_generate_variant:Nn \tl_replace_all:Nnn { Nnf }"+"\n" \
+    r"\ExplSyntaxOff"+"\n"
 
     # Generate variables to hold the text boxes and the text boxes' widths
     #for i in range(len(args.text)):
