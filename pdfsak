@@ -190,6 +190,7 @@ def checkLatexInstallationCLI():
     checkLatexPackageCLI("textpos")
     checkLatexPackageCLI("changepage")
     checkLatexPackageCLI("graphicx")
+    checkLatexPackageCLI("transparent")
     #checkLatexPackageCLI("THIS_PACKAGE_DOES_NOT_EXIST")
 
 def checkImageMagick():
@@ -333,6 +334,23 @@ def createTempDir(debug=False, debug_folder=None):
     os.chdir(temp_dir)
     return temp_dir
 
+def anchor2coords(s):
+    if s == "tl":
+        anchh, anchv = 0, 0
+    elif s == "tr":
+        anchh, anchv = 1, 0
+    elif s == "tm":
+        anchh, anchv = 0.5, 0
+    elif s == "bl":
+        anchh, anchv = 0, 1
+    elif s == "br":
+        anchh, anchv = 1, 1
+    elif s == "bm":
+        anchh, anchv = 0.5, 1
+    else:
+        printMsgAndExit(f"Argument {text[1]} not valid", 1)
+    return anchh, anchv
+
 # The core of the software
 def run(args):
 
@@ -423,7 +441,7 @@ def run(args):
     "\n\\usepackage[utf8x]{inputenc}" \
     "\n%To avoid problems with pdf filenames. N.B. MUST BE BEFORE PDFPAGES TO AVOID BUG!" \
     "\n\\usepackage[multidot, extendedchars]{grffile}" \
-    "\n\\usepackage{pdfpages, lastpage, fancyhdr, forloop, geometry, calc, graphicx}" \
+    "\n\\usepackage{pdfpages, lastpage, fancyhdr, forloop, geometry, calc, graphicx, transparent}" \
     "\n\\usepackage{xparse,letltxmacro}" \
     "\n\\usepackage[absolute]{textpos}" \
     "\n\\usepackage{changepage} %Implement check to get if current page is odd or even" \
@@ -467,33 +485,24 @@ def run(args):
     for texti, text in enumerate(args.text):
 
         # `text` is in the format [STRING, ANCHOR, WIDTH, HEIGHT]
+        st = text[0]
+        anchor = text[1]
+        width = text[2]
+        height = text[3]
 
         # Process text string
-        text_proc = Template(text[0]).substitute(day=today.day, month=today.month, year=today.year, page=r'\thepage', pages=r'\pageref{LastPage}')
+        text_proc = Template(st).substitute(day=today.day, month=today.month, year=today.year, page=r'\thepage', pages=r'\pageref{LastPage}')
         text_proc = text_proc.replace(r' ',r'~') #otherwise spaces will get ignored
         text_proc = text_proc.replace(r'_',r'\_') #otherwise error occurs
 
         # Position template
-        if text[1] == "tl":
-            anchh, anchv = 0, 0
-        elif text[1] == "tr":
-            anchh, anchv = 1, 0
-        elif text[1] == "tm":
-            anchh, anchv = 0.5, 0
-        elif text[1] == "bl":
-            anchh, anchv = 0, 1
-        elif text[1] == "br":
-            anchh, anchv = 1, 1
-        elif text[1] == "bm":
-            anchh, anchv = 0.5, 1
-        else:
-            print(f"Argument {text[1]} not valid")
+        anchh, anchv = anchor2coords(anchor)
 
         # The default position of textpos is the top left page corner.
         # In landscape mode this become the top right corner (rotation of 90 degress clockwise)
         # But we want the units always expressed related to the top left corner. So we convert them.
         if 'landscape' in args.booleans:
-            text[2], text[3] = text[3], text[2] #swap them
+            width, height = height, width #swap them
             text_proc = "\\rotatebox{90}{"+text_proc+"}"
 
         # Get the size of the text box
@@ -505,8 +514,28 @@ def run(args):
         # Starred version requires positions expressed as length (not relative to TPHorizModule)
         latex_script += "\t\\begin{textblock*}{\\textboxwidth}"
         latex_script += f"[{anchh},{anchv}]"
-        latex_script += "("+str(text[2])+"\\paperwidth, "+str(text[3])+"\\paperheight)\n"
+        latex_script += "("+str(width)+"\\paperwidth, "+str(height)+"\\paperheight)\n"
         latex_script += "\t\t\\raggedright "+text_proc+"\n"
+        latex_script += "\t\\end{textblock*}\n"
+
+    # Process watermarks
+    # metavar=('file', 'anchor', 'hpos', 'vpos', 'scale', 'alpha')
+    for i, wm in enumerate(args.watermark):
+        file = os.path.normpath(os.path.join(previous_cwd, wm[0]))
+        anchor = wm[1]
+        hpos = wm[2]
+        vpos = wm[3]
+        scale = wm[4]
+        alpha = wm[5]
+        if not os.path.isfile(file):
+            printMsgAndExit(f"ERROR: File {file} does not exist", 1)
+        anchh, anchv = anchor2coords(anchor)
+        latex_script += "\t\\begin{textblock*}{\\textboxwidth}"
+        latex_script += f"[{anchh},{anchv}]"
+        latex_script += "("+str(hpos)+"\\paperwidth, "+str(vpos)+"\\paperheight)\n"
+        latex_script += "\t\t{\\transparent{"+alpha+"}\n"
+        latex_script += "\t\t\t\\includegraphics[width="+scale+"\\paperwidth]{"+file+"}\n"
+        latex_script += "\t\t}"
         latex_script += "\t\\end{textblock*}\n"
 
     latex_script += "} %end of fancypagestyle\n"
@@ -774,11 +803,15 @@ def main(cmdargs):
         'Both are calculated on the first page of the pdf. ' \
         'So for example "--trim 0 .5\pdfwidth .2\pdfheight 0" will trim the pages half from the right and 20 per cent from the bottom')
 
-    parser.add_argument('--delta',  nargs=2, type=str, default=['0','0'], metavar=('X', 'Y'),
+    parser.add_argument('--delta', nargs=2, type=str, default=['0','0'], metavar=('X', 'Y'),
         help=u'By default logical pages are being arranged side by side. ' \
         'To put some space between them, use the delta option, which takes two arguments.')
 
     parser.add_argument('--custom', help=u'Custom pdfpages options')
+
+    parser.add_argument('--watermark', nargs=6, type=str, action='append',
+                        metavar=('file', 'anchor', 'hpos', 'vpos', 'scale', 'alpha'),
+                        help="Add watermark image.")
 
     parser.add_argument('-t', '--text', nargs=4, type=str, action='append', metavar=('text_string', 'anchor', 'hpos', 'vpos'),
         help="Add text to pdf file. " \
