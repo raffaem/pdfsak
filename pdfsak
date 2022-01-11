@@ -337,16 +337,22 @@ def createTempDir(debug=False, debug_folder=None):
 def anchor2coords(s):
     if s == "tl":
         anchh, anchv = 0, 0
-    elif s == "tr":
-        anchh, anchv = 1, 0
     elif s == "tm":
         anchh, anchv = 0.5, 0
+    elif s == "tr":
+        anchh, anchv = 1, 0
+    elif s == "cl":
+        anchh, anchv = 0, 0.5
+    elif s == "cm":
+        anchh, anchv = 0.5, 0.5
+    elif s == "cr":
+        anchh, anchv = 1, 0.5
     elif s == "bl":
         anchh, anchv = 0, 1
-    elif s == "br":
-        anchh, anchv = 1, 1
     elif s == "bm":
         anchh, anchv = 0.5, 1
+    elif s == "br":
+        anchh, anchv = 1, 1
     else:
         printMsgAndExit(f"Argument {text[1]} not valid", 1)
     return anchh, anchv
@@ -443,14 +449,18 @@ def run(args):
     "\n\\usepackage[multidot, extendedchars]{grffile}" \
     "\n\\usepackage{pdfpages, lastpage, fancyhdr, forloop, geometry, calc, graphicx, transparent}" \
     "\n\\usepackage{xparse,letltxmacro}" \
-    "\n\\usepackage[absolute]{textpos}" \
     "\n\\usepackage{changepage} %Implement check to get if current page is odd or even" \
     "\n\\strictpagecheck" \
     "\n\\newcounter{pdfpagenum}" \
     "\n% Save shape of the PDF file" \
     "\n\\newsavebox{\\mybox}" \
     "\n\\newlength{\\pdfwidth}" \
-    "\n\\newlength{\\pdfheight} \n"
+    "\n\\newlength{\\pdfheight}\n"
+
+    if args.textpos_showboxes:
+        "\\usepackage[absolute, showboxes]{textpos}\n"
+    else:
+        "\\usepackage[absolute]{textpos}\n"
 
     # Black magic to have PDF files with commas in their filename work
     # See: https://tex.stackexchange.com/a/372722/74382
@@ -874,6 +884,9 @@ def main(cmdargs):
         'If false, the cropped part is present on the physical file, but the pdf reader is instructed to ignore it.')
     parser.add_argument('--landscape', action='append_const', const='landscape', dest='booleans', help=u'Output file is in landscape layer instead of portrait.')
     parser.add_argument('--frame', action='append_const', const='frame', dest='booleans', help=u'Put a frame around every logical page.')
+
+    parser.add_argument('--textpos-showboxes', action='store_true', default=False,
+        help='Call textpos package with the showboxes option, putting a frame around every textblock.')
 
     #-Debug options-
     parser.add_argument('--verbose', action='store_true', default=False, help=argparse.SUPPRESS)
