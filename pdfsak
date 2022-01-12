@@ -212,6 +212,7 @@ def checkImageMagickCLI():
         print("ImageMagick NOT FOUND")
     else:
         r = res.stdout.split('\n')[0]
+        r = r.replace("https://imagemagick.org", "")
         print(f"ImageMagick OK: {r}")
     return res
 
