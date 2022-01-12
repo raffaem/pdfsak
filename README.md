@@ -22,7 +22,9 @@ It allows you to:
 * Add watermarks
 * And more
 
-It work on Linux, macOS and Windows.
+PDFsak has been tested on Windows and Linux (in particular, Fedora).
+
+It should work also on macOS, although it has not been tested on this platform.
 
 ## Documentation
 
