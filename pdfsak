@@ -229,6 +229,7 @@ def checkPotraceCLI():
         print("Potrace NOT FOUND")
     else:
         r = res.stdout.split('\n')[0]
+        r = r.replace("potrace", "").strip().split()[0]
         print(f"Potrace OK: {r}")
     return res
 
@@ -246,6 +247,7 @@ def checkMKBitmapCLI():
         print("mkbitmap NOT FOUND")
     else:
         r = res.stdout.split('\n')[0]
+        r = r.replace("mkbitmap", "").strip().split()[0]
         print(f"mkbitmap OK: {r}")
     return res
 
