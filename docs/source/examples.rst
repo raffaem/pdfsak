@@ -1,6 +1,8 @@
 Examples
 ========
 
+.. highlight:: bash
+
 addtext
 -------
 
