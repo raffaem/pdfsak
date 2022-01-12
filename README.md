@@ -7,7 +7,7 @@ The previous name of the project (as of 2021-10-10) was "pdftools".
 
 It allows you to:
 
-* Merge PDF files
+* Merge
 * N-up pages (put more than one input page into a single output page)
 * Trim pages
 * Extract pages
@@ -16,13 +16,13 @@ It allows you to:
 * Delete pages
 * Create handouts
 * Add text (like page numbers)
-* Remove owner protection from PDF files (the protection that allows you to open the PDF without a password, but not to print/annotate it)
-* Remove metadata from PDF file
-* Simulate Adobe Acrobat Clearscan
-* Add watermarks
+* Remove owner protection (the one which allows you to open the file without a password, but not to print, annotate or copy from it)
+* Remove metadata
+* Simulate Adobe Acrobat Clearscan: vectorize the text to improve quality and readability
+* Add watermarks or images
 * And more
 
-PDFsak has been tested on Windows and Linux (in particular, Fedora).
+PDFsak has been tested on Windows and Linux (Fedora).
 
 It should work also on macOS, although it has not been tested on this platform.
 
