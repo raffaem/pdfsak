@@ -40,6 +40,7 @@ PDFsak needs the following dependencies, which must be present in your `PATH` en
     * For Linux, I suggest `TexLive <https://www.tug.org/texlive/>`_
     * For Windows, I suggest `MikTex <http://miktex.org/>`_, although PDFsak has been tested also with TexLive under this platform
     * The following packages must be available in your LaTeX distribution:
+
         * `pdfpages <https://www.ctan.org/pkg/pdfpages>`_
         * `lastpage <https://www.ctan.org/pkg/lastpage>`_
         * `grffile <https://www.ctan.org/pkg/grffile>`_
