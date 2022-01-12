@@ -582,13 +582,14 @@ def run(args):
     # End of fancy page style
 
     # BEGIN DOCUMENT
-    latex_script += "\\begin{document}\n\t";
+    latex_script += "\\begin{document}\n"
+    latex_script += "\t\\thispagestyle{empty}\n"
 
     # Insert input image files in latex script
     for filenum in range(len(input_img_files)):
         f = input_img_files[filenum]
-        latex_script += "\\begin{figure}"\
-        "\n\\includegraphics[width=\\linewidth]{" + linuxize(f) + "}"\
+        latex_script += "\\begin{figure}" \
+        "\n\\includegraphics[width=\\textwidth]{" + linuxize(f) + "}" \
         "\n\\end{figure}"
 
     # Initialize arg.pages as list
@@ -898,6 +899,7 @@ def main(cmdargs):
 
     # Options to simulate Adobe ClearSCan
     parser.add_argument('--clearscan', action='store_true', default=False, help=u'Simulate Adobe Acrobat ClearScan')
+    parser.add_argument('--clearscan-density', action='store', type=int, default=150, help=u'Density with which to convert PDF into bitmap.')
     parser.add_argument('--clearscan-filter-size', action='store', type=int, default=2, help=u'Pixel size of high-pass filter to pass to mkbitmap for clearscan')
     parser.add_argument('--clearscan-upscaling-factor', action='store', type=int, default=1, help=u'Upscale the image by this factor using mkbitmap before passing it to potrace')
     parser.add_argument('--clearscan-threshold', action='store', type=float, default=0.5, help=u'Threshold level')
@@ -982,7 +984,7 @@ def main(cmdargs):
         os.makedirs("./pages", exist_ok=False)
         for page in tqdm(range(0, page_count)):
             # Extract PDF page to BMP
-            res = subprocess.run(["magick", "convert", "-density", "300", fp2+f"[{page}]", f"{page}.bmp"])
+            res = subprocess.run(["magick", "convert", "-density", args.clearscan_density, fp2+f"[{page}]", f"{page}.bmp"])
             if res.returncode != 0:
                 printMsgAndExit("Error: ImageMagick failed", 1)
             # Run mkbitmap

@@ -9,7 +9,7 @@ From pip
 
 Run::
 
-    pip3 install pdfsak
+    pip3 install --upgrade pdfsak
 
 From source
 -----------
