@@ -36,6 +36,7 @@ PDFsak needs the following dependencies, which must be present in your `PATH` en
 
 * `Python <https://www.python.org/>`_ >= 3.5
 * A LaTeX distribution
+
     * For Linux, I suggest `TexLive <https://www.tug.org/texlive/>`_
     * For Windows, I suggest `MikTex <http://miktex.org/>`_, although PDFsak has been tested also with TexLive under this platform
     * The following packages must be available in your LaTeX distribution:
@@ -46,8 +47,10 @@ PDFsak needs the following dependencies, which must be present in your `PATH` en
         * `textpos <https://www.ctan.org/pkg/textpos>`_
         * `changepage <https://www.ctan.org/pkg/changepage>`_
         * `transparent <https://www.ctan.org/pkg/transparent>`_
+
 * `Ghostscript <https://www.ghostscript.com>`_
 * For the simulation of Adobe Acrobat Clearscan, the following optional dependencies are also needed:
+
     * `potrace <potrace.sf.net>`_
     * `ImageMagick <https://imagemagick.org>`_
 
@@ -64,11 +67,11 @@ On Fedora you can install all dependencies with:
 Windows
 -------
 
-On Windows, you must install all the dependencies manually, by clicking on the website, downloading the installre and running it.
+On Windows, you must install all the dependencies manually, by clicking on the website, downloading the installer and running it.
 
 Please note that only one of MikTex or TexLive is needed, not both.
 
-MikTex is suggested under this OS, since it will provide a basic LaTeX environment, and will let you install the needed packages as it goes on. Just install MikTex, then run `pdfsak --check-all` to install the missing LaTeX packages. MikTeX will ask you whether to install the missing packages, do so.
+MikTex is suggested under this OS, since it will provide a basic LaTeX environment, and will let you install the needed packages as it goes on. Just install MikTex, run `pdfsak --check-all`, and let MikTeX install the missing packages.
 
 TexLive, instead, provides you the option to install a complete LaTeX environment, but the installation may require more time.
 
