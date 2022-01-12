@@ -360,6 +360,20 @@ def anchor2coords(s):
 # The core of the software
 def run(args):
 
+    #Build args.text as list if not defined, otherwise crash/we need to make a test every time
+    if not args.text:
+        args.text = list()
+
+    if not args.watermark:
+        args.watermark = list()
+
+    if not args.booleans:
+        args.booleans = list()
+
+    # If the --paper option is not specified, we pass "fitpaper" to pdfpages by default
+    if (args.paper is None) and ('landscape' not in args.booleans):
+        args.booleans.append("fitpaper")
+
     # debug-no-compile implies debug
     if args.debug_no_compile or args.debug_folder != 'temp':
         args.debug = True
@@ -917,18 +931,7 @@ def main(cmdargs):
 
     if(args.text_help):
         printTextHelp()
-        printMsgAndExit("",0)
-
-    #Build args.text as list if not defined, otherwise crash/we need to make a test every time
-    if(args.text is None):
-        args.text=list()
-
-    if(args.booleans is None):
-        args.booleans=list()
-
-    # If the --paper option is not specified, we pass "fitpaper" to pdfpages by default
-    if(args.paper is None and 'landscape' not in args.booleans):
-        args.booleans.append("fitpaper")
+        printMsgAndExit("", 0)
 
     # Implement ClearScan and exit
     if args.clearscan:
