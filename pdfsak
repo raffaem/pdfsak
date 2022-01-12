@@ -984,7 +984,7 @@ def main(cmdargs):
         os.makedirs("./pages", exist_ok=False)
         for page in tqdm(range(0, page_count)):
             # Extract PDF page to BMP
-            res = subprocess.run(["magick", "convert", "-density", args.clearscan_density, fp2+f"[{page}]", f"{page}.bmp"])
+            res = subprocess.run(["magick", "convert", "-density", str(args.clearscan_density), fp2+f"[{page}]", f"{page}.bmp"])
             if res.returncode != 0:
                 printMsgAndExit("Error: ImageMagick failed", 1)
             # Run mkbitmap
