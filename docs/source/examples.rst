@@ -139,3 +139,14 @@ This example swaps the 2nd with the 3rd page, and the 4th with the 5th page.
 ::
 
     pdfsak --input-file input.pdf --output output.pdf --swap-pages "2,3;4,5"
+
+watermark
+---------
+
+This example adds a watermark to every page.
+
+The watermark is an image file (`../../input/tux.png`) whose center point (`cm`) is positioned at the center of the pages of the input file (`0.5 0.5`). Furthermore, the image is scaled to 20% of its original size (`0.2`) and its transparency is set at 50% (`0.5`).
+
+::
+
+    ../../../pdfsak --input-file ../../input/presentation.pdf --output ../../output/watermark.pdf --watermark ../../input/tux.png cm 0.5 0.5 0.2 0.5
