@@ -1,4 +1,4 @@
-
+v 1.2.0 (2022-01-12)
 * Option to show boxes around textblocks
 * Option to add watermarks to PDF files
 * Much more detailed --check-all output
@@ -6,7 +6,7 @@
 * Porting examples to Windows
 * Remove temporary directory in case of exit with errors (if we are not in debug mode)
 * Fix file paths on Windows (always use forward slash)
-* Various bug fixes
+* Various bug fixes and code cleanups
 
 v 1.1.3 (2022-01-06)
 * Fix launcher for Windows
