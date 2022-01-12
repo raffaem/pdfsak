@@ -25,6 +25,14 @@ A new command ``pdfsak`` is now available in your PATH.
 Requirements
 ^^^^^^^^^^^^
 
+General
+-------
+
+You can check whether the dependencies are working as expected by running:
+``pdfsak --check-all``
+
+PDFsak needs the following dependencies (which must be present in your `PATH`):
+
 * `Python <https://www.python.org/>`_ >= 3.5
 * A LaTeX distribution like `TexLive <https://www.tug.org/texlive/>`_ or `MikTex <http://miktex.org/>`_
     * The following packages must be available in your LaTeX distribution:
@@ -35,24 +43,15 @@ Requirements
         * `fancyhdr <https://www.ctan.org/pkg/fancyhdr>`_
         * `textpos <https://www.ctan.org/pkg/textpos>`_
         * `changepage <https://www.ctan.org/pkg/changepage>`_
-
-        On Fedora you can install them by running:
-
-        ``sudo dnf install texlive-lastpage texlive-pdfpages texlive-grffile texlive-forloop texlive-fancyhdr texlive-textpos texlive-changepage``
-
-    * You can check the presence of the above required LaTeX packages by running:
-
-        ``pdfsak --check-latex``
-
-* `Ghostscript <https://www.ghostscript.com>`_ must be available through the ``gs`` command
-    * You can check its presence by running:
-
-        ``pdfsak --check-ghostscript``
-
-* For the simulation of Adobe Acrobat Clearscan, you will also need:
+        * `transparent <https://www.ctan.org/pkg/transparent>`_
+* `Ghostscript <https://www.ghostscript.com>`_
+* For the simulation of Adobe Acrobat Clearscan, the following optional dependencies are also needed:
     * `potrace <potrace.sf.net>`_
     * `ImageMagick <https://imagemagick.org>`_
-    
-    On Fedora you can install these dependencies by running:
 
-    ``sudo dnf install potrace ImageMagick``
+Fedora
+------
+
+On Fedora you can install all dependencies with:
+
+``sudo dnf install texlive-pdfpages texlive-lastpage texlive-grffile texlive-forloop texlive-fancyhdr texlive-textpos texlive-changepage texlive-transparent ghostscript potrace ImageMagick``
