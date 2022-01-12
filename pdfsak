@@ -557,6 +557,7 @@ def run(args):
     # metavar=('file', 'anchor', 'hpos', 'vpos', 'scale', 'alpha')
     for i, wm in enumerate(args.watermark):
         file = os.path.normpath(os.path.join(previous_cwd, wm[0]))
+        file = linuxize(file)
         anchor = wm[1]
         hpos = wm[2]
         vpos = wm[3]
