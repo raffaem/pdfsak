@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+../../pdfsak --check-all
+
 rm -rf ../output
 mkdir ../output
 cd ./scripts
