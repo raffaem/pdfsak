@@ -156,11 +156,16 @@ def checkLatexPackage(pkgname):
             data = fh.read()
     except FileNotFoundError:
         data = ""
-    ver_re = re.search(f"^Package: ({pkgname} .*)$", data, re.MULTILINE)
+    ver_re = re.search(f"^Package: {pkgname} (.*)$", data, re.MULTILINE)
     if ver_re:
         try:
             ver = ver_re.group(1)
         except IndexError:
+            pass
+    if ver:
+        try:
+            ver = ' '.join(ver.split()[:2])
+        except:
             pass
     # Remove temp files
     removeFile("check.tex")
