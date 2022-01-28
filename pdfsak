@@ -308,6 +308,14 @@ def removeFile(filename):
         if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
             raise # re-raise exception if a different error occurred
 
+def set_no_exit():
+    global no_exit
+    no_exit = True
+
+def unset_no_exit(msg, code):
+    global no_exit
+    no_exit = False
+
 def printMsgAndExit(msg, code):
     global debug
     global temp_dir
@@ -998,6 +1006,7 @@ def main(cmdargs, args=None):
     if(args.recursive_dir):
         if not args.replace_input:
             printMsgAndExit("Recursive dir must be called with --replace-input", 1)
+        set_no_exit()
         d = args.recursive_dir
         for file in tqdm(os.listdir(d)):
             filefp = os.path.join(d, file)
@@ -1011,6 +1020,7 @@ def main(cmdargs, args=None):
             save_state()
             main(cmdargs=None, args=newargs)
             restore_state()
+        unset_no_exit()
         printMsgAndExit("", 0)
 
     # Implement ClearScan and exit
