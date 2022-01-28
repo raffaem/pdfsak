@@ -18,6 +18,7 @@ from collections import namedtuple
 from tqdm import tqdm
 import platform
 import copy
+from natsort import natsorted
 from pdfsak_version import __version__
 
 # To restore cwd at the end, otherwise we get a exception
@@ -1013,7 +1014,8 @@ def main(cmdargs, args=None):
             printMsgAndExit("Recursive dir must be called with --replace-input", 1)
         set_no_exit()
         d = args.recursive_dir
-        for file in tqdm(os.listdir(d)):
+        files = natsorted(os.listdir(d))
+        for file in tqdm(files):
             filefp = os.path.join(d, file)
             if(os.path.splitext(file)[1] not in [".pdf", ".PDF"]):
                 tqdm.write(f"Skipping {filefp} because not a PDF file")
