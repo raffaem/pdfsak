@@ -960,7 +960,7 @@ def parse_args(cmdargs):
 
     return parser.parse_args(cmdargs)
 
-def main(cmdargs):
+def main(cmdargs, args=None):
 
     global temp_dir
     global debug
@@ -972,7 +972,8 @@ def main(cmdargs):
         printMsgAndExit("", 1)
 
     #Parse arguments
-    args = parse_args(cmdargs)
+    if args is None:
+        args = parse_args(cmdargs)
     debug = args.debug
 
     if(args.check_all):
@@ -983,6 +984,8 @@ def main(cmdargs):
         printMsgAndExit("", 0)
 
     if(args.recursive_dir):
+        if not args.replace_input:
+            printMsgAndExit("Recursive dir must be called with --replace-input", 1)
         d = args.recursive_dir
         for file in os.listdir(d):
             filefp = os.path.join(d, file)
@@ -994,7 +997,8 @@ def main(cmdargs):
             del newargs.recursive_dir
             newargs.input_files.append(filefp)
             print(newargs)
-        sys.exit(0)
+            main(cmdargs=None, args=newargs)
+        printMsgAndExit("", 0)
 
     # Implement ClearScan and exit
     if args.clearscan:
