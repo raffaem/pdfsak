@@ -23,8 +23,12 @@ from pdfsak_version import __version__
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
 temp_dir = None
+no_exit = False
+
 previous_cwd_backup = None
 temp_dir_backup = None
+no_exit_backup = None
+
 today = datetime.datetime.now()
 debug = False
 # -Calculate needed rounds of compilation
@@ -307,13 +311,15 @@ def removeFile(filename):
 def printMsgAndExit(msg, code):
     global debug
     global temp_dir
+    global no_exit
     os.chdir(previous_cwd)
     # Remove temporary directory, except if we are in debug mode
     if temp_dir and (not debug):
         shutil.rmtree(temp_dir)
     if msg != "":
         print(msg)
-    exit(code)
+    if not no_exit:
+        exit(code)
 
 # Convert an array into a string
 # Used to convert command line passed arrays, like "delta", "offset" options
@@ -807,14 +813,16 @@ def run(args):
         shutil.rmtree(temp_dir)
 
 def save_state():
-    global temp_dir_backup, temp_dir, previous_cwd_backup, previous_cwd
+    global temp_dir_backup, temp_dir, previous_cwd_backup, previous_cwd, no_exit, no_exit_backup
     temp_dir_backup = temp_dir
     previous_cwd_backup = previous_cwd
+    no_exit_backup = no_exit
 
 def restore_state():
-    global temp_dir_backup, temp_dir, previous_cwd_backup, previous_cwd
+    global temp_dir_backup, temp_dir, previous_cwd_backup, previous_cwd, no_exit, no_exit_backup
     temp_dir = temp_dir_backup
     previous_cwd = previous_cwd_backup
+    no_exit = no_exit_backup
     if temp_dir:
         os.chdir(temp_dir)
 
