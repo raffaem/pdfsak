@@ -19,17 +19,13 @@ from tqdm import tqdm
 import platform
 import copy
 from natsort import natsorted
+from multiprocessing import Process
 from pdfsak_version import __version__
 
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
 temp_dir = None
 no_exit = False
-
-previous_cwd_backup = None
-temp_dir_backup = None
-no_exit_backup = None
-
 today = datetime.datetime.now()
 debug = False
 # -Calculate needed rounds of compilation
@@ -308,14 +304,6 @@ def removeFile(filename):
     except OSError as e:
         if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
             raise # re-raise exception if a different error occurred
-
-def set_no_exit():
-    global no_exit
-    no_exit = True
-
-def unset_no_exit(msg, code):
-    global no_exit
-    no_exit = False
 
 def printMsgAndExit(msg, code):
     global debug
@@ -826,20 +814,6 @@ def run(args):
     if not args.debug:
         shutil.rmtree(temp_dir)
 
-def save_state():
-    global temp_dir_backup, temp_dir, previous_cwd_backup, previous_cwd, no_exit, no_exit_backup
-    temp_dir_backup = temp_dir
-    previous_cwd_backup = previous_cwd
-    no_exit_backup = no_exit
-
-def restore_state():
-    global temp_dir_backup, temp_dir, previous_cwd_backup, previous_cwd, no_exit, no_exit_backup
-    temp_dir = temp_dir_backup
-    previous_cwd = previous_cwd_backup
-    no_exit = no_exit_backup
-    if temp_dir:
-        os.chdir(temp_dir)
-
 def parse_args(cmdargs):
     # Get command line options
     # This formatter class prints default values in help
@@ -1024,9 +998,10 @@ def main(cmdargs, args=None):
             newargs = copy.deepcopy(args)
             newargs.recursive_dir = None
             newargs.input_files.append(filefp)
-            save_state()
-            main(cmdargs=None, args=newargs)
-            restore_state()
+            p = Process(target=main, args=(None, newargs))
+            p.start()
+            # the method blocks until the process whose join() method is called terminates
+            p.join()
         unset_no_exit()
         printMsgAndExit("", 0)
 
@@ -1102,17 +1077,15 @@ def main(cmdargs, args=None):
 
         # Merge PDF files
         print("Merging back...")
-        # Backup temp directory
-        save_state()
-        # Merge files using PDFsak
         cmd = ["--natural-sorting", "-id", "./pages", "-o", "merged.pdf"]
         if args.debug:
             cmd.append("--debug")
-        res = main(cmd)
+        p = Process(target=main, args=(cmd,))
+        p.start()
+        p.join()
+        res = p.exitcode
         if not res:
             printMsgAndExit("Error: Failed to merge back", 1)
-        # Restore temp dir
-        restore_state()
 
         # Compress PDF
         print("Compressing PDF file...")
