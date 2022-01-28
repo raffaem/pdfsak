@@ -786,8 +786,11 @@ def run(args):
             infp = input_pdf_files[0]
             parts = os.path.splitext(infp)
             backupfp = parts[0] + "_backup" + parts[1]
+            # Move input into backup
             shutil.move(infp, backupfp)
-            shutil.copyfile(latex_pdf_fp, infp)
+            # Move output into input
+            shutil.move(latex_pdf_fp, infp)
+            # Remove input
             os.unlink(backupfp)
         else:
             # Copy resulting pdf file from temporary folder to output directory
