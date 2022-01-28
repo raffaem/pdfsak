@@ -989,12 +989,12 @@ def main(cmdargs, args=None):
         d = args.recursive_dir
         for file in os.listdir(d):
             filefp = os.path.join(d, file)
-            if(file.splitext()[1] not in [".pdf", ".PDF"]):
+            if(os.path.splitext(file)[1] not in [".pdf", ".PDF"]):
                 print(f"Skipping {filefp} because not a PDF file")
                 continue
             print(f"Processing {filefp} ...")
             newargs = copy.deepcopy(args)
-            del newargs.recursive_dir
+            newargs.recursive_dir = None
             newargs.input_files.append(filefp)
             print(newargs)
             main(cmdargs=None, args=newargs)
