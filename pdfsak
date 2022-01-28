@@ -992,16 +992,15 @@ def main(cmdargs, args=None):
         if not args.replace_input:
             printMsgAndExit("Recursive dir must be called with --replace-input", 1)
         d = args.recursive_dir
-        for file in os.listdir(d):
+        for file in tqdm(os.listdir(d)):
             filefp = os.path.join(d, file)
             if(os.path.splitext(file)[1] not in [".pdf", ".PDF"]):
-                print(f"Skipping {filefp} because not a PDF file")
+                tqdm.write(f"Skipping {filefp} because not a PDF file")
                 continue
-            print(f"Processing {filefp} ...")
+            tqdm.write(f"Processing {filefp} ...")
             newargs = copy.deepcopy(args)
             newargs.recursive_dir = None
             newargs.input_files.append(filefp)
-            print(newargs)
             save_state()
             main(cmdargs=None, args=newargs)
             restore_state()
