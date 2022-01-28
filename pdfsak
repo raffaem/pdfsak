@@ -815,12 +815,7 @@ def restore_state():
     previous_cwd = previous_cwd_backup
     os.chdir(temp_dir)
 
-def main(cmdargs):
-
-    global temp_dir
-    global debug
-    global previous_cwd
-
+def parse_args(cmdargs):
     # Get command line options
     # This formatter class prints default values in help
     # See: https://stackoverflow.com/questions/12151306/argparse-way-to-include-default-values-in-help
@@ -963,13 +958,21 @@ def main(cmdargs):
     #Specify debug folder
     parser.add_argument('--debug-folder', type=str, default='temp', help=argparse.SUPPRESS)
 
+    return parser.parse_args(cmdargs)
+
+def main(cmdargs):
+
+    global temp_dir
+    global debug
+    global previous_cwd
+
     # If no options are passed, display help
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
         printMsgAndExit("", 1)
 
     #Parse arguments
-    args = parser.parse_args(cmdargs)
+    args = parse_args(cmdargs)
     debug = args.debug
 
     if(args.check_all):
