@@ -974,7 +974,11 @@ def main(cmdargs, args=None):
     #Parse arguments
     if args is None:
         args = parse_args(cmdargs)
+
     debug = args.debug
+    
+    if(args.replace_input):
+        args.overwrite = True
 
     if(args.check_all):
         checkAllCLI(args)
