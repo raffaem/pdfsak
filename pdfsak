@@ -821,7 +821,7 @@ def main(cmdargs):
     input_group.add_argument('-if', '--input-file', action='append', default=[], dest='input_files',
         help=u'Input pdf file. Use this flag again to merge multiple pdf files into one.')
     input_group.add_argument('-id', '--input-dir', action='append', default=[], dest='input_dirs',
-        help=u'Input a directory. All pdf files inside it will be merged togheter, sorted in alphabetical filename order.')
+        help=u'Input a directory. All pdf files inside it will be merged together, sorted in alphabetical filename order.')
 
     # A mutually exclusive group to specify the output file name OR a suffix to append to the first input file name
     output_group = parser.add_mutually_exclusive_group()
