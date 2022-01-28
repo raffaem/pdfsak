@@ -630,7 +630,7 @@ def run(args):
     # -Get size of the first page of the input pdf. Define \pdfwidth and \pdfheight
     if len(input_pdf_files) > 0:
         latex_script += "%Get dimensions of pdf page" \
-        "\n\t\\savebox{\\mybox}{\\includegraphics{" + linuxize(input_pdf_files[0]) + "}}" \
+        "\n\t\\savebox{\\mybox}{\\includegraphics{\\detokenize{" + linuxize(input_pdf_files[0]) + "}}}" \
         "\n\t\\settowidth{\\pdfwidth}{\\usebox{\\mybox}}" \
         "\n\t\\settoheight{\\pdfheight}{\\usebox{\\mybox}} \n\t"
 
