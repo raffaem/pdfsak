@@ -976,7 +976,7 @@ def main(cmdargs, args=None):
             printMsgAndExit("Recursive dir must be called with --replace-input", 1)
         for root, dirs, files in os.walk(args.recursive_dir):
             for file in natsorted(files):
-                filefp = os.path.join(args.recursive_dir, file)
+                filefp = os.path.abspath(os.path.join(root, file))
                 if(os.path.splitext(file)[1] not in [".pdf", ".PDF"]):
                     tqdm.write(f"Skipping {filefp} because not a PDF file")
                     continue
