@@ -813,7 +813,8 @@ def restore_state():
     global temp_dir_backup, temp_dir, previous_cwd_backup, previous_cwd
     temp_dir = temp_dir_backup
     previous_cwd = previous_cwd_backup
-    os.chdir(temp_dir)
+    if temp_dir:
+        os.chdir(temp_dir)
 
 def parse_args(cmdargs):
     # Get command line options
