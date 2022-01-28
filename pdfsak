@@ -25,7 +25,6 @@ from pdfsak_version import __version__
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
 temp_dir = None
-no_exit = False
 today = datetime.datetime.now()
 debug = False
 # -Calculate needed rounds of compilation
@@ -975,7 +974,6 @@ def main(cmdargs, args=None):
     if(args.recursive_dir):
         if not args.replace_input:
             printMsgAndExit("Recursive dir must be called with --replace-input", 1)
-        set_no_exit()
         d = args.recursive_dir
         files = natsorted(os.listdir(d))
         for file in tqdm(files):
@@ -991,7 +989,6 @@ def main(cmdargs, args=None):
             p.start()
             # the method blocks until the process whose join() method is called terminates
             p.join()
-        unset_no_exit()
         printMsgAndExit("", 0)
 
     # Implement ClearScan and exit
