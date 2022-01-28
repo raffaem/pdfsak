@@ -308,15 +308,13 @@ def removeFile(filename):
 def printMsgAndExit(msg, code):
     global debug
     global temp_dir
-    global no_exit
     os.chdir(previous_cwd)
     # Remove temporary directory, except if we are in debug mode
     if temp_dir and (not debug):
         shutil.rmtree(temp_dir)
     if msg != "":
         print(msg)
-    if not no_exit:
-        exit(code)
+    exit(code)
 
 # Convert an array into a string
 # Used to convert command line passed arrays, like "delta", "offset" options
