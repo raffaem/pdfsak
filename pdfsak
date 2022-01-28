@@ -976,7 +976,7 @@ def main(cmdargs, args=None):
         args = parse_args(cmdargs)
 
     debug = args.debug
-    
+
     if(args.replace_input):
         args.overwrite = True
 
@@ -1001,7 +1001,9 @@ def main(cmdargs, args=None):
             newargs.recursive_dir = None
             newargs.input_files.append(filefp)
             print(newargs)
+            save_state()
             main(cmdargs=None, args=newargs)
+            restore_state()
         printMsgAndExit("", 0)
 
     # Implement ClearScan and exit
