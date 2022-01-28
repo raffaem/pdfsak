@@ -17,11 +17,14 @@ import errno
 from collections import namedtuple
 from tqdm import tqdm
 import platform
+import copy
 from pdfsak_version import __version__
 
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
 temp_dir = None
+previous_cwd_backup = None
+temp_dir_backup = None
 today = datetime.datetime.now()
 debug = False
 # -Calculate needed rounds of compilation
@@ -801,6 +804,17 @@ def run(args):
     if not args.debug:
         shutil.rmtree(temp_dir)
 
+def save_state():
+    global temp_dir_backup, temp_dir, previous_cwd_backup, previous_cwd
+    temp_dir_backup = temp_dir
+    previous_cwd_backup = previous_cwd
+
+def restore_state():
+    global temp_dir_backup, temp_dir, previous_cwd_backup, previous_cwd
+    temp_dir = temp_dir_backup
+    previous_cwd = previous_cwd_backup
+    os.chdir(temp_dir)
+
 def main(cmdargs):
 
     global temp_dir
@@ -822,6 +836,8 @@ def main(cmdargs):
         help=u'Input pdf file. Use this flag again to merge multiple pdf files into one.')
     input_group.add_argument('-id', '--input-dir', action='append', default=[], dest='input_dirs',
         help=u'Input a directory. All pdf files inside it will be merged together, sorted in alphabetical filename order.')
+    input_group.add_argument('-rd', '--recursive-dir', action='store',
+        help=u'Process the PDFs inside a dir recursively.')
 
     # A mutually exclusive group to specify the output file name OR a suffix to append to the first input file name
     output_group = parser.add_mutually_exclusive_group()
@@ -963,6 +979,20 @@ def main(cmdargs):
         printTextHelp()
         printMsgAndExit("", 0)
 
+    if(args.recursive_dir):
+        d = args.recursive_dir
+        for file in os.listdir(d):
+            filefp = os.path.join(d, file)
+            if(file.splitext()[1] not in [".pdf", ".PDF"]):
+                print(f"Skipping {filefp} because not a PDF file")
+                continue
+            print(f"Processing {filefp} ...")
+            newargs = copy.deepcopy(args)
+            del newargs.recursive_dir
+            newargs.input_files.append(filefp)
+            print(newargs)
+        sys.exit(0)
+
     # Implement ClearScan and exit
     if args.clearscan:
         if not checkImageMagick():
@@ -1036,8 +1066,7 @@ def main(cmdargs):
         # Merge PDF files
         print("Merging back...")
         # Backup temp directory
-        temp_dir_backup = temp_dir
-        previous_cwd_backup = previous_cwd
+        save_state()
         # Merge files using PDFsak
         cmd = ["--natural-sorting", "-id", "./pages", "-o", "merged.pdf"]
         if args.debug:
@@ -1046,11 +1075,7 @@ def main(cmdargs):
         if not res:
             printMsgAndExit("Error: Failed to merge back", 1)
         # Restore temp dir
-        #print(f"CWD: {os.getcwd()}")
-        temp_dir = temp_dir_backup
-        previous_cwd = previous_cwd_backup
-        os.chdir(temp_dir)
-        #print(f"CWD: {os.getcwd()}")
+        restore_state()
 
         # Compress PDF
         print("Compressing PDF file...")
