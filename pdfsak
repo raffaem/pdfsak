@@ -475,6 +475,22 @@ def run(args):
     "\\usepackage{xparse,letltxmacro}\n" \
     "\\usepackage{changepage} %Implement check to get if current page is odd or even\n"
 
+    # Suppress metadata
+    latex_script += """
+    \pdfinfo{
+       /Author ()
+       /Title  ()
+       /CreationDate ()
+       /ModDate ()
+       /Subject ()
+       /Keywords ()
+       /Creator ()
+       /Producer ()
+       /PTEX.Fullbanner ()
+   }
+   \pdfsuppressptexinfo=-1
+    """
+
     if args.textpos_showboxes:
         latex_script += "\\usepackage[absolute, showboxes]{textpos}\n"
     else:

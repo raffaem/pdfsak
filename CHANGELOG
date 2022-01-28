@@ -1,3 +1,7 @@
+
+* Always output a PDF with no metadata into it
+* Clearscan density parameter
+
 v 1.2.0 (2022-01-12)
 * Option to show boxes around textblocks
 * Option to add watermarks to PDF files
