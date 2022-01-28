@@ -808,7 +808,12 @@ def run(args):
 
         if args.replace_input:
             # Overwrite input file
-            shutil.copyfile(latex_pdf_fp, input_pdf_files[0])
+            infp = input_pdf_files[0]
+            parts = os.path.splitext(infp)
+            backupfp = parts[0] + "_backup" + parts[1]
+            shutil.move(infp, backupfp)
+            shutil.copyfile(latex_pdf_fp, infp)
+            os.unlink(backupfp)
         else:
             # Copy resulting pdf file from temporary folder to output directory
             shutil.copyfile(latex_pdf_fp, args.output)
