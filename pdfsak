@@ -297,7 +297,7 @@ def printMsgAndExit(msg, code):
     global temp_dir
     os.chdir(previous_cwd)
     # Remove temporary directory, except if we are in debug mode
-    if temp_dir and (not debug):
+    if temp_dir and os.path.isdir(temp_dir) and (not debug):
         shutil.rmtree(temp_dir)
     if msg != "":
         print(msg)
