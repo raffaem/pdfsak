@@ -34,7 +34,7 @@ It should work also on macOS, although it has not been tested on this platform.
 
 PDFsak needs the following dependencies, which must be present in your `PATH` environmental variable:
 
-* `Python <https://www.python.org/>`_ ≥ 3.5
+* `Python <https://www.python.org/>`_ ≥ 3.6
 * A LaTeX distribution
 
     * For Linux, I suggest `TexLive <https://www.tug.org/texlive/>`_
