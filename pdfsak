@@ -305,7 +305,7 @@ def printMsgAndExit(msg, code):
     # Remove temporary directory, except if we are in debug mode
     if temp_dir and os.path.isdir(temp_dir) and (not debug):
         shutil.rmtree(temp_dir)
-    if msg != "":
+    if msg and msg != "":
         print(msg)
     exit(code)
 
