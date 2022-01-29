@@ -1090,8 +1090,7 @@ def main(cmdargs, args=None):
         printMsgAndExit("Success", 0)
 
     run(args)
-
-    return True
+    printMsgAndExit(None, 0)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
