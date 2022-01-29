@@ -378,6 +378,17 @@ def anchor2coords(s):
         printMsgAndExit(f"Argument {text[1]} not valid", EXIT_FAIL)
     return anchh, anchv
 
+def get_backup_path(fp):
+    parts = os.path.splitext(fp)
+    for i in range(1,100):
+        num = math.randint(1, 2**16)
+        numenc = str(num).encode()
+        h = hashlib.sha256(numenc).hexdigest()[:5]
+        backupfp = parts[0] + "_backup_" + h + parts[1]
+        if not os.path.isfile(backupfp):
+            return backupfp
+    printMsgAndExit("ERROR: Cannot get a non-existent name for backup file in a reasonable amount of trials")
+
 # The core of the software
 def run(args):
 
@@ -805,8 +816,7 @@ def run(args):
         if args.replace_input:
             # Overwrite input file
             infp = input_pdf_files[0]
-            parts = os.path.splitext(infp)
-            backupfp = parts[0] + "_backup" + parts[1]
+            backupfp = get_backup_path(infp)
             # Move input into backup
             shutil.move(infp, backupfp)
             # Move output into input
