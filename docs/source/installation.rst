@@ -37,8 +37,9 @@ PDFsak needs the following dependencies, which must be present in your `PATH` en
 * `Python <https://www.python.org/>`_ ≥ 3.6
 * A LaTeX distribution
 
+    * The `pdftex` provided must have version ≥ 1.40.17 (released with TexLive 2016)
     * For Linux, I suggest `TexLive <https://www.tug.org/texlive/>`_
-    * For Windows, I suggest `MikTex <http://miktex.org/>`_, although PDFsak has been tested also with TexLive under this platform
+    * For Windows, I suggest `MikTex <http://miktex.org/>`_, although PDFsak has also been tested with TexLive under this platform
     * The following packages must be available in your LaTeX distribution:
 
         * `pdfpages <https://www.ctan.org/pkg/pdfpages>`_
@@ -63,7 +64,7 @@ Fedora
 
 On Fedora you can install all dependencies with:
 
-``sudo dnf install texlive-pdfpages texlive-lastpage texlive-grffile texlive-forloop texlive-fancyhdr texlive-textpos texlive-changepage texlive-transparent ghostscript potrace ImageMagick``
+``sudo dnf install texlive-pdfpages texlive-lastpage texlive-grffile texlive-fancyhdr texlive-textpos texlive-changepage texlive-transparent ghostscript potrace ImageMagick``
 
 Windows
 -------
