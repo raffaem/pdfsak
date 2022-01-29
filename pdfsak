@@ -14,6 +14,8 @@ import subprocess
 from string import Template
 import re
 import errno
+import random
+import hashlib
 from collections import namedtuple
 from tqdm import tqdm
 import platform
@@ -381,7 +383,7 @@ def anchor2coords(s):
 def get_backup_path(fp):
     parts = os.path.splitext(fp)
     for i in range(1,100):
-        num = math.randint(1, 2**16)
+        num = random.randint(1, 2**16)
         numenc = str(num).encode()
         h = hashlib.sha256(numenc).hexdigest()[:5]
         backupfp = parts[0] + "_backup_" + h + parts[1]
