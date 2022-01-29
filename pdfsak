@@ -477,20 +477,21 @@ def run(args):
     "\\usepackage{changepage} %Implement check to get if current page is odd or even\n"
 
     # Suppress metadata
+    # see: https://mailman.ntg.nl/pipermail/ntg-pdftex/2016-March/004071.html
+    # see: https://tex.stackexchange.com/questions/95080/making-an-anonymous-pdf-file-using-pdflatex/225790#225790
     latex_script += """
     \pdfinfo{
        /Author ()
        /Title  ()
-       /CreationDate ()
-       /ModDate ()
        /Subject ()
        /Keywords ()
        /Creator ()
        /Producer ()
-       /PTEX.Fullbanner ()
    }
-   \pdfsuppressptexinfo=-1
-    """
+   \pdfinfoomitdate=1
+   \pdftrailerid{} %Remove ID
+   \pdfsuppressptexinfo15 %Suppress PTEX.Fullbanner and info of imported PDFs
+   """
 
     if args.textpos_showboxes:
         latex_script += "\\usepackage[absolute, showboxes]{textpos}\n"
