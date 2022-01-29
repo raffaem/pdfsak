@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf8
 
-# Copyright (c) 2021 Raffaele Mancuso
+# Copyright (c) 2022 Raffaele Mancuso
 
 import sys
 import zipfile  # Used to compress debug files togheter to be sent for analysis

@@ -3,7 +3,7 @@
 # -- Project information
 
 project = 'PDFsak'
-copyright = '2021, Raffaele Mancuso'
+copyright = '2022, Raffaele Mancuso'
 author = 'Raffaele Mancuso'
 
 import sys
