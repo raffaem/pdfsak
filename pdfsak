@@ -29,6 +29,8 @@ today = datetime.datetime.now()
 debug = False
 # -Calculate needed rounds of compilation
 needed_comp_rounds = 2
+EXIT_SUCCESS = 0
+EXIT_FAIL = 1
 
 def getGSBin():
     if os.name == 'nt':
@@ -37,7 +39,7 @@ def getGSBin():
     elif os.name == "posix":
         return "gs"
     else:
-        printMsgAndExit(f"ERROR: OS {os.name} not recognized: cannot infer Ghostscript path", 1)
+        printMsgAndExit(f"ERROR: OS {os.name} not recognized: cannot infer Ghostscript path", EXIT_FAIL)
 
 def compressPDF(infp, outfp, imgres=300):
     infp = linuxize(os.path.abspath(infp))
@@ -79,11 +81,15 @@ def getPageCount(infp):
     cmd = [getGSBin(), "-q", "-dNOSAFER", "-dNODISPLAY", "-c", '"(' + linuxize(infp) + ') (r) file runpdfbegin pdfpagecount = quit"']
     res = subprocess.run(cmd, capture_output=True, text=True)
     if res.returncode != 0:
-        printMsgAndExit(f"ERROR: Cannot get page count.\ncmd: {cmd}\nstdout: {res.stdout}\nstderr: {res.stderr}", 1)
+        printMsgAndExit(f"ERROR: Cannot get page count.\n " \
+                        "cmd: {cmd}\nstdout: {res.stdout}\nstderr: {res.stderr}",
+                        EXIT_FAIL)
     try:
         p = int(res.stdout.strip())
     except ValueError:
-        printMsgAndExit(f"ERROR: ValueError while convering page count to int.\ncmd: {cmd}\nstdout: {res.stdout}\nstderr: {res.stderr}", 1)
+        printMsgAndExit(f"ERROR: ValueError while convering page count to int.\n" \
+                         "cmd: {cmd}\nstdout: {res.stdout}\nstderr: {res.stderr}",
+                         EXIT_FAIL)
     return p
 
 def trimArrayToStr(timarr):
@@ -355,7 +361,7 @@ def anchor2coords(s):
     elif s == "br":
         anchh, anchv = 1, 1
     else:
-        printMsgAndExit(f"Argument {text[1]} not valid", 1)
+        printMsgAndExit(f"Argument {text[1]} not valid", EXIT_FAIL)
     return anchh, anchv
 
 # The core of the software
@@ -388,7 +394,7 @@ def run(args):
     # -Process directory, walk through every file in it-
     for indir in args.input_dirs:
         if not os.path.isdir(indir):
-            printMsgAndExit(f"ERROR: {indir} is not a directory ", 1)
+            printMsgAndExit(f"ERROR: {indir} is not a directory ", EXIT_FAIL)
         for root, dirs, files in os.walk(indir):
             if args.natural_sorting:
                 files = natsorted(files)
@@ -401,7 +407,7 @@ def run(args):
     # -Process files-
     for infile in args.input_files:
         if not os.path.isfile(infile):
-            printMsgAndExit(f"ERROR: Input file {infile} doesn't exist.", 1)
+            printMsgAndExit(f"ERROR: Input file {infile} doesn't exist.", EXIT_FAIL)
 
         ftype = getFileType(infile)
 
@@ -416,7 +422,7 @@ def run(args):
             if args.verbose == True:
                 print(f"Adding image file: '{infile}'")
         else:
-            printMsgAndExit(f"ERROR: unrecognized file type '{ftype}' for '{infile}'", 1)
+            printMsgAndExit(f"ERROR: unrecognized file type '{ftype}' for '{infile}'", EXIT_FAIL)
 
 
     # 2. Check output file
@@ -431,7 +437,9 @@ def run(args):
             if args.overwrite:
                 os.remove(args.output)
             else:
-                printMsgAndExit(f"FATAL ERROR: File {args.output} already exists. Use --overwrite if you want to overwrite it", 1)
+                printMsgAndExit(f"FATAL ERROR: File {args.output} already exists. " \
+                                 "Use --overwrite if you want to overwrite it",
+                                 EXIT_FAIL)
 
     # 3. Create temporary directory
     temp_dir = createTempDir(args.debug, args.debug_folder)
@@ -573,7 +581,7 @@ def run(args):
         scale = wm[4]
         alpha = wm[5]
         if not os.path.isfile(file):
-            printMsgAndExit(f"ERROR: File {file} does not exist", 1)
+            printMsgAndExit(f"ERROR: File {file} does not exist", EXIT_FAIL)
         anchh, anchv = anchor2coords(anchor)
         # Get width of the text box
         latex_script += "\t\\savebox{\\textbox}{\\includegraphics[width="+scale+"\\paperwidth]{"+file+"}}\n"
@@ -610,7 +618,7 @@ def run(args):
     # In this case, we add one page at a time
     if args.rotate_pages:
         if len(input_pdf_files) > 1:
-            printMsgAndExit("Page rotation is only supported with one input PDF file", 1)
+            printMsgAndExit("Page rotation is only supported with one input PDF file", EXIT_FAIL)
         rotmap = {str(page):int(angle) for pair in args.rotate_pages.split(";") for page,angle in [pair.split("=")]}
         page_count = getPageCount(input_pdf_files[0])
         pagesl = list(range(1, page_count+1))
@@ -773,11 +781,11 @@ def run(args):
                     if(os.path.isfile('latex_file.log')):
                         zip_file.write('latex_file.log')
                     zip_file.close()
-                    printMsgAndExit("Latex failed to compile the file. Debug report was generated", 1)
+                    printMsgAndExit("Latex failed to compile the file. Debug report was generated", EXIT_FAIL)
                 else:
                     printMsgAndExit("Latex failed to compile the file. " \
                     "Please run again with --debug option, then report at "\
-                    "https://github.com/raffaem/pdftools/issues attaching ./temp/report.gz", 1)
+                    "https://github.com/raffaem/pdftools/issues attaching ./temp/report.gz", EXIT_FAIL)
         # ** End of all compilation rounds (for loop) **
 
         if args.replace_input:
@@ -956,7 +964,7 @@ def main(cmdargs, args=None):
     # If no options are passed, display help
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
-        printMsgAndExit("", 1)
+        printMsgAndExit(None, EXIT_SUCCESS)
 
     #Parse arguments
     if args is None:
@@ -969,11 +977,11 @@ def main(cmdargs, args=None):
 
     if(args.text_help):
         printTextHelp()
-        printMsgAndExit("", 0)
+        printMsgAndExit(None, EXIT_SUCCESS)
 
     if(args.recursive_dir):
         if not args.replace_input:
-            printMsgAndExit("Recursive dir must be called with --replace-input", 1)
+            printMsgAndExit("Recursive dir must be called with --replace-input", EXIT_FAIL)
         fl = list()
         for root, dirs, files in os.walk(args.recursive_dir):
             for file in natsorted(files):
@@ -996,29 +1004,29 @@ def main(cmdargs, args=None):
             p.start()
             # the method blocks until the process whose join() method is called terminates
             p.join()
-        printMsgAndExit("", 0)
+        printMsgAndExit(None, EXIT_SUCCESS)
 
     # Implement ClearScan and exit
     if args.clearscan:
         if not checkImageMagick():
             printMsgAndExit("Error: ClearScan requires ImageMagick, which is not in path. " \
-            "Please install it: https://imagemagick.org", 1)
+            "Please install it: https://imagemagick.org", EXIT_FAIL)
         if not checkMKBitmap():
             printMsgAndExit("Error: ClearScan requires mkbitmap, which is not in path. " \
-            "mkbitmap is distributed as part of the potrace package: http://potrace.sourceforge.net", 1)
+            "mkbitmap is distributed as part of the potrace package: http://potrace.sourceforge.net", EXIT_FAIL)
         if not checkPotrace():
             printMsgAndExit("Error: ClearScan requires potrace, which is not in path. " \
-            "Please install it: http://potrace.sourceforge.net", 1)
+            "Please install it: http://potrace.sourceforge.net", EXIT_FAIL)
         if len(args.input_files) != 1:
-            printMsgAndExit("Error: ClearScan requires exactly 1 input file", 1)
+            printMsgAndExit("Error: ClearScan requires exactly 1 input file", EXIT_FAIL)
         if not args.input_files[0].endswith(".pdf"):
-            printMsgAndExit("Error: ClearScan requires that input file ends with .pdf extension", 1)
+            printMsgAndExit("Error: ClearScan requires that input file ends with .pdf extension", EXIT_FAIL)
         if not os.path.isfile(args.input_files[0]):
-            printMsgAndExit("Error: Input file does not exist", 1)
+            printMsgAndExit("Error: Input file does not exist", EXIT_FAIL)
         if not args.output:
-            printMsgAndExit("Error: Please specify an output file", 1)
+            printMsgAndExit("Error: Please specify an output file", EXIT_FAIL)
         if os.path.isfile(args.output):
-            printMsgAndExit("Error: Output file already exist", 1)
+            printMsgAndExit("Error: Output file already exist", EXIT_FAIL)
         # Copy input PDF file in temp folder
         fp1 = os.path.realpath(args.input_files[0])
         of = os.path.realpath(args.output)
@@ -1035,9 +1043,11 @@ def main(cmdargs, args=None):
         os.makedirs("./pages", exist_ok=False)
         for page in tqdm(range(0, page_count)):
             # Extract PDF page to BMP
-            res = subprocess.run(["magick", "convert", "-density", str(args.clearscan_density), fp2+f"[{page}]", f"{page}.bmp"])
+            res = subprocess.run(["magick", "convert", "-density",
+                                   str(args.clearscan_density), fp2+f"[{page}]",
+                                   f"{page}.bmp"])
             if res.returncode != 0:
-                printMsgAndExit("Error: ImageMagick failed", 1)
+                printMsgAndExit("Error: ImageMagick failed", EXIT_FAIL)
             # Run mkbitmap
             res = subprocess.run(["mkbitmap",
                 "-f", str(args.clearscan_filter_size),
@@ -1045,7 +1055,7 @@ def main(cmdargs, args=None):
                 "-t", str(args.clearscan_threshold),
                 f"{page}.bmp"])
             if res.returncode != 0:
-                printMsgAndExit("Error: mkbitmap failed", 1)
+                printMsgAndExit("Error: mkbitmap failed", EXIT_FAIL)
             # Remove PDF bitmap files
             os.unlink(f"{page}.bmp")
             # Run potrace
@@ -1077,14 +1087,14 @@ def main(cmdargs, args=None):
         p.start()
         p.join()
         res = p.exitcode
-        if not res:
-            printMsgAndExit("Error: Failed to merge back", 1)
+        if res != 0:
+            printMsgAndExit("Error: Failed to merge back", EXIT_FAIL)
 
         # Compress PDF
         print("Compressing PDF file...")
         ret = compressPDF("./merged.pdf", of)
         if ret != 0:
-            printMsgAndExit("Error: Failed to compress PDF file", 1)
+            printMsgAndExit("Error: Failed to compress PDF file", EXIT_FAIL)
 
         # Exit
         printMsgAndExit("Success", 0)
