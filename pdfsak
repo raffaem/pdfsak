@@ -20,6 +20,7 @@ import platform
 import copy
 from natsort import natsorted
 from multiprocessing import Process
+import packaging.version
 from pdfsak_version import __version__
 
 # To restore cwd at the end, otherwise we get a exception
@@ -117,20 +118,31 @@ def getFileType(filepath):
 # Check functions
 
 def checkLatexCompiler():
-    res_class = namedtuple("LatexCompilerCheck", ["ok", "stdout", "stderr"])
+    res_class = namedtuple("LatexCompilerCheck", ["file_found", "stdout", "stderr", "verstr", "verok"])
     try:
-        ver = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True)
+        pobj = subprocess.run(["pdflatex", "--version"], capture_output=True, text=True)
     except FileNotFoundError:
-        return res_class(False, None, None)
-    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
+        return res_class(False, None, None, None, None)
+    verstr = pobj.stdout.split('\n')[0]
+    verstrict = verstr.replace("pdfTeX", "")
+    verstrict = re.sub(r"\(.*\)", "", verstrict)
+    verstrict = re.sub(r"-\d+", "", verstrict)
+    verstrict = verstrict.strip()
+    ver = packaging.version.parse(verstrict)
+    minver = packaging.version.parse("1.40.17")
+    verok = ver >= minver
+    return res_class(True, pobj.stdout.strip(), pobj.stderr.strip(), verstr, verok)
 
 def checkLatexCompilerCLI():
     res = checkLatexCompiler()
-    if not res.ok:
+    if not res.file_found:
         print("pdflatex NOT FOUND")
+        return res
+    if res.verok:
+        status = "OK (version recent enough):"
     else:
-        r = res.stdout.split('\n')[0]
-        print(f"pdflatex OK: {r}")
+        status = "NOT OK (version too old):"
+    print(f"pdflatex {status} {res.verstr}")
     return res
 
 def checkLatexPackage(pkgname):
