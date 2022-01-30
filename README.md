@@ -1,5 +1,10 @@
 # PDFsak
 
+[![Downloads](https://pepy.tech/badge/pdfsak)](https://pepy.tech/project/pdfsak)
+[![Downloads](https://pepy.tech/badge/pdfsak/month)](https://pepy.tech/project/pdfsak)
+[![Downloads](https://pepy.tech/badge/pdfsak/week)](https://pepy.tech/project/pdfsak)
+[![Documentation Status](https://readthedocs.org/projects/pdfsak/badge/?version=latest)](https://pdfsak.readthedocs.io/en/latest/?badge=latest)
+
 ## About it
 PDFsak (PDF Swiss Army knife) is an utility to manipulate PDF files.
 
