@@ -956,7 +956,7 @@ def run(args):
         shutil.rmtree(temp_dir)
 
 
-def parse_args(cmdargs):
+def get_parser():
     # Get command line options
     # This formatter class prints default values in help
     # See: https://stackoverflow.com/questions/12151306/argparse-way-to-include-default-values-in-help
@@ -1308,7 +1308,7 @@ def parse_args(cmdargs):
         "--debug-folder", type=str, default="temp", help=argparse.SUPPRESS
     )
 
-    return parser.parse_args(cmdargs)
+    return parser
 
 
 def main(cmdargs, args=None):
@@ -1317,14 +1317,15 @@ def main(cmdargs, args=None):
     global debug
     global previous_cwd
 
+    # Parse arguments
+    if args is None:
+        parser = get_parser()
+        args = parser.parse_args(cmdargs)
+
     # If no options are passed, display help
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         printMsgAndExit(None, EXIT_SUCCESS)
-
-    # Parse arguments
-    if args is None:
-        args = parse_args(cmdargs)
 
     debug = args.debug
 
