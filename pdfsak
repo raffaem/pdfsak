@@ -1471,18 +1471,13 @@ def main(cmdargs, args=None):
     if args.recursive_dir:
         if not args.replace_input:
             printMsgAndExit(
-                "Recursive dir must be called with --replace-input", EXIT_FAIL
+                "--recursive-dir must be called with --replace-input", EXIT_FAIL
             )
         fl = list()
         for root, dirs, files in os.walk(args.recursive_dir):
             for file in natsorted(files):
                 filefp = os.path.abspath(os.path.join(root, file))
                 fl.append(filefp)
-        del root
-        del dirs
-        del files
-        del filefp
-        del file
         for file in tqdm(fl):
             if os.path.splitext(file)[1] not in [".pdf", ".PDF"]:
                 tqdm.write(f"Skipping {file} because not a PDF file")
