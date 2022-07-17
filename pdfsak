@@ -1394,7 +1394,7 @@ def runClearScan(args):
         if res.returncode != 0:
             printMsgAndExit("Error: mkbitmap failed", EXIT_FAIL)
         # Remove PDF bitmap files
-        os.unlink(f"{page}.bmp")
+        #os.unlink(f"{page}.bmp")
         # Run potrace
         cmd = [
             "potrace",
@@ -1418,7 +1418,7 @@ def runClearScan(args):
         if res.returncode != 0:
             printMsgAndExit("Error: potrace failed", 1)
         # Remove mkbitmap output file
-        os.unlink(f"{page}.pbm")
+        #os.unlink(f"{page}.pbm")
 
     # Merge PDF files
     print("Merging back...")
