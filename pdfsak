@@ -1413,13 +1413,12 @@ def runClearScan(args):
             cmd.append("--debug")
             cmd.append(str(args.clearscan_potrace_debug))
         cmd.append(f"{page}.pbm")
+        cmd += ["--output", f"./pages/{page}.pdf"]
         res = subprocess.run(cmd)
         if res.returncode != 0:
             printMsgAndExit("Error: potrace failed", 1)
         # Remove mkbitmap output file
         os.unlink(f"{page}.pbm")
-        # Move page to pages dir
-        shutil.move(src=f"{page}.pdf", dst=f"./pages/{page}.pdf")
 
     # Merge PDF files
     print("Merging back...")
