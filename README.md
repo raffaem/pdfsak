@@ -6,6 +6,9 @@
 [![Documentation Status](https://readthedocs.org/projects/pdfsak/badge/?version=latest)](https://pdfsak.readthedocs.io/en/latest/?badge=latest)
 
 ## About it
+
+<img src="/media/pdfsak_logo.svg" alt="PDFsak logo" width="200"/>
+
 PDFsak (PDF Swiss Army knife) is an utility to manipulate PDF files.
 
 The previous name of the project (as of 2021-10-10) was "pdftools".
