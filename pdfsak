@@ -1434,10 +1434,11 @@ def runClearScan(args):
         printMsgAndExit("Error: Failed to merge back", EXIT_FAIL)
 
     # Compress PDF
-    print("Compressing PDF file...")
-    ret = compressPDF("./merged.pdf", of)
-    if ret != 0:
-        printMsgAndExit("Error: Failed to compress PDF file", EXIT_FAIL)
+    #print("Compressing PDF file...")
+    #ret = compressPDF("./merged.pdf", of)
+    #if ret != 0:
+    #    printMsgAndExit("Error: Failed to compress PDF file", EXIT_FAIL)
+    shutil.copyfile("./merged.pdf", of)
 
     # Exit
     printMsgAndExit("Success", 0)
