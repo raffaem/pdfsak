@@ -1270,7 +1270,7 @@ def get_parser():
         action="append_const",
         const="rotateoversize",
         dest="booleans",
-        help="Rotate oversized pages. "
+        help="Rotate oversized pages. ",
     )
     parser.add_argument(
         "--landscape",
@@ -1444,7 +1444,7 @@ def runClearScan(args):
 
 
 def main(cmdargs, args=None):
-    
+
     global temp_dir
     global debug
     global previous_cwd
@@ -1453,7 +1453,7 @@ def main(cmdargs, args=None):
     if args is None:
         parser = get_parser()
         args = parser.parse_args(cmdargs)
-    
+
     # If no options are passed, display help
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
