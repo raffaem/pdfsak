@@ -1266,6 +1266,13 @@ def get_parser():
         "If false, the cropped part is present on the physical file, but the pdf reader is instructed to ignore it.",
     )
     parser.add_argument(
+        "--rotateoversize",
+        action="append_const",
+        const="rotateoversize",
+        dest="booleans",
+        help="Rotate oversized pages. "
+    )
+    parser.add_argument(
         "--landscape",
         action="append_const",
         const="landscape",

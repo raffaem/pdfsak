@@ -1,3 +1,5 @@
+* Added --rotateoversize option
+
 v 1.3.0 (2022-03-12)
 * Recursively loop over a directory and its subdirectories and apply the same command too all the PDF files it finds
 * Always output a PDF with no metadata into it
