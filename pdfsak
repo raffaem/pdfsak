@@ -36,7 +36,9 @@ pdftex_min_ver = "1.40.17"
 needed_comp_rounds = 2
 EXIT_SUCCESS = 0
 EXIT_FAIL = 1
-
+clearscan_filter_size_default = 2
+clearscan_upscaling_factor_default = 1
+clearscan_threshold_default = 0.5
 
 def getGSBin():
     if os.name == "nt":
@@ -405,7 +407,7 @@ def printTextHelp():
 
 def createTempDir(debug=False, debug_folder=None):
     global temp_dir
-    # If NOT in debug, temporary directory is created in system temporary folder
+    # If NOT in debug mode, temporary directory is created in system temporary folder
     if not debug:
         # avoid out of scope
         temp_dir = tempfile.mkdtemp(prefix="pdfsak")
@@ -1200,27 +1202,6 @@ def get_parser():
         help="Density with which to convert PDF into bitmap.",
     )
     parser.add_argument(
-        "--clearscan-filter-size",
-        action="store",
-        type=int,
-        default=2,
-        help="Pixel size of high-pass filter to pass to mkbitmap for clearscan",
-    )
-    parser.add_argument(
-        "--clearscan-upscaling-factor",
-        action="store",
-        type=int,
-        default=1,
-        help="Upscale the image by this factor using mkbitmap before passing it to potrace",
-    )
-    parser.add_argument(
-        "--clearscan-threshold",
-        action="store",
-        type=float,
-        default=0.5,
-        help="Threshold level",
-    )
-    parser.add_argument(
         "--clearscan-opttolerance",
         action="store",
         type=float,
@@ -1247,6 +1228,34 @@ def get_parser():
         type=int,
         default=0,
         help=argparse.SUPPRESS,
+    )
+    # ClearScan mkbitmap passage
+    parser.add_argument(
+        "--clearscan-skip-mkbitmap",
+        action="store_true",
+        default=False,
+        help="Skip mkbitmap passage"
+    )
+    parser.add_argument(
+        "--clearscan-filter-size",
+        action="store",
+        type=int,
+        default=clearscan_filter_size_default,
+        help="Pixel size of high-pass filter to pass to mkbitmap for clearscan. Requires mkbitmap.",
+    )
+    parser.add_argument(
+        "--clearscan-upscaling-factor",
+        action="store",
+        type=int,
+        default=clearscan_upscaling_factor_default,
+        help="Upscale the image by this factor using mkbitmap before passing it to potrace. Requires mkbitmap.",
+    )
+    parser.add_argument(
+        "--clearscan-threshold",
+        action="store",
+        type=float,
+        default=clearscan_threshold_default,
+        help="Threshold level. Requires mkbitmap.",
     )
 
     parser.add_argument(
@@ -1350,6 +1359,15 @@ def runClearScan(args):
         printMsgAndExit("Error: Please specify an output file", EXIT_FAIL)
     if os.path.isfile(args.output):
         printMsgAndExit("Error: Output file already exist", EXIT_FAIL)
+    if args.clearscan_skip_mkbitmap:
+        if args.clearscan_filter_size != clearscan_filter_size_default:
+            printMsgAndExit("Error: --clearscan-skip-mkbitmap incompatible with --clearscan-filter-size", EXIT_FAIL)
+        if args.clearscan_upscaling_factor != clearscan_upscaling_factor_default:
+            printMsgAndExit("Error: --clearscan-skip-mkbitmap incompatible with --clearscan-upscaling-factor", EXIT_FAIL)
+        if args.clearscan_threshold != clearscan_threshold_default:
+            printMsgAndExit("Error: --clearscan-skip-mkbitmap incompatible with --clearscan-threshold", EXIT_FAIL)
+        print("Warning: Skipping mkbitmap step")
+
     # Copy input PDF file in temp folder
     fp1 = os.path.realpath(args.input_files[0])
     of = os.path.realpath(args.output)
@@ -1366,35 +1384,38 @@ def runClearScan(args):
     os.makedirs("./pages", exist_ok=False)
     for page in tqdm(range(0, page_count)):
         # Extract PDF page to BMP
-        res = subprocess.run(
-            [
+        cmd = [
                 "magick",
                 "convert",
                 "-density",
                 str(args.clearscan_density),
-                fp2 + f"[{page}]",
-                f"{page}.bmp",
+                fp2 + f"[{page}]"               
             ]
-        )
+        if args.clearscan_skip_mkbitmap:
+            cmd.append(f"{page}.pbm")
+        else:
+            cmd.append(f"{page}.bmp")
+        res = subprocess.run(cmd)
         if res.returncode != 0:
             printMsgAndExit("Error: ImageMagick failed", EXIT_FAIL)
         # Run mkbitmap
-        res = subprocess.run(
-            [
-                "mkbitmap",
-                "-f",
-                str(args.clearscan_filter_size),
-                "-s",
-                str(args.clearscan_upscaling_factor),
-                "-t",
-                str(args.clearscan_threshold),
-                f"{page}.bmp",
-            ]
-        )
-        if res.returncode != 0:
-            printMsgAndExit("Error: mkbitmap failed", EXIT_FAIL)
-        # Remove PDF bitmap files
-        #os.unlink(f"{page}.bmp")
+        if not args.clearscan_skip_mkbitmap:
+            res = subprocess.run(
+                [
+                    "mkbitmap",
+                    "-f",
+                    str(args.clearscan_filter_size),
+                    "-s",
+                    str(args.clearscan_upscaling_factor),
+                    "-t",
+                    str(args.clearscan_threshold),
+                    f"{page}.bmp",
+                ]
+            )
+            if res.returncode != 0:
+                printMsgAndExit("Error: mkbitmap failed", EXIT_FAIL)
+            # Remove PDF bitmap files
+            os.unlink(f"{page}.bmp")
         # Run potrace
         cmd = [
             "potrace",
@@ -1418,7 +1439,7 @@ def runClearScan(args):
         if res.returncode != 0:
             printMsgAndExit("Error: potrace failed", 1)
         # Remove mkbitmap output file
-        #os.unlink(f"{page}.pbm")
+        os.unlink(f"{page}.pbm")
 
     # Merge PDF files
     print("Merging back...")
