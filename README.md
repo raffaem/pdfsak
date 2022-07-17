@@ -7,7 +7,9 @@
 
 ## About it
 
-<img src="/media/pdfsak_logo.svg" alt="PDFsak logo" width="200"/>
+<img src="/media/pdfsak_logo.svg" alt="PDFsak logo" width="150"/>
+
+Logo from [kgullion](https://github.com/kgullion) provided [here](https://github.com/raffaem/pdfsak/issues/8#issuecomment-1021767395).
 
 PDFsak (PDF Swiss Army knife) is an utility to manipulate PDF files.
 
@@ -38,10 +40,3 @@ It should work also on macOS, although it has not been tested on this platform.
 
 Checkout the [online documentation](https://pdfsak.readthedocs.io) for requirements, installation, usage and examples.
 
-## Looking for a logo
-
-PDFsak is looking for a logo!
-
-If you can provide one, please [open an issue](https://github.com/raffaem/pdftools/issues) with your proposal.
-
-You must be willing to release your logo under a free license, possibly Creative Commons-something.
