@@ -1,5 +1,5 @@
-examples/output
-clearscan-tests
+/examples/output
+/clearscan-tests
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
