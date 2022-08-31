@@ -1,3 +1,6 @@
+v 1.3.3 (2022-08-31)
+* Final fix for Ghostscript >= 9.56.1 compatibility
+
 v 1.3.2 (2022-08-31)
 * Remove -dNODISPLAY option to work around what it's probably a Ghostscript 9.56.1 bug
 
