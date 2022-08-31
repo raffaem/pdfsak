@@ -266,7 +266,8 @@ def checkImageMagick():
         ver = subprocess.run(["magick", "--version"], capture_output=True, text=True)
     except FileNotFoundError:
         return res_class(False, None, None)
-    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
+    ver_stdout = ver.stdout.strip().replace("Version: ImageMagick ", "") 
+    return res_class(True, ver_stdout, ver.stderr.strip())
 
 
 def checkImageMagickCLI():
