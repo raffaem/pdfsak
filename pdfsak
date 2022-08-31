@@ -98,7 +98,6 @@ def getPageCount(infp):
         getGSBin(),
         "-q",
         "-dNOSAFER",
-        "-dNODISPLAY",
         "-c",
         f"({linuxize(infp)}) (r) file runpdfbegin pdfpagecount = quit",
     ]
