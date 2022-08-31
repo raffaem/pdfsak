@@ -112,7 +112,7 @@ def getPageCount(infp):
     except ValueError:
         printMsgAndExit(
             f"ERROR: ValueError while convering page count to int.\n"
-            "cmd: {cmd}\nstdout: {res.stdout}\nstderr: {res.stderr}",
+            f"cmd: {cmd}\nstdout: {res.stdout}\nstderr: {res.stderr}",
             EXIT_FAIL,
         )
     return p
