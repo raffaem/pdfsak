@@ -266,8 +266,7 @@ def checkImageMagick():
         ver = subprocess.run(["magick", "--version"], capture_output=True, text=True)
     except FileNotFoundError:
         return res_class(False, None, None)
-    ver_stdout = ver.stdout.strip().replace("Version: ImageMagick ", "") 
-    return res_class(True, ver_stdout, ver.stderr.strip())
+    return res_class(True, ver.stdout.strip(), ver.stderr.strip())
 
 
 def checkImageMagickCLI():
@@ -277,6 +276,7 @@ def checkImageMagickCLI():
     else:
         r = res.stdout.split("\n")[0]
         r = r.replace("https://imagemagick.org", "")
+        r = r.replace("Version: ImageMagick ", "") 
         print(f"ImageMagick OK: {r}")
     return res
 
@@ -297,6 +297,8 @@ def checkPotraceCLI():
     else:
         r = res.stdout.split("\n")[0]
         r = r.replace("potrace", "").strip().split()[0]
+        if r[-1]==".":
+            r = r[:-1]
         print(f"Potrace OK: {r}")
     return res
 
@@ -317,6 +319,8 @@ def checkMKBitmapCLI():
     else:
         r = res.stdout.split("\n")[0]
         r = r.replace("mkbitmap", "").strip().split()[0]
+        if r[-1]==".":
+            r = r[:-1]
         print(f"mkbitmap OK: {r}")
     return res
 
