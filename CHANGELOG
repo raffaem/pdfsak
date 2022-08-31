@@ -1,3 +1,6 @@
+v 1.3.2 (2022-08-31)
+* Remove -dNODISPLAY option to work around what it's probably a Ghostscript 9.56.1 bug
+
 v 1.3.1 (2022-08-31)
 * Adopt logo (thanks to @kgullion and to all in issue #8)
 * Works with Ghostscript >= 9.56 (thanks @BartMassey)
