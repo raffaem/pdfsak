@@ -26,4 +26,9 @@ setuptools.setup(
     ],
     scripts=['./pdfsak', './pdfsak.bat', './pdfsak_version.py'],
     python_requires=">=3.6",
+    install_requires=[
+        "tqdm",
+        "natsort",
+        "packaging"
+    ]
 )
