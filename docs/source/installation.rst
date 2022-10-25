@@ -16,9 +16,9 @@ From source
 
 Clone the repository and run the install script::
 
-    git clone https://github.com/raffaem/pdftools
-    cd pdftools
-    python3 setup.py install --user
+    git clone https://github.com/raffaem/pdfsak
+    cd pdfsak
+    pip3 install .
 
 A new command ``pdfsak`` is now available in your PATH.
 
