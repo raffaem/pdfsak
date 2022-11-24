@@ -732,6 +732,8 @@ def run(args):
 
     # BEGIN DOCUMENT
     latex_script += "\\begin{document}\n"
+    if args.blackbg:
+        latex_script += "\\pagecolor{black}\n"
     latex_script += "\t\\thispagestyle{empty}\n"
 
     # Insert input image files in latex script
@@ -1150,6 +1152,12 @@ def get_parser():
         action="store_true",
         default=False,
         help="Overwrite output file if it exists already",
+    )
+    parser.add_argument(
+        "--blackbg",
+        action="store_true",
+        default=False,
+        help="Make the background black, for e.g. n-upping dark background slides.",
     )
 
     # Group to manage how pages are inserted
