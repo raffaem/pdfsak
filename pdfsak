@@ -500,6 +500,8 @@ def run(args):
                 files = natsorted(files)
             else:
                 files.sort()
+            print("Files after sorting: ")
+            print("\n".join(files))
             for file in files:
                 filefp = os.path.join(root, file)
                 args.input_files.append(filefp)
