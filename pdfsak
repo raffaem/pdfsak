@@ -496,6 +496,9 @@ def run(args):
         if not os.path.isdir(indir):
             printMsgAndExit(f"ERROR: {indir} is not a directory ", EXIT_FAIL)
         for root, dirs, files in os.walk(indir):
+            if (root!=indir) and (not args.recursive):
+                print(f"root={root} and not recursive, skipping")
+                continue
             if args.natural_sorting:
                 files = natsorted(files)
             else:
@@ -1007,7 +1010,9 @@ def get_parser():
     input_group.add_argument(
         "-rd",
         "--recursive-dir",
-        action="store",
+        action="store_true",
+        default=False,
+        dest="recursive",
         help="Process the PDFs inside a dir recursively.",
     )
 
@@ -1507,30 +1512,6 @@ def main(cmdargs, args=None):
 
     if args.text_help:
         printTextHelp()
-        printMsgAndExit(None, EXIT_SUCCESS)
-
-    if args.recursive_dir:
-        if not args.replace_input:
-            printMsgAndExit(
-                "--recursive-dir must be called with --replace-input", EXIT_FAIL
-            )
-        fl = list()
-        for root, dirs, files in os.walk(args.recursive_dir):
-            for file in natsorted(files):
-                filefp = os.path.abspath(os.path.join(root, file))
-                fl.append(filefp)
-        for file in tqdm(fl):
-            if os.path.splitext(file)[1] not in [".pdf", ".PDF"]:
-                tqdm.write(f"Skipping {file} because not a PDF file")
-                continue
-            tqdm.write(f"Processing {file} ...")
-            newargs = copy.deepcopy(args)
-            newargs.recursive_dir = None
-            newargs.input_files.append(file)
-            p = Process(target=main, args=(None, newargs))
-            p.start()
-            # the method blocks until the process whose join() method is called terminates
-            p.join()
         printMsgAndExit(None, EXIT_SUCCESS)
 
     # Implement ClearScan and exit
