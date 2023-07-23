@@ -522,9 +522,15 @@ def run(args):
             if args.verbose == True:
                 print(f"Adding image file: '{infile}'")
         else:
-            printMsgAndExit(
-                f"ERROR: unrecognized file type '{ftype}' for '{infile}'", EXIT_FAIL
-            )
+            if args.skip_unreco_type:
+                print(
+                    f"WARNING: Skipping unrecognized file type '{ftype}' for '{infile}'"
+                )
+                continue
+            else:
+                printMsgAndExit(
+                    f"ERROR: Unrecognized file type '{ftype}' for '{infile}'", EXIT_FAIL
+                )
 
     # 2. Check output file
     if not args.replace_input:
@@ -1139,6 +1145,13 @@ def get_parser():
     )
 
     # Boolean parameters NOT for pdfpages
+    parser.add_argument(
+        "--skip-unrecognized-type",
+        dest="skip_unreco_type",
+        action="store_true",
+        default=False,
+        help="Skip unrecognized file types when scanning a directory. Otherwise, thrown an error"
+    )
     parser.add_argument(
         "--natural-sorting",
         action="store_true",
