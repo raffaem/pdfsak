@@ -53,42 +53,6 @@ def getGSBin():
         )
 
 
-def compressPDF(infp, outfp, imgres=300):
-    infp = linuxize(os.path.abspath(infp))
-    outfp = linuxize(os.path.abspath(outfp))
-    # see: https://gist.github.com/firstdoit/6390547
-    cmd = [
-        getGSBin(),
-        "-sDEVICE=pdfwrite",
-        "-dCompatibilityLevel=1.4",
-        "-dPDFSETTINGS=/printer",
-        "-dNOPAUSE",
-        "-dQUIET",
-        "-dBATCH",
-        # "-dDownsampleColorImages=true",
-        # "-dDownsampleGrayImages=true",
-        # "-dDownsampleMonoImages=true",
-        # f"-dColorImageResolution={imgres}",
-        # f"-dGrayImageResolution={imgres}",
-        # f"-dMonoImageResolution={imgres}",
-        # "-dEmbedAllFonts=false",
-        # "-dSubsetFonts=true",
-        # "-dConvertCMYKImagesToRGB=true",
-        # "-dCompressFonts=true",
-        # "-dCompressStreams=true",
-        # "-dCompressPages=true",
-        # "-sDEVICE=pdfwrite",
-        # "-dCompatibilityLevel=2.0",
-        # "-dNOPAUSE",
-        # "-dQUIET",
-        # "-dBATCH",
-        f"-sOutputFile={linuxize(outfp)}",
-        f"{linuxize(infp)}",
-    ]
-    res = subprocess.run(cmd)
-    return res.returncode
-
-
 def linuxize(path):
     return str(path).replace("\\", "/")
 
@@ -1486,11 +1450,6 @@ def runClearScan(args):
     if res != 0:
         printMsgAndExit("Error: Failed to merge back", EXIT_FAIL)
 
-    # Compress PDF
-    #print("Compressing PDF file...")
-    #ret = compressPDF("./merged.pdf", of)
-    #if ret != 0:
-    #    printMsgAndExit("Error: Failed to compress PDF file", EXIT_FAIL)
     shutil.copyfile("./merged.pdf", of)
 
     # Exit
