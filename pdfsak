@@ -40,6 +40,7 @@ clearscan_filter_size_default = 2
 clearscan_upscaling_factor_default = 1
 clearscan_threshold_default = 0.5
 
+
 def getGSBin():
     if os.name == "nt":
         # `gswin64` is a GUI interface. The CLI is called `gswin64c`
@@ -241,7 +242,7 @@ def checkImageMagickCLI():
     else:
         r = res.stdout.split("\n")[0]
         r = r.replace("https://imagemagick.org", "")
-        r = r.replace("Version: ImageMagick ", "") 
+        r = r.replace("Version: ImageMagick ", "")
         print(f"ImageMagick OK: {r}")
     return res
 
@@ -262,7 +263,7 @@ def checkPotraceCLI():
     else:
         r = res.stdout.split("\n")[0]
         r = r.replace("potrace", "").strip().split()[0]
-        if r[-1]==".":
+        if r[-1] == ".":
             r = r[:-1]
         print(f"Potrace OK: {r}")
     return res
@@ -284,7 +285,7 @@ def checkMKBitmapCLI():
     else:
         r = res.stdout.split("\n")[0]
         r = r.replace("mkbitmap", "").strip().split()[0]
-        if r[-1]==".":
+        if r[-1] == ".":
             r = r[:-1]
         print(f"mkbitmap OK: {r}")
     return res
@@ -430,7 +431,6 @@ def get_backup_path(fp):
 
 # The core of the software
 def run(args):
-
     # Build args.text as list if not defined, otherwise crash/we need to make a test every time
     if not args.text:
         args.text = list()
@@ -460,7 +460,7 @@ def run(args):
         if not os.path.isdir(indir):
             printMsgAndExit(f"ERROR: {indir} is not a directory ", EXIT_FAIL)
         for root, dirs, files in os.walk(indir):
-            if (root!=indir) and (not args.recursive):
+            if (root != indir) and (not args.recursive):
                 print(f"root={root} and not recursive, skipping")
                 continue
             if args.natural_sorting:
@@ -624,7 +624,6 @@ def run(args):
 
     # Process add text
     for texti, text in enumerate(args.text):
-
         # `text` is in the format [STRING, ANCHOR, WIDTH, HEIGHT]
         st = text[0]
         anchor = text[1]
@@ -755,7 +754,6 @@ def run(args):
 
     # Insert input PDF files in latex script
     for filenum, f in enumerate(input_pdf_files):
-
         # Update page_count only if we need too
         if (filenum == 0 and page_count is None) or (f != input_pdf_files[filenum - 1]):
             page_count = getPageCount(f)
@@ -1123,7 +1121,7 @@ def get_parser():
         dest="skip_unreco_type",
         action="store_true",
         default=False,
-        help="Skip unrecognized file types when scanning a directory. Otherwise, thrown an error"
+        help="Skip unrecognized file types when scanning a directory. Otherwise, thrown an error",
     )
     parser.add_argument(
         "--natural-sorting",
@@ -1231,7 +1229,7 @@ def get_parser():
         "--clearscan-skip-mkbitmap",
         action="store_true",
         default=False,
-        help="Skip mkbitmap passage"
+        help="Skip mkbitmap passage",
     )
     parser.add_argument(
         "--clearscan-filter-size",
@@ -1358,11 +1356,20 @@ def runClearScan(args):
         printMsgAndExit("Error: Output file already exist", EXIT_FAIL)
     if args.clearscan_skip_mkbitmap:
         if args.clearscan_filter_size != clearscan_filter_size_default:
-            printMsgAndExit("Error: --clearscan-skip-mkbitmap incompatible with --clearscan-filter-size", EXIT_FAIL)
+            printMsgAndExit(
+                "Error: --clearscan-skip-mkbitmap incompatible with --clearscan-filter-size",
+                EXIT_FAIL,
+            )
         if args.clearscan_upscaling_factor != clearscan_upscaling_factor_default:
-            printMsgAndExit("Error: --clearscan-skip-mkbitmap incompatible with --clearscan-upscaling-factor", EXIT_FAIL)
+            printMsgAndExit(
+                "Error: --clearscan-skip-mkbitmap incompatible with --clearscan-upscaling-factor",
+                EXIT_FAIL,
+            )
         if args.clearscan_threshold != clearscan_threshold_default:
-            printMsgAndExit("Error: --clearscan-skip-mkbitmap incompatible with --clearscan-threshold", EXIT_FAIL)
+            printMsgAndExit(
+                "Error: --clearscan-skip-mkbitmap incompatible with --clearscan-threshold",
+                EXIT_FAIL,
+            )
         print("Warning: Skipping mkbitmap step")
 
     # Copy input PDF file in temp folder
@@ -1382,12 +1389,12 @@ def runClearScan(args):
     for page in tqdm(range(0, page_count)):
         # Extract PDF page to BMP
         cmd = [
-                "magick",
-                "convert",
-                "-density",
-                str(args.clearscan_density),
-                fp2 + f"[{page}]"               
-            ]
+            "magick",
+            "convert",
+            "-density",
+            str(args.clearscan_density),
+            fp2 + f"[{page}]",
+        ]
         if args.clearscan_skip_mkbitmap:
             cmd.append(f"{page}.pbm")
         else:
@@ -1457,7 +1464,6 @@ def runClearScan(args):
 
 
 def main(cmdargs, args=None):
-
     global temp_dir
     global debug
     global previous_cwd
