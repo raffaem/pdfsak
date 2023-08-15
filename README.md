@@ -1,5 +1,15 @@
 # PDFsak
 
+## Retraction Notice
+
+This is in low maintanance mode.
+
+I don't use it nowadays except for the rare cases in which I have to add page numbers to PDF files.
+
+For all other PDF manipulation I suggest you use [pdfarranger](https://github.com/pdfarranger/pdfarranger).
+
+## Original
+
 [![Downloads](https://pepy.tech/badge/pdfsak)](https://pepy.tech/project/pdfsak)
 [![Downloads](https://pepy.tech/badge/pdfsak/month)](https://pepy.tech/project/pdfsak)
 [![Downloads](https://pepy.tech/badge/pdfsak/week)](https://pepy.tech/project/pdfsak)
