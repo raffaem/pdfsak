@@ -9,31 +9,43 @@ to see available command line arguments:
 
 ::
 
-    usage: pdfsak [-h] [-if INPUT_FILES | -id INPUT_DIRS]
-              [-o OUTPUT | --out-suffix OUT_SUFFIX | --replace-input]
-              [--paper PAPER_TYPE] [--scale SCALE_FACTOR] [--width WIDTH]
-              [--height HEIGHT] [--nup ROWS COLS] [--offset RIGHT TOP]
-              [--trim Left Bottom Right Top] [--delta X Y] [--custom CUSTOM]
-              [-t text_string anchor hpos vpos] [--text-help]
-              [--natural-sorting] [--overwrite]
-              [--swap-pages SWAP_PAGES | --rotate-pages ROTATE_PAGES | --delete-pages DELETE_PAGES | --add-white-pages | --extract-pages EXTRACT_PAGES]
-              [--clearscan] [--clearscan-filter-size CLEARSCAN_FILTER_SIZE]
-              [--clearscan-upscaling-factor CLEARSCAN_UPSCALING_FACTOR]
-              [--clearscan-threshold CLEARSCAN_THRESHOLD]
-              [--clearscan-opttolerance CLEARSCAN_OPTTOLERANCE]
-              [--clearscan-turnpolicy CLEARSCAN_TURNPOLICY]
-              [--clearscan-alphamax CLEARSCAN_ALPHAMAX] [--check-latex]
-              [--check-ghostscript] [--clip] [--landscape] [--frame]
+    usage: pdfsak [-h] [--version] [--latex-engine {pdflatex,xelatex}]
+                  [-if INPUT_FILES | -id INPUT_DIRS | -rd]
+                  [-o OUTPUT | --out-suffix OUT_SUFFIX | --replace-input]
+                  [--paper PAPER_TYPE] [--scale SCALE_FACTOR] [--width WIDTH]
+                  [--height HEIGHT] [--nup ROWS COLS] [--offset RIGHT TOP]
+                  [--trim Left Bottom Right Top] [--delta X Y] [--custom CUSTOM]
+                  [--watermark file anchor hpos vpos scale alpha]
+                  [-t text_string anchor hpos vpos] [--text-help] [--font FONT]
+                  [--skip-unrecognized-type] [--natural-sorting] [--overwrite]
+                  [--blackbg]
+                  [--swap-pages SWAP_PAGES | --rotate-pages ROTATE_PAGES | --delete-pages DELETE_PAGES | --add-white-pages | --extract-pages EXTRACT_PAGES]
+                  [--clearscan] [--clearscan-density CLEARSCAN_DENSITY]
+                  [--clearscan-opttolerance CLEARSCAN_OPTTOLERANCE]
+                  [--clearscan-turnpolicy CLEARSCAN_TURNPOLICY]
+                  [--clearscan-alphamax CLEARSCAN_ALPHAMAX]
+                  [--clearscan-skip-mkbitmap]
+                  [--clearscan-filter-size CLEARSCAN_FILTER_SIZE]
+                  [--clearscan-upscaling-factor CLEARSCAN_UPSCALING_FACTOR]
+                  [--clearscan-threshold CLEARSCAN_THRESHOLD] [--check-all]
+                  [--clip] [--rotateoversize] [--landscape] [--frame]
+                  [--textpos-showboxes]
 
     options:
       -h, --help            show this help message and exit
+      --version             show program's version number and exit
+      --latex-engine {pdflatex,xelatex}
+                            LaTeX engine to use. Defaults to pdflatex. (default:
+                            pdflatex)
       -if INPUT_FILES, --input-file INPUT_FILES
                             Input pdf file. Use this flag again to merge multiple
                             pdf files into one. (default: [])
       -id INPUT_DIRS, --input-dir INPUT_DIRS
                             Input a directory. All pdf files inside it will be
-                            merged togheter, sorted in alphabetical filename
+                            merged together, sorted in alphabetical filename
                             order. (default: [])
+      -rd, --recursive-dir  Process the PDFs inside a dir recursively. (default:
+                            False)
       -o OUTPUT, --output OUTPUT
                             Output filename (default: None)
       --out-suffix OUT_SUFFIX
@@ -77,6 +89,8 @@ to see available command line arguments:
                             option, which takes two arguments. (default: ['0',
                             '0'])
       --custom CUSTOM       Custom pdfpages options (default: None)
+      --watermark file anchor hpos vpos scale alpha
+                            Add watermark image. (default: None)
       -t text_string anchor hpos vpos, --text text_string anchor hpos vpos
                             Add text to pdf file. 'text_string' is the string to
                             add, special variables can be passed, as well as LaTeX
@@ -93,10 +107,16 @@ to see available command line arguments:
                             (default: None)
       --text-help           Print help on how to build a text string for the
                             -t/--text option (default: False)
+      --font FONT           Font to use for text in the document (default: None)
+      --skip-unrecognized-type
+                            Skip unrecognized file types when scanning a
+                            directory. Otherwise, thrown an error (default: False)
       --natural-sorting     When scanning a folder, use natural sorting algorithm
                             to sort the files inside it (default: False)
       --overwrite           Overwrite output file if it exists already (default:
                             False)
+      --blackbg             Make the background black, for e.g. n-upping dark
+                            background slides. (default: False)
       --swap-pages SWAP_PAGES
                             A semi-colon separated list of colon-separated page
                             pairs to swap. E.g. "1,5;6,9" will swap page 1 with
@@ -126,14 +146,9 @@ to see available command line arguments:
                             the document, "--extract-pages=last-1" will insert all
                             pages in reverse order. (default: -)
       --clearscan           Simulate Adobe Acrobat ClearScan (default: False)
-      --clearscan-filter-size CLEARSCAN_FILTER_SIZE
-                            Pixel size of high-pass filter to pass to mkbitmap for
-                            clearscan (default: 2)
-      --clearscan-upscaling-factor CLEARSCAN_UPSCALING_FACTOR
-                            Upscale the image by this factor using mkbitmap before
-                            passing it to potrace (default: 1)
-      --clearscan-threshold CLEARSCAN_THRESHOLD
-                            Threshold level (default: 0.5)
+      --clearscan-density CLEARSCAN_DENSITY
+                            Density with which to convert PDF into bitmap.
+                            (default: 300)
       --clearscan-opttolerance CLEARSCAN_OPTTOLERANCE
                             Set the curve optimization tolerance. The default
                             value is 0.2. Larger values allow more consecutive
@@ -155,13 +170,27 @@ to see available command line arguments:
                             polygon. If this parameter is greater than 4/3, then
                             all corners are suppressed and the output is
                             completely smooth. (default: 1)
-      --check-latex         Check LaTeX installation (default: False)
-      --check-ghostscript   Check Ghostscript installation (default: False)
+      --clearscan-skip-mkbitmap
+                            Skip mkbitmap passage (default: False)
+      --clearscan-filter-size CLEARSCAN_FILTER_SIZE
+                            Pixel size of high-pass filter to pass to mkbitmap for
+                            clearscan. Requires mkbitmap. (default: 2)
+      --clearscan-upscaling-factor CLEARSCAN_UPSCALING_FACTOR
+                            Upscale the image by this factor using mkbitmap before
+                            passing it to potrace. Requires mkbitmap. (default: 1)
+      --clearscan-threshold CLEARSCAN_THRESHOLD
+                            Threshold level. Requires mkbitmap. (default: 0.5)
+      --check-all           Check all dependencies (including optional ones)
+                            (default: False)
       --clip                Used togheter with trim, will actually remove the
                             cropped part from the pdfpage. If false, the cropped
                             part is present on the physical file, but the pdf
                             reader is instructed to ignore it. (default: None)
+      --rotateoversize      Rotate oversized pages. (default: None)
       --landscape           Output file is in landscape layer instead of portrait.
                             (default: None)
       --frame               Put a frame around every logical page. (default: None)
-    
+      --textpos-showboxes   Call textpos package with the showboxes option,
+                            putting a frame around every textblock. (default:
+                            False)
+
