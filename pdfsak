@@ -604,6 +604,8 @@ def run(args):
 
     # Font
     if(args.font):
+        if args.latex_engine != "xelatex":
+            printMsgAndExit("ERROR: --font option requires --latex-engine xelatex", EXIT_FAIL)
         latex_script += (
             "\\usepackage{fontspec}\n"
             "\\setmainfont{"+args.font+"}"
