@@ -602,6 +602,13 @@ def run(args):
         "\\newlength{\\pdfheight}\n"
     )
 
+    # Font
+    if(args.font):
+        latex_script += (
+            "\\usepackage{fontspec}\n"
+            "\\setmainfont{"+args.font+"}"
+        )
+
     # Black magic to have PDF files with commas in their filename work
     # See: https://tex.stackexchange.com/a/372722/74382
     # only for pdflatex
@@ -1140,6 +1147,12 @@ def get_parser():
         "--text-help",
         action="store_true",
         help="Print help on how to build a text string for the -t/--text option",
+    )
+
+    parser.add_argument(
+        "--font",
+        action="store",
+        help="Font to use for text in the document"
     )
 
     # Boolean parameters NOT for pdfpages
