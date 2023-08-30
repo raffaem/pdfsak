@@ -1154,7 +1154,7 @@ def get_parser():
     parser.add_argument(
         "--font",
         action="store",
-        help="Font to use for text in the document"
+        help="Font to use for text in the document. This requires --latex-engine xelatex."
     )
 
     # Boolean parameters NOT for pdfpages
