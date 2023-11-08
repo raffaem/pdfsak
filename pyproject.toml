@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pdfsak"
+dynamic = ["version"]
+description = "Utility to manipulate PDF files"
+readme = "README.md"
+license = {file = "LICENSE"}
+maintainers = [
+    { name = "Raffaele Mancuso", email = "raffaelemancuso532@gmail.com" },
+]
+keywords = [
+    "pdf",
+    "pdfpages"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: File Formats",
+    "Topic :: Office/Business"
+]
+dependencies = [
+  "tqdm",
+  "natsort",
+  "packaging"
+]
+
+[project.scripts]
+pdfsak = "pdfsak.pdfsak:main"
+
+[project.urls]
+Homepage = "https://github.com/raffaem/pdfsak"
+
+[tool.hatch.build]
+include = ["/pdfsak"]
+
+[tool.hatch.version]
+path = "./pdfsak/pdfsak_version.py"
+

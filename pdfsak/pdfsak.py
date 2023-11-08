@@ -23,7 +23,7 @@ import copy
 from natsort import natsorted
 from multiprocessing import Process
 import packaging.version
-from pdfsak_version import __version__
+from pdfsak.pdfsak_version import __version__
 
 # To restore cwd at the end, otherwise we get a exception
 previous_cwd = os.getcwd()
@@ -1505,10 +1505,14 @@ def runClearScan(args):
     printMsgAndExit("Success", 0)
 
 
-def main(cmdargs, args=None):
+def main(cmdargs=None, args=None):
+
     global temp_dir
     global debug
     global previous_cwd
+
+    if cmdargs is None:
+        cmdargs = sys.argv[1:]
 
     # Parse arguments
     if args is None:
@@ -1538,4 +1542,5 @@ def main(cmdargs, args=None):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
+
