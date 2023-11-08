@@ -1441,23 +1441,26 @@ def runClearScan(args):
             cmd.append(f"{page}.pbm")
         else:
             cmd.append(f"{page}.bmp")
+        if args.verbose:
+            print(f"Running: {cmd}")
         res = subprocess.run(cmd)
         if res.returncode != 0:
             printMsgAndExit("Error: ImageMagick failed", EXIT_FAIL)
         # Run mkbitmap
         if not args.clearscan_skip_mkbitmap:
-            res = subprocess.run(
-                [
-                    "mkbitmap",
-                    "-f",
-                    str(args.clearscan_filter_size),
-                    "-s",
-                    str(args.clearscan_upscaling_factor),
-                    "-t",
-                    str(args.clearscan_threshold),
-                    f"{page}.bmp",
-                ]
-            )
+            cmd = [
+                "mkbitmap",
+                "-f",
+                str(args.clearscan_filter_size),
+                "-s",
+                str(args.clearscan_upscaling_factor),
+                "-t",
+                str(args.clearscan_threshold),
+                f"{page}.bmp",
+            ]
+            if args.verbose:
+                print(f"Running: {cmd}")
+            res = subprocess.run(cmd)
             if res.returncode != 0:
                 printMsgAndExit("Error: mkbitmap failed", EXIT_FAIL)
             # Remove PDF bitmap files
@@ -1481,6 +1484,8 @@ def runClearScan(args):
             cmd.append(str(args.clearscan_potrace_debug))
         cmd.append(f"{page}.pbm")
         cmd += ["--output", f"./pages/{page}.pdf"]
+        if args.verbose:
+            print(f"Running: {cmd}")
         res = subprocess.run(cmd)
         if res.returncode != 0:
             printMsgAndExit("Error: potrace failed", 1)
